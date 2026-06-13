@@ -1,0 +1,320 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { ArrowRight, ArrowUpRight, Sun, Moon } from "lucide-react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
+export const MEGA_SERVICES = [
+  { label: "360 Marketing",        desc: "Full-funnel campaigns",      img: "/home/services/marketting.webp" },
+  { label: "Website Design",       desc: "Conversion-first websites",  img: "/home/services/website-service.webp" },
+  { label: "App Development",      desc: "iOS & Android apps",         img: "/home/services/mobile-app-service.webp" },
+  { label: "Software Development", desc: "Custom SaaS & platforms",    img: "/home/services/software-design-service.webp" },
+  { label: "SEO",                  desc: "Rank higher, grow faster",   img: "/home/services/seo-service.webp" },
+  { label: "Branding",             desc: "Identity that sticks",       img: "/home/services/branding-service.webp" },
+  { label: "Graphic Design",       desc: "Visuals that convert",       img: "/home/services/graphic-design-service.webp" },
+  { label: "Product Photography",  desc: "Shots that sell",            img: "/home/services/product-photogrpahy.webp" },
+];
+
+const NAV_LINKS = [
+  { label: "Home",      href: "/" },
+  { label: "Story",     href: "/story" },
+  { label: "Portfolio", href: "/portfolio" },
+  { label: "Contact",   href: "/contact" },
+];
+
+const ACTIVE_GRAD: React.CSSProperties = {
+  background: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
+  WebkitBackgroundClip: "text",
+  WebkitTextFillColor: "transparent",
+  backgroundClip: "text",
+};
+
+/* ── Services Mega Menu ─────────────────────────── */
+function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isServicesActive: boolean }) {
+  const [open, setOpen] = useState(false);
+  const [hoveredItem, setHoveredItem] = useState<number | null>(null);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const navColor = isDark ? "text-white/65" : "text-black/60";
+  const navHover = isDark ? "hover:bg-white/[0.07] hover:text-white" : "hover:bg-black/[0.05] hover:text-black";
+
+  const show = () => { if (timer.current) clearTimeout(timer.current); setOpen(true); };
+  const hide = () => { timer.current = setTimeout(() => setOpen(false), 130); };
+
+  const gradStyle: React.CSSProperties = {
+    background: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
+    WebkitBackgroundClip: "text",
+    WebkitTextFillColor: "transparent",
+    backgroundClip: "text",
+  };
+
+  return (
+    <div className="relative" onMouseEnter={show} onMouseLeave={hide}>
+      <button
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 cursor-pointer border-none bg-transparent
+          ${isServicesActive ? "" : `${navColor} ${navHover}`}
+          ${open ? (isDark ? "!bg-white/[0.07]" : "!bg-black/[0.05]") : ""}`}
+        style={isServicesActive ? ACTIVE_GRAD : {}}
+      >
+        Services
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+          style={{ transition: "transform 0.22s", transform: open ? "rotate(180deg)" : "rotate(0deg)", opacity: 0.5 }}>
+          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {/* Dropdown panel */}
+      <div onMouseEnter={show} onMouseLeave={hide} style={{
+        position: "absolute", top: "calc(100% + 10px)", left: "50%",
+        width: 580, zIndex: 200,
+        opacity: open ? 1 : 0,
+        pointerEvents: open ? "all" : "none",
+        transform: open ? "translateX(-50%) translateY(0px)" : "translateX(-50%) translateY(-8px)",
+        transition: "opacity 0.2s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1)",
+      }}>
+        {/* Tip */}
+        <div style={{ position: "absolute", top: -5, left: "50%", transform: "translateX(-50%)", width: 10, height: 5, overflow: "hidden" }}>
+          <div style={{
+            width: 8, height: 8, margin: "2px auto 0",
+            background: isDark ? "rgb(14,15,26)" : "rgb(255,255,255)",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+            transform: "rotate(45deg)",
+          }} />
+        </div>
+        <div style={{
+          background: isDark ? "rgb(14,15,26)" : "rgb(255,255,255)",
+          border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
+          borderRadius: 16, padding: 12,
+          boxShadow: isDark
+            ? "0 24px 64px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)"
+            : "0 24px 64px rgba(0,0,0,0.13), inset 0 1px 0 rgba(255,255,255,0.9)",
+          display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4,
+        }}>
+          {MEGA_SERVICES.map((svc, i) => {
+            const isHov = hoveredItem === i;
+            return (
+              <a key={i} href="#"
+                className="no-underline flex items-center gap-3 rounded-xl p-2.5 transition-colors duration-150"
+                style={{ color: "var(--fg)" }}
+                onMouseEnter={e => { setHoveredItem(i); (e.currentTarget as HTMLAnchorElement).style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
+                onMouseLeave={e => { setHoveredItem(null); (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
+              >
+                <div style={{ width: 54, height: 42, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}` }}>
+                  <img src={svc.img} alt={svc.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3, height: "1.3em", overflow: "hidden", position: "relative" }}>
+                    <span style={{
+                      display: "block",
+                      transform: isHov ? "translateY(-100%)" : "translateY(0)",
+                      transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+                      ...(isHov ? gradStyle : { color: "var(--fg)" }),
+                    }}>{svc.label}</span>
+                    <span style={{
+                      display: "block", position: "absolute", top: 0, left: 0,
+                      transform: isHov ? "translateY(0)" : "translateY(100%)",
+                      transition: "transform 0.3s cubic-bezier(0.4,0,0.2,1)",
+                      ...gradStyle,
+                    }}>{svc.label}</span>
+                  </div>
+                  <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.3, color: "var(--muted)" }}>{svc.desc}</p>
+                </div>
+                <ArrowUpRight size={12} style={{ color: "var(--muted)", flexShrink: 0, opacity: isHov ? 0.6 : 0, transition: "opacity 0.15s" }} />
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Header ─────────────────────────────────────── */
+export default function Header({
+  theme, onToggle, scrolled,
+}: {
+  theme: "dark" | "light";
+  onToggle: () => void;
+  scrolled: boolean;
+}) {
+  const pathname = usePathname();
+  const isDark = theme === "dark";
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileServicesOpen, setMobileServicesOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const borderCls = isDark ? "border-white/10" : "border-black/10";
+  const glassBg   = isDark ? "bg-[rgba(14,15,26,0.75)]" : "bg-white/75";
+  const navColor  = isDark ? "text-white/65" : "text-black/60";
+  const navHover  = isDark ? "hover:bg-white/[0.07] hover:text-white" : "hover:bg-black/[0.05] hover:text-black";
+  const iconBg    = isDark ? "bg-white/[0.07] border-white/10" : "bg-black/[0.05] border-black/[0.08]";
+
+  const isActive = (href: string) => pathname === href;
+
+  return (
+    <div
+      className="fixed z-50"
+      style={{
+        top: scrolled ? "10px" : "16px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "calc(100% - 60px)",
+        maxWidth: scrolled ? "1400px" : "960px",
+        transition: "top 0.45s cubic-bezier(0.4,0,0.2,1), max-width 0.5s cubic-bezier(0.4,0,0.2,1)",
+        willChange: "max-width, top",
+      }}
+    >
+      {/* Main bar */}
+      <header className={`
+        flex items-center h-12 px-1.5 pl-4
+        ${glassBg} backdrop-blur-xl
+        border-t border-l border-r ${borderCls}
+        ${menuOpen ? "rounded-t-[14px] border-b border-b-transparent" : `rounded-[14px] border-b ${borderCls}`}
+        ${isDark
+          ? "shadow-[0_4px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]"
+          : "shadow-[0_4px_24px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]"}
+      `}>
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2 font-bold text-sm text-[var(--fg)] whitespace-nowrap no-underline">
+          <div className="w-7 h-7 rounded-lg bg-[#ff6a00] flex items-center justify-center shrink-0">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <rect x="1" y="1" width="5" height="5" rx="1" fill="white" />
+              <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity="0.6" />
+              <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity="0.6" />
+              <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity="0.3" />
+            </svg>
+          </div>
+          <span>Brand Edge</span>
+        </Link>
+
+        {!isMobile && <div className={`w-px h-5 mx-5 ${isDark ? "bg-white/10" : "bg-black/10"}`} />}
+
+        {/* Nav — desktop */}
+        {!isMobile && (
+          <nav className="flex items-center gap-1 flex-1">
+            {NAV_LINKS.slice(0, 2).map(({ label, href }) => (
+              <Link
+                key={label} href={href}
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium no-underline transition-all duration-150
+                  ${isActive(href) ? "" : `${navColor} ${navHover}`}`}
+                style={isActive(href) ? ACTIVE_GRAD : {}}
+              >
+                {label}
+              </Link>
+            ))}
+            <ServicesMegaMenu isDark={isDark} isServicesActive={false} />
+            {NAV_LINKS.slice(2).map(({ label, href }) => (
+              <Link
+                key={label} href={href}
+                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium no-underline transition-all duration-150
+                  ${isActive(href) ? "" : `${navColor} ${navHover}`}`}
+                style={isActive(href) ? ACTIVE_GRAD : {}}
+              >
+                {label}
+              </Link>
+            ))}
+          </nav>
+        )}
+
+        {isMobile && <div className="flex-1" />}
+
+        {/* Right */}
+        <div className="flex items-center gap-1.5">
+          <button onClick={onToggle}
+            className={`w-[34px] h-[34px] rounded-[9px] border flex items-center justify-center cursor-pointer transition-all duration-200 text-[var(--fg)] ${iconBg}`}>
+            {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
+          </button>
+
+          {!isMobile && (
+            <button
+              className="group inline-flex items-center gap-1.5 h-9 pl-4 pr-1.5 rounded-full border-none cursor-pointer transition-all duration-200"
+              style={{ background: "#ff6a00", boxShadow: "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+            >
+              <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-[13px]" style={{ height: "1.2em" }}>
+                <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
+                <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get Consultation</span>
+              </span>
+              <span className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center shrink-0">
+                <ArrowRight size={11} stroke="#ff6a00" strokeWidth={2} />
+              </span>
+            </button>
+          )}
+
+          {isMobile && (
+            <button onClick={() => setMenuOpen(o => !o)}
+              className={`w-[34px] h-[34px] rounded-[9px] border flex flex-col items-center justify-center gap-[4px] cursor-pointer ${iconBg}`}>
+              <span className={`block w-3.5 h-[1.5px] bg-[var(--fg)] rounded transition-transform duration-200 ${menuOpen ? "rotate-45 translate-y-[5.5px]" : ""}`} />
+              <span className={`block w-3.5 h-[1.5px] bg-[var(--fg)] rounded transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`} />
+              <span className={`block w-3.5 h-[1.5px] bg-[var(--fg)] rounded transition-transform duration-200 ${menuOpen ? "-rotate-45 -translate-y-[5.5px]" : ""}`} />
+            </button>
+          )}
+        </div>
+      </header>
+
+      {/* Mobile menu */}
+      {isMobile && menuOpen && (
+        <div className={`${glassBg} backdrop-blur-xl border-l border-r border-b ${borderCls} rounded-b-[14px] pb-3 overflow-hidden`}
+          style={{ animation: "slideDown 0.22s ease forwards" }}>
+          <div className="flex flex-col gap-0.5 p-2">
+            {NAV_LINKS.map(({ label, href }) => (
+              <Link key={label} href={href}
+                className={`block px-3.5 py-2.5 rounded-[9px] text-sm font-medium no-underline transition-all duration-150
+                  ${isActive(href) ? "" : `${navColor} ${navHover}`}`}
+                style={isActive(href) ? ACTIVE_GRAD : {}}
+              >
+                {label}
+              </Link>
+            ))}
+            <button
+              onClick={() => setMobileServicesOpen(o => !o)}
+              className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-[9px] text-sm font-medium transition-all duration-150 cursor-pointer border-none bg-transparent text-left ${navColor} ${navHover}`}
+            >
+              <span>Services</span>
+              <svg width="14" height="14" viewBox="0 0 10 10" fill="none"
+                style={{ transition: "transform 0.22s", transform: mobileServicesOpen ? "rotate(180deg)" : "rotate(0deg)", opacity: 0.5, flexShrink: 0 }}>
+                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Services sub-grid */}
+          <div style={{ maxHeight: mobileServicesOpen ? "600px" : "0px", overflow: "hidden", transition: "max-height 0.35s cubic-bezier(0.4,0,0.2,1)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "4px 10px 10px" }}>
+              {MEGA_SERVICES.map((svc, i) => (
+                <a key={i} href="#" className="no-underline rounded-xl overflow-hidden flex flex-col"
+                  style={{ border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)"}` }}>
+                  <div style={{ height: 70, overflow: "hidden" }}>
+                    <img src={svc.img} alt={svc.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                  <div style={{ padding: "8px 10px" }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, margin: 0, color: "var(--fg)", lineHeight: 1.3 }}>{svc.label}</p>
+                    <p style={{ fontSize: 10, margin: "2px 0 0", color: "var(--muted)", lineHeight: 1.3 }}>{svc.desc}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="px-2 pt-1">
+            <button className="group w-full h-10 rounded-full border-none bg-[#ff6a00] text-white font-bold text-sm cursor-pointer shadow-[0_2px_12px_rgba(255,106,0,0.4)] flex items-center justify-center overflow-hidden">
+              <span className="relative overflow-hidden inline-flex flex-col" style={{ height: "1.2em" }}>
+                <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
+                <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get Consultation</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

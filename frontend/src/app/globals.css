@@ -1,0 +1,220 @@
+@import "tailwindcss";
+
+/* ── Theme Variables ─────────────────────────────── */
+:root {
+  --light-bg: #f8f8f8;
+  --light-fg: #0a0a0a;
+  --light-border: #d1d5db;
+  --light-surface: #ffffff;
+  --light-muted: #6b7280;
+  --light-grid: rgba(0, 0, 0, 0.08);
+
+  --dark-bg: #080808;
+  --dark-fg: #ededed;
+  --dark-border: #1e1e1e;
+  --dark-surface: #111111;
+  --dark-muted: #555555;
+  --dark-grid: rgba(255, 255, 255, 0.07);
+}
+
+[data-theme="light"] {
+  --bg: var(--light-bg);
+  --fg: var(--light-fg);
+  --border: var(--light-border);
+  --surface: var(--light-surface);
+  --muted: var(--light-muted);
+  --grid: var(--light-grid);
+}
+
+[data-theme="dark"] {
+  --bg: var(--dark-bg);
+  --fg: var(--dark-fg);
+  --border: var(--dark-border);
+  --surface: var(--dark-surface);
+  --muted: var(--dark-muted);
+  --grid: var(--dark-grid);
+}
+
+html,
+body {
+  font-family: var(--font-osans), Arial, sans-serif !important;
+  background-color: #080808;
+}
+
+@media (pointer: fine) {
+  *, *::before, *::after { cursor: none !important; }
+}
+
+/* ── Selection ───────────────────────────────────── */
+::selection {
+  background: #ee0979;
+  color: #fff;
+}
+::-moz-selection {
+  background: #ee0979;
+  color: #fff;
+}
+
+/* ── Grid Background ─────────────────────────────── */
+.hero-grid {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 44px 44px;
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* ── Neon Radial Glows ───────────────────────────── */
+@keyframes neon-pulse {
+
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
+}
+
+.neon-glow {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 100, 0, 0.7) 0%, rgba(255, 60, 0, 0.3) 40%, transparent 70%);
+  filter: blur(60px);
+  pointer-events: none;
+  animation: neon-pulse 3s ease-in-out infinite;
+}
+
+.neon-tl {
+  top: -140px;
+  left: -140px;
+  animation-delay: 0s;
+}
+
+.neon-tr {
+  top: -140px;
+  right: -140px;
+  animation-delay: 0.75s;
+}
+
+.neon-bl {
+  bottom: -140px;
+  left: -140px;
+  animation-delay: 1.5s;
+}
+
+.neon-br {
+  bottom: -140px;
+  right: -140px;
+  animation-delay: 2.25s;
+}
+
+.neon-center {
+  top: 50%;
+  left: 50%;
+  width: 340px;
+  height: 340px;
+  transform: translate(-50%, -50%);
+  animation-delay: 1.1s;
+  background: radial-gradient(circle, rgba(255, 100, 0, 0.45) 0%, rgba(255, 60, 0, 0.15) 45%, transparent 70%);
+}
+
+/* ── Grid Scan Lines ─────────────────────────────── */
+/* segment moving left → right along a grid row */
+@keyframes seg-right {
+  0%   { transform: translateX(-88px); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateX(100vw);  opacity: 0; }
+}
+
+/* segment moving top → bottom along a grid column */
+@keyframes seg-down {
+  0%   { transform: translateY(-88px); opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateY(100vh);  opacity: 0; }
+}
+
+/* segment moving right → left */
+@keyframes seg-left {
+  0%   { transform: translateX(100vw);  opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { transform: translateX(-88px); opacity: 0; }
+}
+
+.seg {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5;
+  border-radius: 1px;
+}
+
+/* Horizontal segments — 88px wide, 1px tall */
+.seg-h {
+  width: 88px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #ff6a00 40%, #ffb347 60%, transparent);
+}
+
+/* Vertical segments — 1px wide, 88px tall */
+.seg-v {
+  width: 1px;
+  height: 88px;
+  background: linear-gradient(180deg, transparent, #ff6a00 40%, #ffb347 60%, transparent);
+}
+
+/* Position each on a grid row/col (multiples of 44px) */
+.seg-1 { top: 132px;  left: 0; animation: seg-right 7s linear infinite; }
+.seg-2 { top: 308px;  left: 0; animation: seg-right 9s linear infinite 2s; }
+.seg-3 { top: 220px;  left: 0; animation: seg-left  8s linear infinite 4s; }
+.seg-4 { left: 264px; top: 0;  animation: seg-down  6s linear infinite 1s; }
+.seg-5 { left: 528px; top: 0;  animation: seg-down  10s linear infinite 3s; }
+
+/* ── Toggle Button ───────────────────────────────── */
+.toggle-btn {
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s, color 0.3s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.toggle-btn:hover {
+  border-color: #ff6a00;
+  box-shadow: 0 0 0 2px rgba(255, 106, 0, 0.3);
+}
+
+/* ── Footer Brand Text ───────────────────────────── */
+.footer-brand-char {
+  position: relative;
+  display: inline-block;
+  line-height: 0.9;
+  cursor: default;
+  user-select: none;
+}
+
+/* ── Goodbye Marquee ─────────────────────────────── */
+@keyframes marquee-left {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0%   { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.marquee-left  { animation: marquee-left  28s linear infinite; }
+.marquee-right { animation: marquee-right 24s linear infinite; }
+.marquee-wrap:hover .marquee-left,
+.marquee-wrap:hover .marquee-right { animation-play-state: paused; cursor: pointer; }
