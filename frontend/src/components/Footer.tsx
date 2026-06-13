@@ -5,10 +5,10 @@ import { Camera, Briefcase, X as XIcon, Globe } from "lucide-react";
 
 function FooterBrand() {
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
-  const chars = "Brand Edge".split("");
+  const chars = "Brand Edge Creations".split("");
 
   return (
-    <div style={{ fontSize: "clamp(52px,11.5vw,180px)", fontWeight: 700, letterSpacing: "-3px", lineHeight: 0.9, whiteSpace: "nowrap", display: "block" }}
+    <div style={{ fontSize: "clamp(28px,7vw,112px)", fontWeight: 700, letterSpacing: "-3px", lineHeight: 0.9, whiteSpace: "nowrap", display: "block" }}
       onMouseLeave={() => setHoverIdx(null)}>
       {chars.map((char, i) => {
         const dist = hoverIdx !== null ? Math.abs(i - hoverIdx) : Infinity;

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 
 const WORDS = [
-  "We", "are", "Brand", "Edge", "—", "a", "full-service", "creative",
+  "We", "are", "Brand", "Edge", "Creations", "—", "a", "full-service", "creative",
   "agency", "built", "by", "designers,", "strategists,", "and", "engineers",
   "obsessed", "with", "results.", "We", "don't", "just", "build", "brands,",
   "we", "build", "businesses", "that", "grow", "faster", "and", "last", "longer.",
@@ -44,7 +44,7 @@ export default function AboutSection({ theme }: { theme: "dark" | "light" }) {
             const wordProgress = WORDS.length * progress;
             const filled = wordProgress >= i + 1;
             const partial = !filled && wordProgress > i ? wordProgress - i : 0;
-            const isBrand = word === "Brand" || word === "Edge";
+            const isBrand = word === "Brand" || word === "Edge" || word === "Creations";
             const opacity = filled ? 1 : partial > 0 ? 0.15 + partial * 0.85 : 0.12;
 
             return (

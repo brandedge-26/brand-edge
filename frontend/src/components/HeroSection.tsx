@@ -118,21 +118,7 @@ export default function HeroSection({ theme }: { theme: "dark" | "light" }) {
         </div>
 
         <h1 className="text-[clamp(40px,6vw,86px)] leading-[1.06] tracking-tighter text-[var(--fg)] m-0 mb-5">
-          Building{" "}
-          {/* Inline branding video pill */}
-          <span style={{
-            display: "inline-block",
-            width: "clamp(54px,7vw,100px)", height: "clamp(70px,9vw,128px)",
-            borderRadius: "999px", overflow: "hidden",
-            verticalAlign: "middle", position: "relative", top: "-3px", margin: "0 6px",
-            border: "2px solid rgba(180,180,180,0.35)",
-            boxShadow: "0 0 0 1px rgba(180,180,180,0.15), 0 4px 24px rgba(150,150,150,0.2)",
-            flexShrink: 0,
-          }}>
-            <video src="/home/new-branding.mp4" autoPlay loop muted playsInline
-              style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          </span>{" "}
-          Brands That{" "}
+          Building Brands That{" "}
           {/* Cycling word — chip style like GoodbyeSection */}
           <span style={{
             display: "inline-flex",
