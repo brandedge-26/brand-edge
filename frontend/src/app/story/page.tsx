@@ -106,6 +106,12 @@ export default function StoryPage() {
           0%   { opacity:0; transform:translateY(-8px); }
           100% { opacity:1; transform:translateY(0); }
         }
+        @media (max-width: 767px) {
+          .grid-values-responsive { grid-template-columns: 1fr !important; border-radius: 16px !important; }
+        }
+        @media (min-width: 768px) and (max-width: 1023px) {
+          .grid-values-responsive { grid-template-columns: repeat(2, 1fr) !important; }
+        }
         @keyframes moveRight {
           0%   { left:-88px; opacity:0; } 5% { opacity:1; } 95% { opacity:1; }
           100% { left:100%;  opacity:0; }
@@ -287,14 +293,14 @@ export default function StoryPage() {
         {/* ── Ticker ── */}
         <TickerSection theme={theme} />
 
-        {/* ── Mission & Vision ── */}
-        <MissionVisionSection theme={theme} />
+        {/* ── Milestones ── */}
+        <MilestonesSection theme={theme} />
 
         {/* ── Values ── */}
         <ValuesSection theme={theme} />
 
-        {/* ── Milestones ── */}
-        <MilestonesSection theme={theme} />
+        {/* ── Mission & Vision ── */}
+        <MissionVisionSection theme={theme} />
 
         {/* ── CTA ── */}
         <StoryCTA theme={theme} />
@@ -805,8 +811,8 @@ function ValuesSection({ theme }: { theme: "dark" | "light" }) {
           </p>
         </div>
 
-        {/* Card grid — 3 col on desktop, 1 on mobile */}
-        <div style={{
+        {/* Card grid — 3 col desktop, 2 col tablet, 1 col mobile */}
+        <div className="grid-values-responsive" style={{
           display: "grid",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: "1px",

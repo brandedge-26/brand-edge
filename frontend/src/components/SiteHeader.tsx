@@ -19,6 +19,7 @@ export const MEGA_SERVICES = [
 const NAV_LINKS = [
   { label: "Home",      href: "/" },
   { label: "Story",     href: "/story" },
+  { label: "Our Team",  href: "/team" },
   { label: "Portfolio", href: "/portfolio" },
   { label: "Contact",   href: "/contact" },
 ];
