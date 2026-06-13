@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(npm install:*)",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); const social = Object.keys\\(l\\).filter\\(k => ['Instagram','Linkedin','Twitter','Facebook','Youtube','Github','X'].includes\\(k\\)\\); console.log\\(social\\);\")",
+      "Bash(node -e \"const l = require\\('lucide-react'\\); console.log\\(Object.keys\\(l\\).filter\\(k => /share|link|at|mail|social/i.test\\(k\\)\\).join\\(', '\\)\\)\")",
+      "Bash(npx tsc:*)"
+    ]
+  }
+}
