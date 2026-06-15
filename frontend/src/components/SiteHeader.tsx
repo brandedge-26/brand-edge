@@ -6,14 +6,14 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export const MEGA_SERVICES = [
-  { label: "360 Marketing",        desc: "Full-funnel campaigns",      img: "/home/services/marketting.webp" },
-  { label: "Website Design",       desc: "Conversion-first websites",  img: "/home/services/website-service.webp" },
-  { label: "App Development",      desc: "iOS & Android apps",         img: "/home/services/mobile-app-service.webp" },
-  { label: "Software Development", desc: "Custom SaaS & platforms",    img: "/home/services/software-design-service.webp" },
-  { label: "SEO",                  desc: "Rank higher, grow faster",   img: "/home/services/seo-service.webp" },
-  { label: "Branding",             desc: "Identity that sticks",       img: "/home/services/branding-service.webp" },
-  { label: "Graphic Design",       desc: "Visuals that convert",       img: "/home/services/graphic-design-service.webp" },
-  { label: "Product Photography",  desc: "Shots that sell",            img: "/home/services/product-photogrpahy.webp" },
+  { label: "360 Marketing",        desc: "Full-funnel campaigns",      img: "/home/services/marketting.webp",          href: "/services/360-marketing" },
+  { label: "Website Design",       desc: "Conversion-first websites",  img: "/home/services/website-service.webp",     href: "/services/website-designing" },
+  { label: "App Development",      desc: "iOS & Android apps",         img: "/home/services/mobile-app-service.webp",  href: "/services/app-development" },
+  { label: "Software Development", desc: "Custom SaaS & platforms",    img: "/home/services/software-design-service.webp", href: "/services/software-development" },
+  { label: "SEO",                  desc: "Rank higher, grow faster",   img: "/home/services/seo-service.webp",         href: "/services/seo" },
+  { label: "Branding",             desc: "Identity that sticks",       img: "/home/services/branding-service.webp",    href: "/services/branding" },
+  { label: "Graphic Design",       desc: "Visuals that convert",       img: "/home/services/graphic-design-service.webp", href: "/services/graphic-design" },
+  { label: "Product Photography",  desc: "Shots that sell",            img: "/home/services/product-photogrpahy.webp", href: "/services/product-photography" },
 ];
 
 const NAV_LINKS = [
@@ -95,7 +95,7 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
           {MEGA_SERVICES.map((svc, i) => {
             const isHov = hoveredItem === i;
             return (
-              <a key={i} href="#"
+              <Link key={i} href={svc.href}
                 className="no-underline flex items-center gap-3 rounded-xl p-2.5 transition-colors duration-150"
                 style={{ color: "var(--fg)" }}
                 onMouseEnter={e => { setHoveredItem(i); (e.currentTarget as HTMLAnchorElement).style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
@@ -122,7 +122,7 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
                   <p style={{ fontSize: 11, margin: "2px 0 0", lineHeight: 1.3, color: "var(--muted)" }}>{svc.desc}</p>
                 </div>
                 <ArrowUpRight size={12} style={{ color: "var(--muted)", flexShrink: 0, opacity: isHov ? 0.6 : 0, transition: "opacity 0.15s" }} />
-              </a>
+              </Link>
             );
           })}
         </div>

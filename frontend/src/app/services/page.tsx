@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import Header from "@/components/SiteHeader";
 import CustomCursor from "@/components/CustomCursor";
 import Footer from "@/components/Footer";
@@ -161,18 +162,19 @@ function ServicesRevealSection({ theme }: { theme: "dark" | "light" }) {
 }
 
 const SHOWCASE = [
-  { label: "360 Marketing", image: "/home/services/marketting.webp", tags: ["Campaign Strategy", "Brand Storytelling"] },
-  { label: "Website Design", image: "/home/services/website-service.webp", tags: ["UI / UX Design", "Conversion Optimised"] },
-  { label: "App Development", image: "/home/services/mobile-app-service.webp", tags: ["iOS & Android", "React Native"] },
-  { label: "SEO", image: "/home/services/seo-service.webp", tags: ["Technical SEO", "Link Building"] },
-  { label: "Branding", image: "/home/services/branding-service.webp", tags: ["Logo Design", "Brand Systems"] },
-  { label: "Graphic Design", image: "/home/services/graphic-design-service.webp", tags: ["Print & Digital", "Motion Graphics"] },
-  { label: "Software Development", image: "/home/services/software-design-service.webp", tags: ["SaaS Platforms", "API Integration"] },
-  { label: "Product Photography", image: "/home/services/product-photogrpahy.webp", tags: ["Studio Shoots", "Lifestyle Photos"] },
+  { label: "360 Marketing",        href: "/services/360-marketing",        image: "/home/services/marketting.webp",           tags: ["Campaign Strategy", "Brand Storytelling"] },
+  { label: "Website Design",       href: "/services/website-designing",    image: "/home/services/website-service.webp",      tags: ["UI / UX Design", "Conversion Optimised"] },
+  { label: "App Development",      href: "/services/app-development",      image: "/home/services/mobile-app-service.webp",   tags: ["iOS & Android", "React Native"] },
+  { label: "SEO",                  href: "/services/seo",                  image: "/home/services/seo-service.webp",          tags: ["Technical SEO", "Link Building"] },
+  { label: "Branding",             href: "/services/branding",             image: "/home/services/branding-service.webp",     tags: ["Logo Design", "Brand Systems"] },
+  { label: "Graphic Design",       href: "/services/graphic-design",       image: "/home/services/graphic-design-service.webp", tags: ["Print & Digital", "Motion Graphics"] },
+  { label: "Software Development", href: "/services/software-development", image: "/home/services/software-design-service.webp", tags: ["SaaS Platforms", "API Integration"] },
+  { label: "Product Photography",  href: "/services/product-photography",  image: "/home/services/product-photogrpahy.webp",  tags: ["Studio Shoots", "Lifestyle Photos"] },
 ];
 const HEADER_H = 44;
 
 function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "light"; onActiveChange?: (active: boolean) => void }) {
+  const isDark = theme === "dark";
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
   const activeIdxRef = useRef(0);
@@ -205,9 +207,11 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
         setActiveIdx(idx);
       }
 
-      // Image: reveal left → right
+      // Image: reveal left → right, completes in first 35% of each service's scroll
       if (clipRef.current) {
-        const inset = Math.max(0, (1 - localProg) * 100);
+        const fastProg = Math.min(localProg / 0.35, 1);
+        const eased = fastProg < 0.5 ? 2 * fastProg * fastProg : 1 - Math.pow(-2 * fastProg + 2, 2) / 2;
+        const inset = Math.max(0, (1 - eased) * 100);
         clipRef.current.style.clipPath = `inset(0 ${inset.toFixed(2)}% 0 0)`;
       }
 
@@ -255,11 +259,11 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
             left: 20, right: 20, height: HEADER_H,
             display: "flex", alignItems: "center",
             padding: "0 clamp(16px,3vw,36px)",
-            border: "1px solid var(--border)",
+            border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
             borderRadius: 14,
-            background: "rgba(255,255,255,0.06)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
+            background: isDark ? "rgba(14,15,26,0.75)" : "rgba(255,255,255,0.75)",
+            backdropFilter: "blur(24px)",
+            WebkitBackdropFilter: "blur(24px)",
             zIndex: 20,
           }}>
             <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 12 }}>
@@ -294,11 +298,12 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
 
             {/* CTA — no glow */}
             <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
-              <button
-                className="group inline-flex items-center gap-1.5 rounded-full border-none cursor-pointer"
+              <Link
+                href={svc.href}
+                className="group inline-flex items-center gap-1.5 rounded-full no-underline"
                 style={{ height: 28, paddingLeft: 14, paddingRight: 6, background: "#ff6a00", transition: "filter 0.2s ease" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.12)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1.12)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1)"; }}
               >
                 <span className="relative overflow-hidden inline-flex flex-col text-white font-bold" style={{ fontSize: 11, letterSpacing: "0.02em", height: "1.2em" }}>
                   <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Learn More</span>
@@ -307,7 +312,7 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
                 <span style={{ width: 18, height: 18, borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <ArrowRight size={9} stroke="#ff6a00" strokeWidth={2.5} />
                 </span>
-              </button>
+              </Link>
             </div>
           </div>
         ))}
