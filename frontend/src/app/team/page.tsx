@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Header from "@/components/SiteHeader";
 import CustomCursor from "@/components/CustomCursor";
+import Footer from "@/components/Footer";
 
 const CELL = 44;
 
@@ -13,6 +14,64 @@ const ROLES = [
   { text: "Strategists", gradient: "linear-gradient(135deg, #16a34a, #0891b2)" },
   { text: "Creators",    gradient: "linear-gradient(135deg, #0891b2, #7c3aed)" },
   { text: "Builders",    gradient: "linear-gradient(135deg, #d97706, #ff6a00)" },
+];
+
+
+const TEAM = [
+  {
+    num: "01",
+    name: "Ahmed Raza",
+    role: "Creative Director",
+    tags: "Brand Strategy · Art Direction",
+    grad: "linear-gradient(135deg, #ff6a00, #ee0979)",
+    imgBg: "linear-gradient(145deg, #1a0800 0%, #3d1200 40%, #ff6a00 100%)",
+    initials: "AR",
+  },
+  {
+    num: "02",
+    name: "Sara Khan",
+    role: "Lead Designer",
+    tags: "UI Design · Motion",
+    grad: "linear-gradient(135deg, #c026d3, #7c3aed)",
+    imgBg: "linear-gradient(145deg, #120020 0%, #2d0050 40%, #c026d3 100%)",
+    initials: "SK",
+  },
+  {
+    num: "03",
+    name: "Bilal Hassan",
+    role: "Full-Stack Developer",
+    tags: "Next.js · Node.js",
+    grad: "linear-gradient(135deg, #0891b2, #7c3aed)",
+    imgBg: "linear-gradient(145deg, #000d1a 0%, #001f3f 40%, #0891b2 100%)",
+    initials: "BH",
+  },
+  {
+    num: "04",
+    name: "Zara Malik",
+    role: "Growth Strategist",
+    tags: "SEO · Paid Media",
+    grad: "linear-gradient(135deg, #16a34a, #0891b2)",
+    imgBg: "linear-gradient(145deg, #001a0a 0%, #003d18 40%, #16a34a 100%)",
+    initials: "ZM",
+  },
+  {
+    num: "05",
+    name: "Usman Ali",
+    role: "App Developer",
+    tags: "React Native · Swift",
+    grad: "linear-gradient(135deg, #d97706, #ff6a00)",
+    imgBg: "linear-gradient(145deg, #1a0e00 0%, #3d2200 40%, #d97706 100%)",
+    initials: "UA",
+  },
+  {
+    num: "06",
+    name: "Hina Shah",
+    role: "Brand Photographer",
+    tags: "Studio · Lifestyle",
+    grad: "linear-gradient(135deg, #ee0979, #ff6a00)",
+    imgBg: "linear-gradient(145deg, #1a0010 0%, #3d0025 40%, #ee0979 100%)",
+    initials: "HS",
+  },
 ];
 
 const STATS = [
@@ -68,6 +127,348 @@ function GridOverlay() {
         );
       })}
     </div>
+  );
+}
+
+
+function TeamSection({ theme }: { theme: "dark" | "light" }) {
+  const isDark = theme === "dark";
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [tappedIdx, setTappedIdx] = useState<number | null>(null);
+  const mouseRef = useRef({ x: -400, y: -400 });
+  const lerpRef = useRef({ x: -400, y: -400 });
+  const rafRef = useRef<number>(0);
+  const floatRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+    const tick = () => {
+      lerpRef.current.x = lerp(lerpRef.current.x, mouseRef.current.x, 0.1);
+      lerpRef.current.y = lerp(lerpRef.current.y, mouseRef.current.y, 0.1);
+      if (floatRef.current)
+        floatRef.current.style.transform = `translate(${lerpRef.current.x + 28}px, ${lerpRef.current.y - 130}px)`;
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    const onMove = (e: MouseEvent) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
+    window.addEventListener("mousemove", onMove);
+    return () => { cancelAnimationFrame(rafRef.current); window.removeEventListener("mousemove", onMove); };
+  }, []);
+
+  return (
+    <section style={{ borderTop: "1px solid var(--border)" }}>
+
+      {/* Header */}
+      <div className="max-w-6xl mx-auto pt-20 pb-12 px-6 flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+        <div className="flex flex-col gap-3">
+          <span className="inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full text-[11px] font-bold tracking-widest uppercase"
+            style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff6a00] shrink-0 inline-block" />
+            The People
+          </span>
+          <h2 className="text-[var(--fg)]" style={{ fontSize: "clamp(28px,4vw,52px)", letterSpacing: "-2px", lineHeight: 1.05 }}>
+            Faces behind{" "}
+            <span style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent" }}>
+              the work
+            </span>
+          </h2>
+        </div>
+        <p className="text-[var(--muted)] text-[14px] leading-relaxed md:text-right" style={{ maxWidth: "280px" }}>
+          Small team. Massive output. Every person owns their craft end-to-end.
+        </p>
+      </div>
+
+      {/* List rows */}
+      <div style={{ borderTop: "1px solid var(--border)" }}>
+        {TEAM.map((member, i) => {
+          const isHovered = hoveredIdx === i;
+          const isTapped = tappedIdx === i;
+          const isActive = isHovered || isTapped;
+
+          return (
+            <div key={member.num} className="relative"
+              style={{ borderBottom: "1px solid var(--border)", cursor: "pointer" }}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              onTouchEnd={e => { e.preventDefault(); setTappedIdx(isTapped ? null : i); }}
+            >
+              {/* Row bg */}
+              <div className="absolute inset-0 pointer-events-none transition-opacity duration-300"
+                style={{ background: "var(--surface)", opacity: isActive ? 1 : 0 }} />
+
+              <div className="relative flex items-center gap-4 md:gap-10 px-6 py-5 md:px-10 md:py-7">
+                {/* Number */}
+                <span className="text-[11px] font-bold tracking-[0.2em] uppercase shrink-0 w-7 transition-colors duration-300"
+                  style={{ color: isActive ? "#ff6a00" : "var(--muted)" }}>
+                  {member.num}
+                </span>
+
+                {/* Name — slide up reveal */}
+                <div className="flex-1 relative overflow-hidden" style={{ height: "clamp(30px,4.8vw,62px)" }}>
+                  <h3 className="absolute inset-0 flex items-center text-[var(--fg)]" style={{
+                    fontSize: "clamp(22px,3.8vw,52px)", letterSpacing: "-2px",
+                    transform: isActive ? "translateY(-110%)" : "translateY(0%)",
+                    transition: "transform 0.5s cubic-bezier(0.76,0,0.24,1)",
+                  }}>{member.name}</h3>
+                  <h3 className="absolute inset-0 flex items-center" style={{
+                    fontSize: "clamp(22px,3.8vw,52px)", letterSpacing: "-2px",
+                    backgroundImage: member.grad,
+                    WebkitBackgroundClip: "text", backgroundClip: "text",
+                    WebkitTextFillColor: "transparent", color: "transparent",
+                    transform: isActive ? "translateY(0%)" : "translateY(110%)",
+                    transition: "transform 0.5s cubic-bezier(0.76,0,0.24,1)",
+                  }}>{member.name}</h3>
+                </div>
+
+                {/* Role + tags */}
+                <div className="hidden md:flex flex-col items-end gap-0.5 shrink-0">
+                  <span className="text-[12px] font-bold uppercase tracking-[0.15em] transition-colors duration-300"
+                    style={{ color: isActive ? "var(--fg)" : "var(--muted)" }}>
+                    {member.role}
+                  </span>
+                  <span className="text-[10px] tracking-[0.1em] uppercase transition-colors duration-300"
+                    style={{ color: isActive ? "var(--muted)" : "transparent" }}>
+                    {member.tags}
+                  </span>
+                </div>
+
+                {/* Arrow */}
+                <div className="shrink-0 transition-all duration-300"
+                  style={{ transform: isActive ? "translate(3px,-3px)" : "translate(0,0)", color: isActive ? "#ff6a00" : "var(--muted)" }}>
+                  <ArrowUpRight size={18} strokeWidth={1.8} />
+                </div>
+              </div>
+
+              {/* Mobile tap — image reveal */}
+              <div className="md:hidden overflow-hidden transition-all duration-500"
+                style={{ maxHeight: isTapped ? "220px" : "0px", opacity: isTapped ? 1 : 0 }}>
+                <div className="relative w-full h-[180px] flex items-center justify-center"
+                  style={{ background: member.imgBg }}>
+                  <div style={{
+                    width: 72, height: 72, borderRadius: "50%",
+                    background: "rgba(255,255,255,0.15)",
+                    backdropFilter: "blur(8px)",
+                    border: "1px solid rgba(255,255,255,0.25)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                  }}>
+                    <span style={{ fontSize: 22, fontWeight: 800, color: "white", letterSpacing: "-1px" }}>{member.initials}</span>
+                  </div>
+                  <div className="absolute inset-x-0 bottom-0 p-4" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent)" }}>
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-white/70">{member.role}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Floating cursor image — lerp follows mouse */}
+      <div ref={floatRef} style={{
+        position: "fixed", top: 0, left: 0,
+        width: "260px", height: "200px",
+        borderRadius: "16px", overflow: "hidden",
+        pointerEvents: "none", zIndex: 9998,
+        opacity: hoveredIdx !== null ? 1 : 0,
+        transition: "opacity 0.25s ease",
+        boxShadow: "0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08)",
+        willChange: "transform",
+      }}>
+        {TEAM.map((member, i) => (
+          <div key={i} style={{
+            position: "absolute", inset: 0,
+            background: member.imgBg,
+            opacity: hoveredIdx === i ? 1 : 0,
+            transition: "opacity 0.3s ease",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {/* Glow */}
+            <div style={{
+              position: "absolute", top: "50%", left: "50%",
+              transform: "translate(-50%,-50%)",
+              width: 120, height: 120, borderRadius: "50%",
+              background: "rgba(255,255,255,0.1)",
+              filter: "blur(30px)",
+            }} />
+            {/* Initials */}
+            <div style={{
+              width: 80, height: 80, borderRadius: "50%",
+              background: "rgba(255,255,255,0.15)",
+              backdropFilter: "blur(10px)",
+              border: "1px solid rgba(255,255,255,0.3)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              position: "relative",
+            }}>
+              <span style={{ fontSize: 24, fontWeight: 800, color: "white", letterSpacing: "-1px" }}>{member.initials}</span>
+            </div>
+            {/* Name tag at bottom */}
+            <div style={{
+              position: "absolute", bottom: 0, left: 0, right: 0,
+              padding: "12px 16px",
+              background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent)",
+            }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "white", letterSpacing: "-0.3px" }}>{member.name}</p>
+              <p style={{ margin: 0, fontSize: 10, color: "rgba(255,255,255,0.6)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{member.role}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const EXPERTISE = [
+  {
+    category: "Design & Creative",
+    accent: "#ff6a00",
+    skills: ["Brand Identity", "UI / UX Design", "Motion Graphics", "Product Design", "Figma", "Illustration", "Typography", "Art Direction"],
+  },
+  {
+    category: "Development",
+    accent: "#ff6a00",
+    skills: ["Next.js", "React", "Node.js", "React Native", "Swift", "PostgreSQL", "Tailwind CSS", "REST APIs", "TypeScript"],
+  },
+  {
+    category: "Marketing & Growth",
+    accent: "#ff6a00",
+    skills: ["SEO", "Paid Media", "Email Marketing", "Content Strategy", "Analytics", "Social Media", "Conversion Rate Optimisation"],
+  },
+  {
+    category: "Strategy & Production",
+    accent: "#ff6a00",
+    skills: ["Brand Strategy", "Market Research", "Product Photography", "Video Production", "Copywriting", "Campaign Planning"],
+  },
+];
+
+function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
+  const isDark = theme === "dark";
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const [cardVis, setCardVis] = useState<boolean[]>(Array(EXPERTISE.length).fill(false));
+
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      (entries) => entries.forEach(e => {
+        const idx = cardRefs.current.indexOf(e.target as HTMLDivElement);
+        if (idx !== -1 && e.isIntersecting) setCardVis(p => { const n = [...p]; n[idx] = true; return n; });
+      }),
+      { threshold: 0.12 }
+    );
+    cardRefs.current.forEach(el => el && obs.observe(el));
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <section style={{ borderTop: "1px solid var(--border)", position: "relative" }}>
+      <div className="absolute inset-0 hero-grid opacity-[0.07] pointer-events-none" />
+
+      <div className="relative flex flex-col md:flex-row" style={{ alignItems: "flex-start" }}>
+
+        {/* ── LEFT: sticky title ── */}
+        <div style={{
+          width: "100%", maxWidth: 420, flexShrink: 0,
+          position: "sticky", top: 0, height: "100vh",
+          display: "flex", flexDirection: "column", justifyContent: "center",
+          padding: "80px 48px 80px 48px",
+          borderRight: `1px solid var(--border)`,
+        }} className="hidden md:flex">
+          <div className="flex flex-col gap-6">
+            <span className="inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full text-[11px] font-bold tracking-widest uppercase"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6a00] inline-block" />
+              Collective Skills
+            </span>
+            <h2 style={{ fontSize: "clamp(28px,3.5vw,52px)", letterSpacing: "-2px", lineHeight: 1.05, color: "var(--fg)", margin: 0 }}>
+              What our team<br />
+              <span style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                brings to<br />the table.
+              </span>
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.8, margin: 0, maxWidth: 280 }}>
+              18+ specialists across four disciplines — everything under one roof so nothing gets lost in handoffs.
+            </p>
+
+            {/* Category nav dots */}
+            <div className="flex flex-col gap-3 mt-4">
+              {EXPERTISE.map((g, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div style={{ width: 6, height: 6, borderRadius: "50%", background: g.accent, opacity: 0.7 }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted)" }}>
+                    {g.category}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── RIGHT: scrolling cards ── */}
+        <div style={{ flex: 1, padding: "60px 40px 60px 40px", display: "flex", flexDirection: "column", gap: 16 }}
+          className="px-6 md:px-10">
+
+          {/* Mobile header */}
+          <div className="flex flex-col gap-4 mb-4 md:hidden">
+            <span className="inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full text-[11px] font-bold tracking-widest uppercase"
+              style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#ff6a00] inline-block" />
+              Collective Skills
+            </span>
+            <h2 style={{ fontSize: "clamp(28px,7vw,48px)", letterSpacing: "-2px", lineHeight: 1.05, color: "var(--fg)", margin: 0 }}>
+              What our team{" "}
+              <span style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+                brings to the table.
+              </span>
+            </h2>
+          </div>
+
+          {EXPERTISE.map((group, gi) => {
+            return (
+              <div
+                key={gi}
+                ref={el => { cardRefs.current[gi] = el; }}
+                style={{
+                  borderRadius: 20,
+                  border: "1px solid var(--border)",
+                  background: "var(--surface)",
+                  padding: "clamp(24px,3vw,36px)",
+                  position: "relative", overflow: "hidden", cursor: "default",
+                  opacity: cardVis[gi] ? 1 : 0,
+                  transform: cardVis[gi] ? "translateX(0)" : "translateX(40px)",
+                  transition: `opacity 0.75s cubic-bezier(0.16,1,0.3,1) ${gi * 0.08}s, transform 0.75s cubic-bezier(0.16,1,0.3,1) ${gi * 0.08}s`,
+                }}
+              >
+                {/* Top row */}
+                <div className="flex items-start justify-between mb-6">
+                  <div className="flex flex-col gap-1.5">
+                    <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--muted)" }}>
+                      0{gi + 1}
+                    </span>
+                    <h3 style={{ fontSize: "clamp(18px,2vw,24px)", fontWeight: 700, letterSpacing: "-0.5px", margin: 0, color: "var(--fg)", lineHeight: 1.2 }}>
+                      {group.category}
+                    </h3>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div style={{ height: 1, marginBottom: 20, background: "var(--border)" }} />
+
+                {/* Chips */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {group.skills.map((skill) => (
+                    <span key={skill} style={{
+                      fontSize: 12, fontWeight: 600,
+                      padding: "6px 14px", borderRadius: 999,
+                      border: "1px solid var(--border)",
+                      background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
+                      color: "var(--muted)",
+                    }}>{skill}</span>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -205,6 +606,10 @@ export default function TeamPage() {
         @keyframes fadeUp {
           0%   { opacity:0; transform:translateY(24px); }
           100% { opacity:1; transform:translateY(0); }
+        }
+        @media (max-width: 767px) {
+          .mvg-grid-responsive { grid-template-columns: 1fr !important; overflow-y: auto; }
+          .expertise-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
@@ -346,6 +751,15 @@ export default function TeamPage() {
 
         {/* ── Stats Strip ── */}
         <StatsStrip />
+
+        {/* ── Expertise ── */}
+        <ExpertiseSection theme={theme} />
+
+        {/* ── Team List ── */}
+        <TeamSection theme={theme} />
+
+        {/* ── Footer ── */}
+        <Footer theme={theme} />
 
       </div>
     </>

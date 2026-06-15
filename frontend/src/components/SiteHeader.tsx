@@ -52,8 +52,8 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
 
   return (
     <div className="relative" onMouseEnter={show} onMouseLeave={hide}>
-      <button
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 cursor-pointer border-none bg-transparent
+      <Link href="/services"
+        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 no-underline
           ${isServicesActive ? "" : `${navColor} ${navHover}`}
           ${open ? (isDark ? "!bg-white/[0.07]" : "!bg-black/[0.05]") : ""}`}
         style={isServicesActive ? ACTIVE_GRAD : {}}
@@ -63,7 +63,7 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
           style={{ transition: "transform 0.22s", transform: open ? "rotate(180deg)" : "rotate(0deg)", opacity: 0.5 }}>
           <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-      </button>
+      </Link>
 
       {/* Dropdown panel */}
       <div onMouseEnter={show} onMouseLeave={hide} style={{
@@ -133,11 +133,12 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
 
 /* ── Header ─────────────────────────────────────── */
 export default function Header({
-  theme, onToggle, scrolled,
+  theme, onToggle, scrolled, hidden = false,
 }: {
   theme: "dark" | "light";
   onToggle: () => void;
   scrolled: boolean;
+  hidden?: boolean;
 }) {
   const pathname = usePathname();
   const isDark = theme === "dark";
@@ -169,8 +170,10 @@ export default function Header({
         transform: "translateX(-50%)",
         width: "calc(100% - 60px)",
         maxWidth: scrolled ? "1400px" : "960px",
-        transition: "top 0.45s cubic-bezier(0.4,0,0.2,1), max-width 0.5s cubic-bezier(0.4,0,0.2,1)",
+        transition: "top 0.45s cubic-bezier(0.4,0,0.2,1), max-width 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.4s ease",
         willChange: "max-width, top",
+        opacity: hidden ? 0 : 1,
+        pointerEvents: hidden ? "none" : undefined,
       }}
     >
       {/* Main bar */}
@@ -211,7 +214,7 @@ export default function Header({
                 {label}
               </Link>
             ))}
-            <ServicesMegaMenu isDark={isDark} isServicesActive={false} />
+            <ServicesMegaMenu isDark={isDark} isServicesActive={pathname === "/services" || pathname.startsWith("/services/")} />
             {NAV_LINKS.slice(2).map(({ label, href }) => (
               <Link
                 key={label} href={href}

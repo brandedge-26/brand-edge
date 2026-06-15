@@ -824,7 +824,6 @@ function ValuesSection({ theme }: { theme: "dark" | "light" }) {
           {VALUES.map((v, i) => {
             const isHovered = hovered === i;
             const isGrad = v.style === "grad";
-            const isStroke = v.style === "stroke";
 
             return (
               <div
@@ -843,7 +842,6 @@ function ValuesSection({ theme }: { theme: "dark" | "light" }) {
                 onMouseEnter={() => setHovered(i)}
                 onMouseLeave={() => setHovered(null)}
               >
-                {/* Top row: number + animated dot */}
                 <div className="flex items-center justify-between mb-8">
                   <span style={{
                     fontSize: "clamp(48px,6vw,80px)", fontWeight: 700,
@@ -853,7 +851,6 @@ function ValuesSection({ theme }: { theme: "dark" | "light" }) {
                     transition: "WebkitTextStroke 0.3s ease",
                     userSelect: "none",
                   }}>{v.num}</span>
-
                   <div style={{
                     width: 8, height: 8, borderRadius: "50%",
                     background: isHovered ? "#ff6a00" : (isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"),
@@ -861,8 +858,6 @@ function ValuesSection({ theme }: { theme: "dark" | "light" }) {
                     transform: isHovered ? "scale(1.4)" : "scale(1)",
                   }} />
                 </div>
-
-                {/* Title */}
                 <h3 style={{
                   fontSize: "clamp(18px,1.8vw,24px)",
                   letterSpacing: "-1px", lineHeight: 1.1,
@@ -874,14 +869,7 @@ function ValuesSection({ theme }: { theme: "dark" | "light" }) {
                   } : { color: "var(--fg)" }),
                   transition: "all 0.3s ease",
                 }}>{v.title}</h3>
-
-                {/* Body */}
-                <p style={{
-                  fontSize: 13, lineHeight: 1.8,
-                  color: "var(--muted)", margin: 0,
-                }}>{v.body}</p>
-
-                {/* Bottom accent bar on hover */}
+                <p style={{ fontSize: 13, lineHeight: 1.8, color: "var(--muted)", margin: 0 }}>{v.body}</p>
                 <div style={{
                   position: "absolute", bottom: 0, left: 0,
                   height: 2, borderRadius: 1,
