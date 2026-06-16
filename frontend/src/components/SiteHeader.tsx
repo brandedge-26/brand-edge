@@ -238,11 +238,11 @@ export default function Header({
           </button>
 
           {!isMobile && (
-            <button
-              className="group inline-flex items-center gap-1.5 h-9 pl-4 pr-1.5 rounded-full border-none cursor-pointer transition-all duration-200"
+            <Link href="/consultation"
+              className="group inline-flex items-center gap-1.5 h-9 pl-4 pr-1.5 rounded-full no-underline transition-all duration-200"
               style={{ background: "#ff6a00", boxShadow: "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
             >
               <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-[13px]" style={{ height: "1.2em" }}>
                 <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
@@ -251,7 +251,7 @@ export default function Header({
               <span className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center shrink-0">
                 <ArrowRight size={11} stroke="#ff6a00" strokeWidth={2} />
               </span>
-            </button>
+            </Link>
           )}
 
           {isMobile && (
@@ -295,7 +295,7 @@ export default function Header({
           <div style={{ maxHeight: mobileServicesOpen ? "600px" : "0px", overflow: "hidden", transition: "max-height 0.35s cubic-bezier(0.4,0,0.2,1)" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "4px 10px 10px" }}>
               {MEGA_SERVICES.map((svc, i) => (
-                <a key={i} href="#" className="no-underline rounded-xl overflow-hidden flex flex-col"
+                <Link key={i} href={svc.href} className="no-underline rounded-xl overflow-hidden flex flex-col"
                   style={{ border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)"}` }}>
                   <div style={{ height: 70, overflow: "hidden" }}>
                     <img src={svc.img} alt={svc.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -304,18 +304,18 @@ export default function Header({
                     <p style={{ fontSize: 12, fontWeight: 600, margin: 0, color: "var(--fg)", lineHeight: 1.3 }}>{svc.label}</p>
                     <p style={{ fontSize: 10, margin: "2px 0 0", color: "var(--muted)", lineHeight: 1.3 }}>{svc.desc}</p>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
 
           <div className="px-2 pt-1">
-            <button className="group w-full h-10 rounded-full border-none bg-[#ff6a00] text-white font-bold text-sm cursor-pointer shadow-[0_2px_12px_rgba(255,106,0,0.4)] flex items-center justify-center overflow-hidden">
+            <Link href="/consultation" className="group w-full h-10 rounded-full bg-[#ff6a00] text-white font-bold text-sm shadow-[0_2px_12px_rgba(255,106,0,0.4)] flex items-center justify-center overflow-hidden no-underline">
               <span className="relative overflow-hidden inline-flex flex-col" style={{ height: "1.2em" }}>
                 <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
                 <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get Consultation</span>
               </span>
-            </button>
+            </Link>
           </div>
         </div>
       )}

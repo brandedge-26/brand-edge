@@ -22,9 +22,6 @@ interface Props {
   features?: Feature[];
 }
 
-// col spans for bento layout (6 cards)
-const SPANS = [2, 1, 1, 1, 1, 2];
-
 function FeaturesSection({ features, gradient, label, isDark }: {
   features: Feature[];
   gradient: string;
@@ -41,34 +38,39 @@ function FeaturesSection({ features, gradient, label, isDark }: {
         if (entry.isIntersecting) {
           const el = entry.target as HTMLDivElement;
           el.style.opacity = "1";
-          el.style.transform = "translateY(0) scale(1)";
+          el.style.transform = "translateY(0)";
           observer.unobserve(el);
         }
       }),
-      { threshold: 0.08 }
+      { threshold: 0.06 }
     );
     els.forEach(el => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div style={{ padding: "90px 24px 110px", maxWidth: 1160, margin: "0 auto", width: "100%" }}>
+    <div className="svc-features-wrap">
 
       {/* Section header */}
       <div ref={headerRef} style={{
         marginBottom: 56,
         opacity: 0,
-        transform: "translateY(28px)",
+        transform: "translateY(24px)",
         transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)",
+        textAlign: "center",
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
-          <span style={{ width: 28, height: 1.5, background: "#ff6a00", display: "inline-block", borderRadius: 2 }} />
-          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#ff6a00" }}>
-            What We Do
-          </span>
-        </div>
+        <span style={{
+          display: "inline-flex", alignItems: "center", gap: 8,
+          padding: "6px 16px", borderRadius: 999,
+          border: "1px solid var(--border)", background: "var(--surface)",
+          fontSize: 11, fontWeight: 700, letterSpacing: "0.16em",
+          textTransform: "uppercase", color: "var(--muted)", marginBottom: 20,
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff6a00", display: "inline-block" }} />
+          What We Do
+        </span>
         <h2 style={{
-          fontSize: "clamp(30px, 4vw, 52px)", fontWeight: 500,
+          fontSize: "clamp(28px, 3.8vw, 52px)", fontWeight: 500,
           letterSpacing: "-2px", lineHeight: 1.08,
           color: "var(--fg)", margin: 0,
         }}>
@@ -79,101 +81,69 @@ function FeaturesSection({ features, gradient, label, isDark }: {
         </h2>
       </div>
 
-      {/* Bento grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {features.map((f, i) => {
-          const span = SPANS[i] ?? 1;
-          return (
-            <div
-              key={i}
-              ref={el => { cardRefs.current[i] = el; }}
-              style={{
-                gridColumn: span === 2 ? "span 2" : "span 1",
-                opacity: 0,
-                transform: "translateY(44px) scale(0.97)",
-                transition: `opacity 0.7s cubic-bezier(0.16,1,0.3,1) ${i * 0.09}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${i * 0.09}s`,
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 20,
-                border: `1px solid ${isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)"}`,
-                background: isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)",
-                padding: span === 2 ? "36px 40px" : "32px 28px",
-                display: "flex", flexDirection: "column", justifyContent: "space-between",
-                minHeight: span === 2 ? 160 : 200,
-                cursor: "default",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-              }}
-              onMouseEnter={e => {
-                const el = e.currentTarget;
-                el.style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
-                el.style.borderColor = isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.13)";
-              }}
-              onMouseLeave={e => {
-                const el = e.currentTarget;
-                el.style.background = isDark ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.02)";
-                el.style.borderColor = isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.08)";
-              }}
-            >
-              {/* Big watermark number */}
-              <span style={{
-                position: "absolute",
-                bottom: -20, right: 12,
-                fontSize: 120, fontWeight: 900, lineHeight: 1,
+      {/* 3-col card grid — testimonials style */}
+      <div className="svc-features-grid">
+        {features.map((f, i) => (
+          <div
+            key={i}
+            ref={el => { cardRefs.current[i] = el; }}
+            style={{
+              opacity: 0,
+              transform: "translateY(36px)",
+              transition: `opacity 0.65s cubic-bezier(0.16,1,0.3,1) ${i * 0.08}s, transform 0.65s cubic-bezier(0.16,1,0.3,1) ${i * 0.08}s`,
+              borderRadius: 16,
+              padding: "28px",
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              gap: 24,
+              minHeight: 220,
+            }}
+          >
+            {/* Top: gradient icon + number (like Quote icon in testimonials) */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{
+                width: 36, height: 36, borderRadius: "50%",
                 backgroundImage: gradient,
-                WebkitBackgroundClip: "text", backgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                opacity: 0.07,
-                userSelect: "none", pointerEvents: "none",
-                letterSpacing: "-6px",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, fontWeight: 800, color: "#fff",
+                flexShrink: 0,
               }}>
                 {String(i + 1).padStart(2, "0")}
-              </span>
-
-              {/* Top: number chip */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-                <span style={{
-                  display: "inline-flex", alignItems: "center",
-                  padding: "4px 10px", borderRadius: 999,
-                  fontSize: 11, fontWeight: 700, letterSpacing: "0.1em",
-                  backgroundImage: gradient,
-                  WebkitBackgroundClip: "text", backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
-                  background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
-                }}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
               </div>
-
-              {/* Title */}
-              <h3 style={{
-                fontSize: span === 2 ? "clamp(16px, 1.4vw, 20px)" : "clamp(15px, 1.2vw, 17px)",
-                fontWeight: 600, color: "var(--fg)",
-                margin: "0 0 10px", letterSpacing: "-0.4px", lineHeight: 1.3,
-                position: "relative", zIndex: 1,
+              {/* Title (like quote text) */}
+              <p style={{
+                fontSize: 15, fontWeight: 600,
+                color: "var(--fg)", opacity: 0.9,
+                lineHeight: 1.5, margin: 0,
+                letterSpacing: "-0.3px",
               }}>
                 {f.title}
-              </h3>
+              </p>
+            </div>
 
-              {/* Desc */}
+            {/* Bottom: description (like author row in testimonials) */}
+            <div style={{
+              display: "flex", alignItems: "flex-start", gap: 10,
+              paddingTop: 16,
+              borderTop: "1px solid var(--border)",
+            }}>
+              <div style={{
+                width: 3, height: "100%", minHeight: 36,
+                backgroundImage: gradient,
+                borderRadius: 2, flexShrink: 0,
+              }} />
               <p style={{
                 fontSize: 13, color: "var(--muted)",
                 lineHeight: 1.7, margin: 0,
-                position: "relative", zIndex: 1,
-                maxWidth: span === 2 ? 640 : "100%",
               }}>
                 {f.desc}
               </p>
-
-              {/* Bottom gradient line */}
-              <div style={{
-                position: "absolute", bottom: 0, left: 0, right: 0,
-                height: 2, backgroundImage: gradient, opacity: 0.3,
-              }} />
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -183,15 +153,74 @@ export default function ServiceDetailLayout({ theme, onToggle, scrolled, label, 
   const isDark = theme === "dark";
 
   return (
-    <div data-theme={theme} style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)", display: "flex", flexDirection: "column" }}>
+    <div data-theme={theme} style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)", display: "flex", flexDirection: "column", cursor: "none" }}>
+      <style>{`
+        .svc-hero {
+          padding: clamp(110px, 16vh, 180px) 20px clamp(32px, 5vh, 64px);
+          text-align: center;
+        }
+        .svc-hero-title {
+          font-size: clamp(32px, 4.5vw, 64px);
+          letter-spacing: -2.5px;
+        }
+        .svc-hero-desc {
+          font-size: clamp(14px, 1.2vw, 17px);
+          max-width: 520px;
+          margin: 0 auto 40px;
+        }
+        .svc-image-wrap {
+          margin: 0 auto;
+          max-width: 1100px;
+          border-radius: 20px;
+          overflow: hidden;
+          height: clamp(200px, 48vw, 580px);
+          position: relative;
+        }
+        .svc-features-wrap {
+          padding: 80px 24px 100px;
+          max-width: 1160px;
+          margin: 0 auto;
+          width: 100%;
+        }
+        .svc-features-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        @media (max-width: 900px) {
+          .svc-features-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+          .svc-features-wrap {
+            padding: 60px 20px 80px;
+          }
+        }
+        @media (max-width: 560px) {
+          .svc-features-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+          }
+          .svc-features-wrap {
+            padding: 48px 16px 64px;
+          }
+          .svc-hero {
+            padding: 100px 16px 28px;
+          }
+          .svc-hero-title {
+            letter-spacing: -1.5px;
+          }
+          .svc-image-wrap {
+            border-radius: 12px;
+            height: clamp(180px, 56vw, 320px);
+          }
+        }
+      `}</style>
+
       <CustomCursor />
       <Header theme={theme} onToggle={onToggle} scrolled={scrolled} />
 
       {/* ── Hero text ── */}
-      <div style={{
-        padding: "clamp(110px,16vh,180px) 24px clamp(40px,5vh,64px)",
-        textAlign: "center",
-      }}>
+      <div className="svc-hero">
         {/* Badge */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
           <span style={{
@@ -210,10 +239,8 @@ export default function ServiceDetailLayout({ theme, onToggle, scrolled, label, 
         </div>
 
         {/* Title */}
-        <h1 style={{
-          fontSize: "clamp(32px, 4.5vw, 64px)",
+        <h1 className="svc-hero-title" style={{
           fontWeight: 400,
-          letterSpacing: "-2.5px",
           lineHeight: 1.05,
           margin: "0 0 20px",
           backgroundImage: gradient,
@@ -225,25 +252,15 @@ export default function ServiceDetailLayout({ theme, onToggle, scrolled, label, 
         </h1>
 
         {/* Description */}
-        <p style={{
-          fontSize: "clamp(14px, 1.2vw, 17px)",
+        <p className="svc-hero-desc" style={{
           color: "var(--muted)",
           lineHeight: 1.75,
-          maxWidth: 520,
-          margin: "0 auto 40px",
         }}>
           {desc}
         </p>
 
         {/* ── Image ── */}
-        <div style={{
-          margin: "0 auto",
-          maxWidth: 1100,
-          borderRadius: 20,
-          overflow: "hidden",
-          height: "clamp(240px, 48vw, 580px)",
-          position: "relative",
-        }}>
+        <div className="svc-image-wrap">
           <img
             src={image}
             alt={label}
