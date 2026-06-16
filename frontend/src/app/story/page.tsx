@@ -164,6 +164,16 @@ export default function StoryPage() {
           0%   { opacity:0; transform:translateX(-36px); }
           100% { opacity:1; transform:translateX(0); }
         }
+        /* ── Responsive ── */
+        @media (max-width: 640px) {
+          .story-ticker { height: 200px !important; }
+          .story-milestone-num { font-size: clamp(72px,18vw,130px) !important; letter-spacing: -3px !important; }
+          .story-milestone-layout { flex-direction: column !important; gap: 16px !important; }
+          .story-milestone-layout > div:first-child { min-width: unset !important; }
+        }
+        @media (max-width: 480px) {
+          .grid-values-responsive { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
       <CustomCursor />
@@ -945,7 +955,7 @@ function TickerSection({ theme }: { theme: "dark" | "light" }) {
   };
 
   return (
-    <section style={{ borderTop: "1px solid var(--border)", overflow: "hidden", height: 320, position: "relative" }}>
+    <section className="story-ticker" style={{ borderTop: "1px solid var(--border)", overflow: "hidden", height: 320, position: "relative" }}>
       <div className="absolute inset-0 pointer-events-none" style={{
         background: isDark
           ? "radial-gradient(ellipse 70% 100% at 50% 50%, rgba(255,106,0,0.05) 0%, transparent 70%)"
@@ -1052,7 +1062,7 @@ function MissionVisionSection({ theme }: { theme: "dark" | "light" }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const NUM_SIZE = "clamp(130px,23vw,320px)";
+  const NUM_SIZE = "clamp(80px,18vw,320px)";
   const STROKE = isDark ? "rgba(255,255,255,0.09)" : "rgba(0,0,0,0.08)";
 
   const TAG: React.CSSProperties = {

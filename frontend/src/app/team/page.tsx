@@ -221,7 +221,7 @@ function TeamSection({ theme }: { theme: "dark" | "light" }) {
                 </div>
 
                 {/* Role + tags */}
-                <div className="hidden md:flex flex-col items-end gap-0.5 shrink-0">
+                <div className="team-member-role hidden md:flex flex-col items-end gap-0.5 shrink-0">
                   <span className="text-[12px] font-bold uppercase tracking-[0.15em] transition-colors duration-300"
                     style={{ color: isActive ? "var(--fg)" : "var(--muted)" }}>
                     {member.role}
@@ -370,7 +370,7 @@ function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
           display: "flex", flexDirection: "column", justifyContent: "center",
           padding: "80px 48px 80px 48px",
           borderRight: `1px solid var(--border)`,
-        }} className="hidden md:flex">
+        }} className="expertise-sidebar hidden md:flex">
           <div className="flex flex-col gap-6">
             <span className="inline-flex items-center gap-2 self-start px-4 py-1.5 rounded-full text-[11px] font-bold tracking-widest uppercase"
               style={{ background: "var(--surface)", border: "1px solid var(--border)", color: "var(--muted)" }}>
@@ -403,7 +403,7 @@ function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
 
         {/* ── RIGHT: scrolling cards ── */}
         <div style={{ flex: 1, padding: "60px 40px 60px 40px", display: "flex", flexDirection: "column", gap: 16 }}
-          className="px-6 md:px-10">
+          className="expertise-content px-6 md:px-10">
 
           {/* Mobile header */}
           <div className="flex flex-col gap-4 mb-4 md:hidden">
@@ -505,7 +505,7 @@ function StatsStrip() {
 
   return (
     <section ref={ref} className="w-full" style={{ borderTop: "1px solid var(--border)", borderBottom: "1px solid var(--border)" }}>
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4">
+      <div className="team-stats-grid max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4">
         {STATS.map((s, i) => (
           <div key={s.label} className="flex flex-col gap-2 py-10 px-8"
             style={{ borderRight: i < STATS.length - 1 ? "1px solid var(--border)" : "none" }}>
@@ -610,6 +610,19 @@ export default function TeamPage() {
         @media (max-width: 767px) {
           .mvg-grid-responsive { grid-template-columns: 1fr !important; overflow-y: auto; }
           .expertise-grid { grid-template-columns: 1fr !important; }
+          .team-stats-grid { grid-template-columns: 1fr 1fr !important; }
+          .team-stats-grid > div:nth-child(even) { border-right: none !important; }
+          .team-stats-grid > div:nth-child(1),
+          .team-stats-grid > div:nth-child(2) { border-bottom: 1px solid var(--border); }
+          .expertise-layout { flex-direction: column !important; }
+          .expertise-sidebar { display: none !important; }
+          .expertise-content { padding: 32px 20px !important; }
+          .team-member-role { display: none !important; }
+        }
+        @media (max-width: 480px) {
+          .team-stats-grid { grid-template-columns: 1fr !important; }
+          .team-stats-grid > div { border-right: none !important; border-bottom: 1px solid var(--border) !important; }
+          .team-stats-grid > div:last-child { border-bottom: none !important; }
         }
       `}</style>
 
