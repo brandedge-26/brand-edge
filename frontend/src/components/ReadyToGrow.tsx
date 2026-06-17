@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const TAGS = [
   { text: "Startups",   gradient: "linear-gradient(90deg,#ff6a00,#ee0979)" },
@@ -58,24 +59,22 @@ export default function ReadyToGrow({ theme }: { theme: "dark" | "light" }) {
             </div>
 
             <div className="flex items-center gap-3 flex-wrap">
-              <button
-                className="group inline-flex items-center gap-2 h-[52px] pl-6 pr-2 rounded-full border-none cursor-pointer transition-all duration-200"
-                style={{ background: "#ff6a00", boxShadow: "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 36px rgba(255,106,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+              <Link
+                href="/consultation"
+                className="group inline-flex items-center gap-2.5 h-[52px] px-6 no-underline"
+                style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, boxShadow: "0 6px 28px rgba(255,106,0,0.35)", color: "#fff", fontWeight: 700, fontSize: 14, transition: "box-shadow 0.25s ease" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 36px rgba(255,106,0,0.55)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.35)"; }}
               >
-                <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-sm" style={{ height: "1.2em" }}>
-                  <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Book a Free Call</span>
-                  <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Book a Free Call</span>
-                </span>
-                <span className="w-9 h-9 rounded-full bg-white flex items-center justify-center shrink-0">
-                  <ArrowRight size={12} stroke="#ff6a00" strokeWidth={2} />
-                </span>
-              </button>
-              <a href="#" className="h-[52px] px-6 rounded-full font-semibold text-sm flex items-center no-underline transition-all duration-200 hover:scale-[1.03]"
-                style={{ border: "1px solid var(--border)", color: "var(--fg)", background: "transparent" }}>
+                Book a Free Call
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+              <Link href="/portfolio" className="h-[52px] px-6 font-semibold text-sm flex items-center no-underline transition-all duration-200"
+                style={{ border: "1px solid var(--border)", borderRadius: 0, color: "var(--fg)", background: "transparent" }}>
                 View Portfolio
-              </a>
+              </Link>
             </div>
           </div>
         </div>

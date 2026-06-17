@@ -6,22 +6,22 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 export const MEGA_SERVICES = [
-  { label: "360 Marketing",        desc: "Full-funnel campaigns",      img: "/home/services/marketting.webp",          href: "/services/360-marketing" },
-  { label: "Website Design",       desc: "Conversion-first websites",  img: "/home/services/website-service.webp",     href: "/services/website-designing" },
-  { label: "App Development",      desc: "iOS & Android apps",         img: "/home/services/mobile-app-service.webp",  href: "/services/app-development" },
-  { label: "Software Development", desc: "Custom SaaS & platforms",    img: "/home/services/software-design-service.webp", href: "/services/software-development" },
-  { label: "SEO",                  desc: "Rank higher, grow faster",   img: "/home/services/seo-service.webp",         href: "/services/seo" },
-  { label: "Branding",             desc: "Identity that sticks",       img: "/home/services/branding-service.webp",    href: "/services/branding" },
-  { label: "Graphic Design",       desc: "Visuals that convert",       img: "/home/services/graphic-design-service.webp", href: "/services/graphic-design" },
-  { label: "Product Photography",  desc: "Shots that sell",            img: "/home/services/product-photogrpahy.webp", href: "/services/product-photography" },
+  { label: "360 Marketing", desc: "Full-funnel campaigns", img: "/home/services/marketting.webp", href: "/services/360-marketing" },
+  { label: "Website Design", desc: "Conversion-first websites", img: "/home/services/website-service.webp", href: "/services/website-designing" },
+  { label: "App Development", desc: "iOS & Android apps", img: "/home/services/mobile-app-service.webp", href: "/services/app-development" },
+  { label: "Software Development", desc: "Custom SaaS & platforms", img: "/home/services/software-design-service.webp", href: "/services/software-development" },
+  { label: "SEO", desc: "Rank higher, grow faster", img: "/home/services/seo-service.webp", href: "/services/seo" },
+  { label: "Branding", desc: "Identity that sticks", img: "/home/services/branding-service.webp", href: "/services/branding" },
+  { label: "Graphic Design", desc: "Visuals that convert", img: "/home/services/graphic-design-service.webp", href: "/services/graphic-design" },
+  { label: "Product Photography", desc: "Shots that sell", img: "/home/services/product-photogrpahy.webp", href: "/services/product-photography" },
 ];
 
 const NAV_LINKS = [
-  { label: "Home",      href: "/" },
-  { label: "Story",     href: "/story" },
-  { label: "Our Team",  href: "/team" },
+  { label: "Home", href: "/" },
+  { label: "Story", href: "/story" },
+  { label: "Our Team", href: "/team" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Contact",   href: "/contact" },
+  { label: "Contact", href: "/contact" },
 ];
 
 const ACTIVE_GRAD: React.CSSProperties = {
@@ -52,18 +52,24 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
 
   return (
     <div className="relative" onMouseEnter={show} onMouseLeave={hide}>
-      <Link href="/services"
-        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all duration-150 no-underline
-          ${isServicesActive ? "" : `${navColor} ${navHover}`}
-          ${open ? (isDark ? "!bg-white/[0.07]" : "!bg-black/[0.05]") : ""}`}
-        style={isServicesActive ? ACTIVE_GRAD : {}}
-      >
-        Services
-        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
-          style={{ transition: "transform 0.22s", transform: open ? "rotate(180deg)" : "rotate(0deg)", opacity: 0.5 }}>
-          <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </Link>
+      <div className={`inline-flex items-center transition-all duration-150 ${open ? (isDark ? "bg-white/[0.07]" : "bg-black/[0.05]") : ""}`}>
+        <Link href="/services"
+          className={`flex items-center px-3 py-1.5 text-[13px] font-medium transition-all duration-150 no-underline
+            ${isServicesActive ? "" : `${navColor} ${navHover}`}`}
+          style={isServicesActive ? ACTIVE_GRAD : {}}
+        >
+          Services
+        </Link>
+        <button
+          onClick={() => { if (timer.current) clearTimeout(timer.current); setOpen(o => !o); }}
+          style={{ background: "none", border: "none", cursor: "pointer", padding: "6px 8px 6px 0", display: "flex", alignItems: "center", ...(isServicesActive ? ACTIVE_GRAD : { color: "currentColor" }) }}
+        >
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none"
+            style={{ transition: "transform 0.22s", transform: open ? "rotate(180deg)" : "rotate(0deg)", opacity: 0.5 }}>
+            <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
 
       {/* Dropdown panel */}
       <div onMouseEnter={show} onMouseLeave={hide} style={{
@@ -86,7 +92,7 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
         <div style={{
           background: isDark ? "rgb(14,15,26)" : "rgb(255,255,255)",
           border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}`,
-          borderRadius: 16, padding: 12,
+          borderRadius: 0, padding: 12,
           boxShadow: isDark
             ? "0 24px 64px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06)"
             : "0 24px 64px rgba(0,0,0,0.13), inset 0 1px 0 rgba(255,255,255,0.9)",
@@ -96,12 +102,12 @@ function ServicesMegaMenu({ isDark, isServicesActive }: { isDark: boolean; isSer
             const isHov = hoveredItem === i;
             return (
               <Link key={i} href={svc.href}
-                className="no-underline flex items-center gap-3 rounded-xl p-2.5 transition-colors duration-150"
+                className="no-underline flex items-center gap-3 p-2.5 transition-colors duration-150"
                 style={{ color: "var(--fg)" }}
                 onMouseEnter={e => { setHoveredItem(i); (e.currentTarget as HTMLAnchorElement).style.background = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"; }}
                 onMouseLeave={e => { setHoveredItem(null); (e.currentTarget as HTMLAnchorElement).style.background = "transparent"; }}
               >
-                <div style={{ width: 54, height: 42, borderRadius: 8, overflow: "hidden", flexShrink: 0, border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}` }}>
+                <div style={{ width: 54, height: 42, borderRadius: 0, overflow: "hidden", flexShrink: 0, border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)"}` }}>
                   <img src={svc.img} alt={svc.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -154,10 +160,10 @@ export default function Header({
   }, []);
 
   const borderCls = isDark ? "border-white/10" : "border-black/10";
-  const glassBg   = isDark ? "bg-[rgba(14,15,26,0.75)]" : "bg-white/75";
-  const navColor  = isDark ? "text-white/65" : "text-black/60";
-  const navHover  = isDark ? "hover:bg-white/[0.07] hover:text-white" : "hover:bg-black/[0.05] hover:text-black";
-  const iconBg    = isDark ? "bg-white/[0.07] border-white/10" : "bg-black/[0.05] border-black/[0.08]";
+  const glassBg = isDark ? "bg-[rgba(14,15,26,0.75)]" : "bg-white/75";
+  const navColor = isDark ? "text-white/65" : "text-black/60";
+  const navHover = isDark ? "hover:bg-white/[0.07] hover:text-white" : "hover:bg-black/[0.05] hover:text-black";
+  const iconBg = isDark ? "bg-white/[0.07] border-white/10" : "bg-black/[0.05] border-black/[0.08]";
 
   const isActive = (href: string) => pathname === href;
 
@@ -181,22 +187,14 @@ export default function Header({
         flex items-center h-12 px-1.5 pl-4
         ${glassBg} backdrop-blur-xl
         border-t border-l border-r ${borderCls}
-        ${menuOpen ? "rounded-t-[14px] border-b border-b-transparent" : `rounded-[14px] border-b ${borderCls}`}
+        ${menuOpen ? "rounded-t-[14px] border-b border-b-transparent" : `border-b ${borderCls}`}
         ${isDark
           ? "shadow-[0_4px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]"
           : "shadow-[0_4px_24px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]"}
       `}>
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 font-bold text-sm text-[var(--fg)] whitespace-nowrap no-underline">
-          <div className="w-7 h-7 rounded-lg bg-[#ff6a00] flex items-center justify-center shrink-0">
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <rect x="1" y="1" width="5" height="5" rx="1" fill="white" />
-              <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-              <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-              <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity="0.3" />
-            </svg>
-          </div>
-          <span>Brand Edge</span>
+        <Link href="/" className="flex items-center no-underline whitespace-nowrap mt-2">
+          <img src={isDark ? "/brand-white-logo.png" : "/brand-black-logo.png"} alt="Brand Edge" style={{ height: 120, width: "auto", display: "block" }} />
         </Link>
 
         {!isMobile && <div className={`w-px h-5 mx-5 ${isDark ? "bg-white/10" : "bg-black/10"}`} />}
@@ -207,7 +205,7 @@ export default function Header({
             {NAV_LINKS.slice(0, 2).map(({ label, href }) => (
               <Link
                 key={label} href={href}
-                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium no-underline transition-all duration-150
+                className={`px-3 py-1.5 text-[13px] font-medium no-underline transition-all duration-150
                   ${isActive(href) ? "" : `${navColor} ${navHover}`}`}
                 style={isActive(href) ? ACTIVE_GRAD : {}}
               >
@@ -218,7 +216,7 @@ export default function Header({
             {NAV_LINKS.slice(2).map(({ label, href }) => (
               <Link
                 key={label} href={href}
-                className={`px-3 py-1.5 rounded-lg text-[13px] font-medium no-underline transition-all duration-150
+                className={`px-3 py-1.5 text-[13px] font-medium no-underline transition-all duration-150
                   ${isActive(href) ? "" : `${navColor} ${navHover}`}`}
                 style={isActive(href) ? ACTIVE_GRAD : {}}
               >
@@ -233,24 +231,26 @@ export default function Header({
         {/* Right */}
         <div className="flex items-center gap-1.5">
           <button onClick={onToggle}
-            className={`w-[34px] h-[34px] rounded-[9px] border flex items-center justify-center cursor-pointer transition-all duration-200 text-[var(--fg)] ${iconBg}`}>
+            className={`w-[34px] h-[34px] border flex items-center justify-center cursor-pointer transition-all duration-200 text-[var(--fg)] ${iconBg}`}>
             {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
           </button>
 
           {!isMobile && (
             <Link href="/consultation"
-              className="group inline-flex items-center gap-1.5 h-9 pl-4 pr-1.5 rounded-full no-underline transition-all duration-200"
-              style={{ background: "#ff6a00", boxShadow: "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1.12)"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 18px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+              className="group inline-flex items-center gap-2 h-9 px-4 no-underline transition-all duration-200"
+              style={{
+                backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)",
+                borderRadius: 0,
+                boxShadow: "0 4px 18px rgba(255,106,0,0.35)",
+                color: "#fff", fontWeight: 700, fontSize: 13, letterSpacing: "0.02em",
+              }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.55)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 18px rgba(255,106,0,0.35)"; }}
             >
-              <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-[13px]" style={{ height: "1.2em" }}>
-                <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
-                <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get Consultation</span>
-              </span>
-              <span className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center shrink-0">
-                <ArrowRight size={11} stroke="#ff6a00" strokeWidth={2} />
-              </span>
+              Get Consultation
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </Link>
           )}
 
@@ -295,7 +295,7 @@ export default function Header({
           <div style={{ maxHeight: mobileServicesOpen ? "600px" : "0px", overflow: "hidden", transition: "max-height 0.35s cubic-bezier(0.4,0,0.2,1)" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, padding: "4px 10px 10px" }}>
               {MEGA_SERVICES.map((svc, i) => (
-                <Link key={i} href={svc.href} className="no-underline rounded-xl overflow-hidden flex flex-col"
+                <Link key={i} href={svc.href} className="no-underline overflow-hidden flex flex-col"
                   style={{ border: `1px solid ${isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.07)"}` }}>
                   <div style={{ height: 70, overflow: "hidden" }}>
                     <img src={svc.img} alt={svc.label} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
@@ -310,11 +310,12 @@ export default function Header({
           </div>
 
           <div className="px-2 pt-1">
-            <Link href="/consultation" className="group w-full h-10 rounded-full bg-[#ff6a00] text-white font-bold text-sm shadow-[0_2px_12px_rgba(255,106,0,0.4)] flex items-center justify-center overflow-hidden no-underline">
-              <span className="relative overflow-hidden inline-flex flex-col" style={{ height: "1.2em" }}>
-                <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
-                <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get Consultation</span>
-              </span>
+            <Link href="/consultation" className="w-full h-10 text-white font-bold text-sm flex items-center justify-center gap-2 no-underline"
+              style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, boxShadow: "0 4px 16px rgba(255,106,0,0.35)" }}>
+              Get Consultation
+              <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </Link>
           </div>
         </div>

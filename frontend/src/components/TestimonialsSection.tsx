@@ -22,7 +22,7 @@ type Card = typeof ROW1[number] | typeof ROW2[number];
 function renderCard(card: Card, key: string) {
   if (card.type === "img") {
     return (
-      <div key={key} className="shrink-0 rounded-2xl overflow-hidden flex flex-col justify-end relative"
+      <div key={key} className="shrink-0 rounded-none overflow-hidden flex flex-col justify-end relative"
         style={{ width: card.w, minHeight: 220, border: "1px solid var(--border)" }}>
         <img src={card.src} alt="" className="absolute inset-0 w-full h-full object-cover" />
         <div className="relative z-10 p-6" style={{ background: "linear-gradient(to top,rgba(0,0,0,0.78) 0%,transparent 100%)" }}>
@@ -33,7 +33,7 @@ function renderCard(card: Card, key: string) {
     );
   }
   return (
-    <div key={key} className="shrink-0 rounded-2xl p-7 flex flex-col justify-between gap-6"
+    <div key={key} className="shrink-0 rounded-none p-7 flex flex-col justify-between gap-6"
       style={{ width: card.w, minHeight: 220, background: "var(--surface)", border: "1px solid var(--border)" }}>
       <div className="flex flex-col gap-4">
         <Quote size={24} style={{ color: "var(--border)" }} />

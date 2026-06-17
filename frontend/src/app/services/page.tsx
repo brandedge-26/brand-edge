@@ -162,16 +162,17 @@ function ServicesRevealSection({ theme }: { theme: "dark" | "light" }) {
 }
 
 const SHOWCASE = [
-  { label: "360 Marketing",        href: "/services/360-marketing",        image: "/home/services/marketting.webp",           tags: ["Campaign Strategy", "Brand Storytelling"] },
-  { label: "Website Design",       href: "/services/website-designing",    image: "/home/services/website-service.webp",      tags: ["UI / UX Design", "Conversion Optimised"] },
-  { label: "App Development",      href: "/services/app-development",      image: "/home/services/mobile-app-service.webp",   tags: ["iOS & Android", "React Native"] },
-  { label: "SEO",                  href: "/services/seo",                  image: "/home/services/seo-service.webp",          tags: ["Technical SEO", "Link Building"] },
-  { label: "Branding",             href: "/services/branding",             image: "/home/services/branding-service.webp",     tags: ["Logo Design", "Brand Systems"] },
-  { label: "Graphic Design",       href: "/services/graphic-design",       image: "/home/services/graphic-design-service.webp", tags: ["Print & Digital", "Motion Graphics"] },
+  { label: "360 Marketing", href: "/services/360-marketing", image: "/home/services/marketting.webp", tags: ["Campaign Strategy", "Brand Storytelling"] },
+  { label: "Website Design", href: "/services/website-designing", image: "/home/services/website-service.webp", tags: ["UI / UX Design", "Conversion Optimised"] },
+  { label: "App Development", href: "/services/app-development", image: "/home/services/mobile-app-service.webp", tags: ["iOS & Android", "React Native"] },
+  { label: "SEO", href: "/services/seo", image: "/home/services/seo-service.webp", tags: ["Technical SEO", "Link Building"] },
+  { label: "Branding", href: "/services/branding", image: "/home/services/branding-service.webp", tags: ["Logo Design", "Brand Systems"] },
+  { label: "Graphic Design", href: "/services/graphic-design", image: "/home/services/graphic-design-service.webp", tags: ["Print & Digital", "Motion Graphics"] },
   { label: "Software Development", href: "/services/software-development", image: "/home/services/software-design-service.webp", tags: ["SaaS Platforms", "API Integration"] },
-  { label: "Product Photography",  href: "/services/product-photography",  image: "/home/services/product-photogrpahy.webp",  tags: ["Studio Shoots", "Lifestyle Photos"] },
+  { label: "Product Photography", href: "/services/product-photography", image: "/home/services/product-photogrpahy.webp", tags: ["Studio Shoots", "Lifestyle Photos"] },
 ];
-const HEADER_H = 44;
+const HEADER_H = 54;
+const HEADER_GAP = 6;
 
 function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "light"; onActiveChange?: (active: boolean) => void }) {
   const isDark = theme === "dark";
@@ -255,12 +256,12 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
         {SHOWCASE.slice(0, activeIdx + 1).map((svc, i) => (
           <div key={i} style={{
             position: "absolute",
-            top: i * HEADER_H + 10,
+            top: i * (HEADER_H + HEADER_GAP) + 10,
             left: 20, right: 20, height: HEADER_H,
             display: "flex", alignItems: "center",
             padding: "0 clamp(16px,3vw,36px)",
             border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
-            borderRadius: 14,
+            borderRadius: 0,
             background: isDark ? "rgba(14,15,26,0.75)" : "rgba(255,255,255,0.75)",
             backdropFilter: "blur(24px)",
             WebkitBackdropFilter: "blur(24px)",
@@ -300,18 +301,15 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
             <div style={{ flex: 1, display: "flex", justifyContent: "flex-end" }}>
               <Link
                 href={svc.href}
-                className="group inline-flex items-center gap-1.5 rounded-full no-underline"
-                style={{ height: 28, paddingLeft: 14, paddingRight: 6, background: "#ff6a00", transition: "filter 0.2s ease" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1.12)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.filter = "brightness(1)"; }}
+                className="group inline-flex items-center gap-1.5 no-underline"
+                style={{ height: 28, paddingLeft: 14, paddingRight: 14, backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, color: "#fff", fontWeight: 700, fontSize: 11, letterSpacing: "0.02em", transition: "box-shadow 0.2s ease", boxShadow: "0 2px 10px rgba(255,106,0,0.3)" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 16px rgba(255,106,0,0.5)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 2px 10px rgba(255,106,0,0.3)"; }}
               >
-                <span className="relative overflow-hidden inline-flex flex-col text-white font-bold" style={{ fontSize: 11, letterSpacing: "0.02em", height: "1.2em" }}>
-                  <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Learn More</span>
-                  <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Learn More</span>
-                </span>
-                <span style={{ width: 18, height: 18, borderRadius: "50%", background: "white", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <ArrowRight size={9} stroke="#ff6a00" strokeWidth={2.5} />
-                </span>
+                Learn More
+                <svg width="10" height="10" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </Link>
             </div>
           </div>
@@ -320,7 +318,7 @@ function ServiceShowcaseSection({ theme, onActiveChange }: { theme: "dark" | "li
         {/* Image — reveals left-to-right */}
         <div ref={clipRef} style={{
           position: "absolute",
-          top: (activeIdx + 1) * HEADER_H + 20, left: 0, right: 0, bottom: 0,
+          top: (activeIdx + 1) * (HEADER_H + HEADER_GAP) + 20, left: 0, right: 0, bottom: 0,
           clipPath: "inset(0 100% 0 0)",
         }}>
           <img src={SHOWCASE[activeIdx].image} alt={SHOWCASE[activeIdx].label}
@@ -530,10 +528,10 @@ export default function ServicesPage() {
               className="leading-[1.06] tracking-tighter text-[var(--fg)] m-0 mb-4 text-center"
               style={{ fontSize: "clamp(40px,6vw,86px)", animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.2s both" }}
             >
-              <div>We build brands</div>
-              {/* "that" + chip on the same stable flex line */}
+              <div>Brands that win</div>
+              {/* "need" + chip on the same stable flex line */}
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.3em" }}>
-                <span>that</span>
+                <span>need</span>
                 <span style={{
                   display: "inline-flex", alignItems: "center", justifyContent: "center",
                   position: "relative",
@@ -581,36 +579,26 @@ export default function ServicesPage() {
               className="flex items-center gap-3 flex-wrap justify-center pointer-events-auto mb-14"
               style={{ animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s both" }}
             >
-              <button
-                className="group inline-flex items-center gap-2.5 h-[52px] px-6 rounded-full cursor-pointer border-none"
-                style={{
-                  background: "linear-gradient(150deg, #ff8c30 0%, #d94400 100%)",
-                  boxShadow: "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)",
-                  transition: "box-shadow 0.25s ease, filter 0.25s ease",
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)";
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 36px rgba(255,106,0,0.52), inset 0 1px 0 rgba(255,255,255,0.18)";
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)";
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)";
-                }}
+              <Link href="/consultation"
+                className="group inline-flex items-center gap-2.5 h-[52px] px-6 no-underline"
+                style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, boxShadow: "0 6px 28px rgba(255,106,0,0.35)", color: "#fff", fontWeight: 700, fontSize: 14, transition: "box-shadow 0.25s ease" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 36px rgba(255,106,0,0.55)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.35)"; }}
               >
-                <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-sm" style={{ height: "1.2em" }}>
-                  <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get a Free Quote</span>
-                  <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get a Free Quote</span>
-                </span>
-                <ArrowRight size={14} stroke="white" strokeWidth={2} className="opacity-90" />
-              </button>
+                Get a Free Quote
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
 
-              <button
-                className="group inline-flex items-center gap-2.5 h-[52px] px-6 rounded-full cursor-pointer backdrop-blur-md"
+              <Link href="/portfolio"
+                className="group inline-flex items-center gap-2.5 h-[52px] px-6 backdrop-blur-md no-underline"
                 style={{
                   background: isDark
                     ? "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(150deg, rgba(255,106,0,0.5), rgba(255,106,0,0.08)) border-box"
                     : "linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(150deg, rgba(255,106,0,0.45), rgba(255,106,0,0.08)) border-box",
                   border: "1.5px solid transparent",
+                  borderRadius: 0,
                   transition: "background 0.25s ease",
                 }}
               >
@@ -619,7 +607,7 @@ export default function ServicesPage() {
                   <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Explore Services</span>
                 </span>
                 <ArrowRight size={14} stroke="var(--fg)" strokeWidth={2} className="opacity-60" />
-              </button>
+              </Link>
             </div>
 
           </div>

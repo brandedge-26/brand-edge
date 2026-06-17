@@ -213,6 +213,39 @@ export default function ConsultationPage() {
   const [focused, setFocused] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const validate = (field: string, val: string) => {
+    if (field === "name") return val.trim().length >= 2;
+    if (field === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+    if (field === "phone") return val === "" || val.replace(/\D/g, "").length >= 10;
+    if (field === "company") return val.trim().length >= 1;
+    if (field === "website") return val === "" || val.trim().length > 3;
+    if (field === "goals") return val.trim().length >= 10;
+    return true;
+  };
+
+  const touch = (field: string) => setTouched(t => ({ ...t, [field]: true }));
+
+  const fieldIcon = (field: string, val: string, forTextarea = false) => {
+    if (!touched[field]) return null;
+    const ok = validate(field, val);
+    const style: React.CSSProperties = forTextarea
+      ? { position: "absolute", right: 12, top: 14, pointerEvents: "none" }
+      : { position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" };
+    return ok ? (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={style}>
+        <circle cx="8" cy="8" r="7" stroke="#22c55e" strokeWidth="1.5"/>
+        <path d="M4.5 8l2.5 2.5L11.5 5" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+      </svg>
+    ) : (
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={style}>
+        <circle cx="8" cy="8" r="7" stroke="#ef4444" strokeWidth="1.5"/>
+        <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
+      </svg>
+    );
+  };
+
   const contentRef = useRef<HTMLDivElement>(null);
 
   const isDark = theme === "dark";
@@ -402,24 +435,33 @@ export default function ConsultationPage() {
                 <div style={{ display: "flex", flexDirection: "column", maxWidth: 520 }}>
                   <div style={fieldGap}>
                     <label style={labelStyle}>Full Name <span style={{ color: "#ff6a00" }}>*</span></label>
-                    <input type="text" placeholder="John Doe" value={form.name}
-                      onChange={e => set("name", e.target.value)}
-                      onFocus={() => setFocused("name")} onBlur={() => setFocused(null)}
-                      style={inputStyle("name")} />
+                    <div style={{ position: "relative" }}>
+                      <input type="text" placeholder="John Doe" value={form.name}
+                        onChange={e => set("name", e.target.value)}
+                        onFocus={() => setFocused("name")} onBlur={() => { setFocused(null); touch("name"); }}
+                        style={{ ...inputStyle("name"), paddingRight: touched["name"] ? 40 : 15 }} />
+                      {fieldIcon("name", form.name)}
+                    </div>
                   </div>
                   <div style={fieldGap}>
                     <label style={labelStyle}>Email Address <span style={{ color: "#ff6a00" }}>*</span></label>
-                    <input type="email" placeholder="john@company.com" value={form.email}
-                      onChange={e => set("email", e.target.value)}
-                      onFocus={() => setFocused("email")} onBlur={() => setFocused(null)}
-                      style={inputStyle("email")} />
+                    <div style={{ position: "relative" }}>
+                      <input type="email" placeholder="john@company.com" value={form.email}
+                        onChange={e => set("email", e.target.value)}
+                        onFocus={() => setFocused("email")} onBlur={() => { setFocused(null); touch("email"); }}
+                        style={{ ...inputStyle("email"), paddingRight: touched["email"] ? 40 : 15 }} />
+                      {fieldIcon("email", form.email)}
+                    </div>
                   </div>
                   <div style={fieldGap}>
                     <label style={labelStyle}>Phone Number</label>
-                    <input type="tel" placeholder="+92 300 1234567" value={form.phone}
-                      onChange={e => set("phone", e.target.value)}
-                      onFocus={() => setFocused("phone")} onBlur={() => setFocused(null)}
-                      style={inputStyle("phone")} />
+                    <div style={{ position: "relative" }}>
+                      <input type="tel" placeholder="+92 300 1234567" value={form.phone}
+                        onChange={e => set("phone", e.target.value)}
+                        onFocus={() => setFocused("phone")} onBlur={() => { setFocused(null); touch("phone"); }}
+                        style={{ ...inputStyle("phone"), paddingRight: touched["phone"] ? 40 : 15 }} />
+                      {fieldIcon("phone", form.phone)}
+                    </div>
                   </div>
                 </div>
               )}
@@ -430,17 +472,23 @@ export default function ConsultationPage() {
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
                     <div>
                       <label style={labelStyle}>Company Name <span style={{ color: "#ff6a00" }}>*</span></label>
-                      <input type="text" placeholder="Acme Inc." value={form.company}
-                        onChange={e => set("company", e.target.value)}
-                        onFocus={() => setFocused("company")} onBlur={() => setFocused(null)}
-                        style={inputStyle("company")} />
+                      <div style={{ position: "relative" }}>
+                        <input type="text" placeholder="Acme Inc." value={form.company}
+                          onChange={e => set("company", e.target.value)}
+                          onFocus={() => setFocused("company")} onBlur={() => { setFocused(null); touch("company"); }}
+                          style={{ ...inputStyle("company"), paddingRight: touched["company"] ? 40 : 15 }} />
+                        {fieldIcon("company", form.company)}
+                      </div>
                     </div>
                     <div>
                       <label style={labelStyle}>Website</label>
-                      <input type="url" placeholder="acme.com" value={form.website}
-                        onChange={e => set("website", e.target.value)}
-                        onFocus={() => setFocused("website")} onBlur={() => setFocused(null)}
-                        style={inputStyle("website")} />
+                      <div style={{ position: "relative" }}>
+                        <input type="url" placeholder="acme.com" value={form.website}
+                          onChange={e => set("website", e.target.value)}
+                          onFocus={() => setFocused("website")} onBlur={() => { setFocused(null); touch("website"); }}
+                          style={{ ...inputStyle("website"), paddingRight: touched["website"] ? 40 : 15 }} />
+                        {fieldIcon("website", form.website)}
+                      </div>
                     </div>
                   </div>
                   <div style={fieldGap}>
@@ -523,10 +571,13 @@ export default function ConsultationPage() {
                   </div>
                   <div style={fieldGap}>
                     <label style={labelStyle}>Project Goals / Brief</label>
-                    <textarea rows={4} placeholder="Tell us what you're trying to achieve — the more detail, the better our call will be."
-                      value={form.goals} onChange={e => set("goals", e.target.value)}
-                      onFocus={() => setFocused("goals")} onBlur={() => setFocused(null)}
-                      style={{ ...inputStyle("goals"), resize: "vertical", minHeight: 110 }} />
+                    <div style={{ position: "relative" }}>
+                      <textarea rows={4} placeholder="Tell us what you're trying to achieve — the more detail, the better our call will be."
+                        value={form.goals} onChange={e => set("goals", e.target.value)}
+                        onFocus={() => setFocused("goals")} onBlur={() => { setFocused(null); touch("goals"); }}
+                        style={{ ...inputStyle("goals"), resize: "vertical", minHeight: 110, paddingRight: touched["goals"] ? 40 : 15 }} />
+                      {fieldIcon("goals", form.goals, true)}
+                    </div>
                   </div>
                 </div>
               )}

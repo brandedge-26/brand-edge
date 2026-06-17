@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 import Header from "@/components/SiteHeader";
 import CustomCursor from "@/components/CustomCursor";
 import Footer from "@/components/Footer";
@@ -263,30 +264,26 @@ export default function StoryPage() {
             </p>
 
             <div className="flex items-center gap-3 flex-wrap justify-center pointer-events-auto">
-              <button
-                className="group inline-flex items-center gap-2.5 h-[50px] px-6 rounded-full cursor-pointer border-none"
-                style={{
-                  background: "linear-gradient(150deg, #ff8c30 0%, #d94400 100%)",
-                  boxShadow: "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)",
-                  transition: "box-shadow 0.25s ease, filter 0.25s ease",
-                }}
-                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 36px rgba(255,106,0,0.52), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)"; }}
+              <Link href="/consultation"
+                className="group inline-flex items-center gap-2.5 h-[50px] px-6 no-underline"
+                style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, boxShadow: "0 6px 28px rgba(255,106,0,0.35)", color: "#fff", fontWeight: 700, fontSize: 14, transition: "box-shadow 0.25s ease" }}
+                onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 8px 36px rgba(255,106,0,0.55)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.35)"; }}
               >
-                <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-sm" style={{ height: "1.2em" }}>
-                  <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Get Consultation</span>
-                  <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Get Consultation</span>
-                </span>
-                <ArrowRight size={13} stroke="white" strokeWidth={2} className="opacity-90" />
-              </button>
+                Get Consultation
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
 
-              <button
-                className="group inline-flex items-center gap-2.5 h-[50px] px-6 rounded-full cursor-pointer backdrop-blur-md"
+              <Link href="/team"
+                className="group inline-flex items-center gap-2.5 h-[50px] px-6 backdrop-blur-md no-underline"
                 style={{
                   background: theme === "dark"
                     ? "linear-gradient(#0d0d0d, #0d0d0d) padding-box, linear-gradient(150deg, rgba(255,106,0,0.55), rgba(255,106,0,0.08)) border-box"
                     : "linear-gradient(var(--surface), var(--surface)) padding-box, linear-gradient(150deg, rgba(255,106,0,0.5), rgba(255,106,0,0.08)) border-box",
                   border: "1.5px solid transparent",
+                  borderRadius: 0,
                   transition: "background 0.25s ease",
                 }}
               >
@@ -295,7 +292,7 @@ export default function StoryPage() {
                   <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Our Team</span>
                 </span>
                 <ArrowRight size={13} stroke="var(--fg)" strokeWidth={2} className="opacity-60" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
@@ -423,34 +420,27 @@ function StoryCTA({ theme }: { theme: "dark" | "light" }) {
         <div style={reveal(0.3)} className="flex items-center gap-4 flex-wrap justify-center">
 
           {/* Primary */}
-          <button
-            className="group inline-flex items-center gap-2.5 h-[54px] px-8 rounded-full cursor-pointer border-none"
-            style={{
-              background: "linear-gradient(150deg,#ff8c30 0%,#d94400 100%)",
-              boxShadow: hoverPrimary
-                ? "0 8px 40px rgba(255,106,0,0.55), inset 0 1px 0 rgba(255,255,255,0.18)"
-                : "0 6px 28px rgba(255,106,0,0.38), inset 0 1px 0 rgba(255,255,255,0.18)",
-              transition: "box-shadow 0.3s ease, transform 0.3s ease",
-              transform: hoverPrimary ? "translateY(-2px)" : "translateY(0)",
-            }}
-            onMouseEnter={() => setHoverPrimary(true)}
-            onMouseLeave={() => setHoverPrimary(false)}
+          <Link href="/consultation"
+            className="group inline-flex items-center gap-2.5 h-[54px] px-8 no-underline"
+            style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, boxShadow: "0 6px 28px rgba(255,106,0,0.35)", color: "#fff", fontWeight: 700, fontSize: 15, transition: "box-shadow 0.25s ease" }}
+            onMouseEnter={() => { setHoverPrimary(true); }}
+            onMouseLeave={() => { setHoverPrimary(false); }}
           >
-            <span className="relative overflow-hidden inline-flex flex-col text-white font-bold text-[15px]" style={{ height: "1.2em" }}>
-              <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Book a Free Call</span>
-              <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Book a Free Call</span>
-            </span>
-            <ArrowRight size={14} stroke="white" strokeWidth={2.5} />
-          </button>
+            Book a Free Call
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
 
           {/* Secondary */}
-          <button
-            className="group inline-flex items-center gap-2.5 h-[54px] px-8 rounded-full cursor-pointer"
+          <Link href="/portfolio"
+            className="group inline-flex items-center gap-2.5 h-[54px] px-8 no-underline"
             style={{
               background: isDark
                 ? "linear-gradient(#0d0d0d,#0d0d0d) padding-box, linear-gradient(150deg,rgba(255,106,0,0.5),rgba(255,106,0,0.08)) border-box"
                 : "linear-gradient(var(--surface),var(--surface)) padding-box, linear-gradient(150deg,rgba(255,106,0,0.45),rgba(255,106,0,0.08)) border-box",
               border: "1.5px solid transparent",
+              borderRadius: 0,
             }}
           >
             <span className="relative overflow-hidden inline-flex flex-col font-semibold text-[15px]" style={{ height: "1.2em", color: "var(--fg)" }}>
@@ -458,7 +448,7 @@ function StoryCTA({ theme }: { theme: "dark" | "light" }) {
               <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">View Our Work</span>
             </span>
             <ArrowUpRight size={14} stroke="var(--fg)" strokeWidth={2} className="opacity-60" />
-          </button>
+          </Link>
         </div>
 
         {/* Trust line */}

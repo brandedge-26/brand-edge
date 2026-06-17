@@ -3,16 +3,16 @@
 type GoodbyeWord = { text: string; gradient: string };
 
 const ROW1: GoodbyeWord[] = [
-  { text: "Poor Brand Identity",    gradient: "linear-gradient(90deg,#ff6a00,#ee0979)" },
-  { text: "Slow Websites",          gradient: "linear-gradient(90deg,#f7971e,#ffd200)" },
-  { text: "Weak Digital Presence",  gradient: "linear-gradient(90deg,#8A43E1,#D511FD)" },
-  { text: "Generic Designs",        gradient: "linear-gradient(90deg,#EF7B16,#8A43E1)" },
+  { text: "Poor Brand Identity", gradient: "linear-gradient(90deg,#ff6a00,#ee0979)" },
+  { text: "Slow Websites", gradient: "linear-gradient(90deg,#f7971e,#ffd200)" },
+  { text: "Weak Digital Presence", gradient: "linear-gradient(90deg,#8A43E1,#D511FD)" },
+  { text: "Generic Designs", gradient: "linear-gradient(90deg,#EF7B16,#8A43E1)" },
 ];
 const ROW2: GoodbyeWord[] = [
-  { text: "Missed Deadlines",       gradient: "linear-gradient(90deg,#ff6a00,#EF7B16)" },
-  { text: "Low Conversion Rates",   gradient: "linear-gradient(90deg,#ee0979,#ff6a00)" },
-  { text: "Unclear Strategy",       gradient: "linear-gradient(90deg,#8A43E1,#ff6a00)" },
-  { text: "Mediocre Marketing",     gradient: "linear-gradient(90deg,#f7971e,#ee0979)" },
+  { text: "Missed Deadlines", gradient: "linear-gradient(90deg,#ff6a00,#EF7B16)" },
+  { text: "Low Conversion Rates", gradient: "linear-gradient(90deg,#ee0979,#ff6a00)" },
+  { text: "Unclear Strategy", gradient: "linear-gradient(90deg,#8A43E1,#ff6a00)" },
+  { text: "Mediocre Marketing", gradient: "linear-gradient(90deg,#f7971e,#ee0979)" },
 ];
 
 export default function GoodbyeSection({ theme }: { theme: "dark" | "light" }) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 const STEPS = [
   { step: "01", tag: "Discover", title: "Deep-dive discovery",    desc: "We research your brand, goals, audience, and competitors to build a bulletproof strategy foundation." },
@@ -32,18 +33,17 @@ export default function OurProcess({ theme }: { theme: "dark" | "light" }) {
             <p className="text-[14px] leading-relaxed" style={{ color: "var(--muted)" }}>
               A proven four-step process built to deliver results — on time, every time.
             </p>
-            <button
-              className="group inline-flex items-center gap-2.5 self-start px-5 h-[44px] rounded-full font-bold text-[13px] text-white mt-2"
-              style={{ background: "linear-gradient(150deg,#ff8c30,#d94400)", boxShadow: "0 4px 20px rgba(255,106,0,0.3)", transition: "filter 0.25s ease, box-shadow 0.25s ease" }}
-              onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.45)"; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 20px rgba(255,106,0,0.3)"; }}
+            <Link href="/consultation"
+              className="inline-flex items-center gap-2.5 self-start px-5 h-[44px] font-bold text-[13px] text-white mt-2 no-underline"
+              style={{ backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", borderRadius: 0, boxShadow: "0 4px 20px rgba(255,106,0,0.3)", transition: "box-shadow 0.25s ease" }}
+              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 6px 28px rgba(255,106,0,0.55)"; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.boxShadow = "0 4px 20px rgba(255,106,0,0.3)"; }}
             >
-              <span className="relative overflow-hidden inline-flex flex-col" style={{ height: "1.2em" }}>
-                <span className="transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:-translate-y-full">Start Your Project</span>
-                <span className="absolute top-0 left-0 translate-y-full transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-hover:translate-y-0">Start Your Project</span>
-              </span>
-              <ArrowRight size={13} stroke="white" strokeWidth={2} />
-            </button>
+              Start Your Project
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
           </div>
 
           {/* Right steps */}

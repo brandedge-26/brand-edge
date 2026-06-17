@@ -43,16 +43,8 @@ export default function Footer({ theme }: { theme: "dark" | "light" }) {
 
           {/* Brand col */}
           <div className="flex flex-col gap-5">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#ff6a00] flex items-center justify-center shrink-0">
-                <svg width="15" height="15" viewBox="0 0 14 14" fill="none">
-                  <rect x="1" y="1" width="5" height="5" rx="1" fill="white" />
-                  <rect x="8" y="1" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-                  <rect x="1" y="8" width="5" height="5" rx="1" fill="white" opacity="0.6" />
-                  <rect x="8" y="8" width="5" height="5" rx="1" fill="white" opacity="0.3" />
-                </svg>
-              </div>
-              <span className="font-bold text-[15px] text-[var(--fg)]">Brand Edge</span>
+            <div className="flex items-center">
+              <img src={theme === "dark" ? "/brand-white-logo.png" : "/brand-black-logo.png"} alt="Brand Edge" style={{ height: 100, width: "auto", display: "block" }} />
             </div>
             <p className="text-[13px] text-[var(--muted)] leading-relaxed" style={{ maxWidth: "240px" }}>
               A full-service creative agency building bold brands and digital experiences that drive real growth.
