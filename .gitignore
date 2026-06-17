@@ -42,6 +42,11 @@ pnpm-debug.log*
 .eslintcache
 *.tsbuildinfo
 
+# Next.js generated
+next-env.d.ts
+**/next-env.d.ts
+*.pem
+
 # OS files
 .DS_Store
 Thumbs.db

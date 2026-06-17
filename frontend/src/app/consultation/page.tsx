@@ -49,7 +49,7 @@ const INDUSTRIES = [
   "Real Estate", "Agency", "Other",
 ];
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri"];
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const TIME_SLOTS = [
   { label: "Morning",   sub: "9am – 12pm" },
@@ -66,7 +66,7 @@ interface Form {
   // Step 2
   company: string; teamSize: string; industry: string; website: string;
   // Step 3
-  services: string[]; budget: string; urgency: string; goals: string;
+  services: string[]; urgency: string; goals: string;
   // Step 4
   days: string[]; timeSlot: string; timezone: string;
 }
@@ -74,7 +74,7 @@ interface Form {
 const EMPTY: Form = {
   name: "", email: "", phone: "",
   company: "", teamSize: "", industry: "", website: "",
-  services: [], budget: "", urgency: "", goals: "",
+  services: [], urgency: "", goals: "",
   days: [], timeSlot: "", timezone: TIMEZONE,
 };
 
@@ -550,16 +550,6 @@ export default function ConsultationPage() {
                     </div>
                   </div>
                   <div style={fieldGap}>
-                    <label style={labelStyle}>Budget Range</label>
-                    <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                      {BUDGETS.map(b => (
-                        <Chip key={b.label} label={b.label} sub={b.sub}
-                          selected={form.budget === b.label}
-                          onClick={() => set("budget", b.label)} gradient={GRADIENT} />
-                      ))}
-                    </div>
-                  </div>
-                  <div style={fieldGap}>
                     <label style={labelStyle}>Urgency <span style={{ color: "#ff6a00" }}>*</span></label>
                     <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                       {URGENCY.map(u => (
@@ -672,7 +662,6 @@ export default function ConsultationPage() {
                       Project
                     </p>
                     <SummaryRow label="Services" value={form.services.join(", ")} />
-                    <SummaryRow label="Budget" value={form.budget} />
                     <SummaryRow label="Urgency" value={form.urgency} />
                     {form.goals && <SummaryRow label="Goals" value={form.goals} />}
                   </div>
