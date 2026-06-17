@@ -427,7 +427,7 @@ function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
                 key={gi}
                 ref={el => { cardRefs.current[gi] = el; }}
                 style={{
-                  borderRadius: 20,
+                  // borderRadius: 20,
                   border: "1px solid var(--border)",
                   background: "var(--surface)",
                   padding: "clamp(24px,3vw,36px)",
@@ -443,7 +443,7 @@ function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
                     <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--muted)" }}>
                       0{gi + 1}
                     </span>
-                    <h3 style={{ fontSize: "clamp(18px,2vw,24px)", fontWeight: 700, letterSpacing: "-0.5px", margin: 0, color: "var(--fg)", lineHeight: 1.2 }}>
+                    <h3 style={{ fontSize: "clamp(18px,2vw,24px)", letterSpacing: "-0.5px", margin: 0, color: "var(--fg)", lineHeight: 1.2 }}>
                       {group.category}
                     </h3>
                   </div>
@@ -457,7 +457,7 @@ function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
                   {group.skills.map((skill) => (
                     <span key={skill} style={{
                       fontSize: 12, fontWeight: 600,
-                      padding: "6px 14px", borderRadius: 999,
+                      padding: "4px 10px", 
                       border: "1px solid var(--border)",
                       background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
                       color: "var(--muted)",

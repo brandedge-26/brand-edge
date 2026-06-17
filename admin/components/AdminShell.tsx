@@ -32,6 +32,12 @@ const BellIcon = () => (
     <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
   </svg>
 );
+const BriefcaseIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <rect x="2" y="7" width="20" height="14"/>
+    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+  </svg>
+);
 const SunIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
     <circle cx="12" cy="12" r="5"/>
@@ -75,6 +81,7 @@ const NAV_ITEMS = [
   { href: "/",               label: "Overview",       icon: GridIcon },
   { href: "/consultations",  label: "Consultations",  icon: CalendarIcon },
   { href: "/contacts",       label: "Contacts",       icon: UsersIcon },
+  { href: "/careers",        label: "Careers",        icon: BriefcaseIcon },
   { href: "/notifications",  label: "Notifications",  icon: BellIcon },
 ];
 
@@ -82,6 +89,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/":               "Overview",
   "/consultations":  "Consultations",
   "/contacts":       "Contacts",
+  "/careers":        "Careers",
   "/notifications":  "Notifications",
 };
 

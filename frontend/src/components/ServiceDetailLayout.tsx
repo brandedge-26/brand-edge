@@ -61,7 +61,7 @@ function FeaturesSection({ features, gradient, label, isDark }: {
       }}>
         <span style={{
           display: "inline-flex", alignItems: "center", gap: 8,
-          padding: "6px 16px", borderRadius: 999,
+          padding: "6px 16px", borderRadius: 0,
           border: "1px solid var(--border)", background: "var(--surface)",
           fontSize: 11, fontWeight: 700, letterSpacing: "0.16em",
           textTransform: "uppercase", color: "var(--muted)", marginBottom: 20,
@@ -91,7 +91,7 @@ function FeaturesSection({ features, gradient, label, isDark }: {
               opacity: 0,
               transform: "translateY(36px)",
               transition: `opacity 0.65s cubic-bezier(0.16,1,0.3,1) ${i * 0.08}s, transform 0.65s cubic-bezier(0.16,1,0.3,1) ${i * 0.08}s`,
-              borderRadius: 16,
+              borderRadius: 0,
               padding: "28px",
               background: "var(--surface)",
               border: "1px solid var(--border)",
@@ -105,7 +105,7 @@ function FeaturesSection({ features, gradient, label, isDark }: {
             {/* Top: gradient icon + number (like Quote icon in testimonials) */}
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               <div style={{
-                width: 36, height: 36, borderRadius: "50%",
+                width: 36, height: 36, borderRadius: 0,
                 backgroundImage: gradient,
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 12, fontWeight: 800, color: "#fff",
@@ -133,7 +133,7 @@ function FeaturesSection({ features, gradient, label, isDark }: {
               <div style={{
                 width: 3, height: "100%", minHeight: 36,
                 backgroundImage: gradient,
-                borderRadius: 2, flexShrink: 0,
+                borderRadius: 0, flexShrink: 0,
               }} />
               <p style={{
                 fontSize: 13, color: "var(--muted)",
@@ -171,7 +171,7 @@ export default function ServiceDetailLayout({ theme, onToggle, scrolled, label, 
         .svc-image-wrap {
           margin: 0 auto;
           max-width: 1100px;
-          border-radius: 20px;
+          border-radius: 0;
           overflow: hidden;
           height: clamp(200px, 48vw, 580px);
           position: relative;
@@ -210,7 +210,7 @@ export default function ServiceDetailLayout({ theme, onToggle, scrolled, label, 
             letter-spacing: -1.5px;
           }
           .svc-image-wrap {
-            border-radius: 12px;
+            border-radius: 0;
             height: clamp(180px, 56vw, 320px);
           }
         }
@@ -225,7 +225,7 @@ export default function ServiceDetailLayout({ theme, onToggle, scrolled, label, 
         <div style={{ display: "flex", justifyContent: "center", marginBottom: 28 }}>
           <span style={{
             display: "inline-flex", alignItems: "center", gap: 8,
-            padding: "8px 20px", borderRadius: 999,
+            padding: "8px 20px", borderRadius: 0,
             border: "1px solid var(--border)",
             background: "var(--surface)",
             fontSize: 12, fontWeight: 600, letterSpacing: "0.04em",

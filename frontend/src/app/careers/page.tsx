@@ -1,0 +1,1210 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Header from "@/components/SiteHeader";
+import CustomCursor from "@/components/CustomCursor";
+import Footer from "@/components/Footer";
+
+/* ── Constants ──────────────────────────────────────────────── */
+const GRADIENT = "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)";
+
+const APPLY_STEPS = [
+  { id: 1, label: "Personal",     desc: "Your contact details" },
+  { id: 2, label: "Professional", desc: "Experience & links" },
+  { id: 3, label: "Application",  desc: "Tell us about yourself" },
+  { id: 4, label: "Confirm",      desc: "Review & submit" },
+];
+
+const EXP_OPTIONS = [
+  "Less than 1 year",
+  "1–2 years",
+  "3–5 years",
+  "6–10 years",
+  "10+ years",
+];
+
+/* ── Job data ───────────────────────────────────────────────── */
+interface Job {
+  id: number;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  level: string;
+  description: string;
+  posted: string;
+}
+
+const JOBS: Job[] = [
+  {
+    id: 1,
+    title: "Senior Frontend Developer",
+    department: "Engineering",
+    location: "Remote",
+    type: "Full-time",
+    level: "Senior Level",
+    description:
+      "Build cutting-edge web experiences using React, Next.js, and modern CSS. You'll work directly with our design team.",
+    posted: "Jun 10, 2025",
+  },
+  {
+    id: 2,
+    title: "Brand Strategist",
+    department: "Marketing",
+    location: "Karachi, PK",
+    type: "Full-time",
+    level: "Mid-level",
+    description:
+      "Develop brand identities, positioning strategies, and creative direction for our clients across industries.",
+    posted: "Jun 8, 2025",
+  },
+  {
+    id: 3,
+    title: "UI/UX Designer",
+    department: "Design",
+    location: "Hybrid",
+    type: "Full-time",
+    level: "Mid-level",
+    description:
+      "Craft pixel-perfect interfaces and user flows that convert. Figma expertise required.",
+    posted: "Jun 5, 2025",
+  },
+  {
+    id: 4,
+    title: "Digital Marketing Specialist",
+    department: "Marketing",
+    location: "Remote",
+    type: "Part-time",
+    level: "Junior",
+    description:
+      "Manage paid ads, SEO campaigns, and social media strategy for a diverse client portfolio.",
+    posted: "Jun 1, 2025",
+  },
+  {
+    id: 5,
+    title: "Content Writer",
+    department: "Content",
+    location: "Remote",
+    type: "Contract",
+    level: "Junior",
+    description:
+      "Write compelling copy for websites, blogs, and social media. Strong English and storytelling skills needed.",
+    posted: "May 28, 2025",
+  },
+];
+
+/* ── Perks data ─────────────────────────────────────────────── */
+const PERKS = [
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+      </svg>
+    ),
+    title: "Remote First",
+    desc: "Work from anywhere. We trust you to deliver great work on your terms.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+        <polyline points="17 6 23 6 23 12" />
+      </svg>
+    ),
+    title: "Growth Culture",
+    desc: "Continuous learning, mentorship, and real responsibility from day one.",
+  },
+  {
+    icon: (
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+        <line x1="9" y1="9" x2="9.01" y2="9" />
+        <line x1="15" y1="9" x2="15.01" y2="9" />
+      </svg>
+    ),
+    title: "Creative Freedom",
+    desc: "Bring your boldest ideas. We value craft, taste, and original thinking.",
+  },
+];
+
+/* ── Apply Form types ───────────────────────────────────────── */
+interface ApplyForm {
+  name: string;
+  email: string;
+  phone: string;
+  portfolio: string;
+  linkedin: string;
+  experience: string;
+  currentRole: string;
+  whyJoin: string;
+  skills: string[];
+}
+
+const EMPTY_FORM: ApplyForm = {
+  name: "",
+  email: "",
+  phone: "",
+  portfolio: "",
+  linkedin: "",
+  experience: "",
+  currentRole: "",
+  whyJoin: "",
+  skills: [],
+};
+
+/* ── Input styles hook ──────────────────────────────────────── */
+function useInputStyle(isDark: boolean, focused: string | null) {
+  return (name: string): React.CSSProperties => {
+    const isFoc = focused === name;
+    return {
+      width: "100%",
+      borderRadius: 0,
+      fontSize: 14,
+      color: "var(--fg)",
+      outline: "none",
+      fontFamily: "inherit",
+      boxSizing: "border-box",
+      padding: "0 14px",
+      height: 44,
+      backgroundColor: isFoc
+        ? "transparent"
+        : isDark
+        ? "rgba(255,255,255,0.04)"
+        : "rgba(0,0,0,0.03)",
+      backgroundImage: isFoc
+        ? isDark
+          ? "linear-gradient(rgba(14,15,26,1),rgba(14,15,26,1)), linear-gradient(135deg,#ff6a00,#ee0979)"
+          : "linear-gradient(rgba(255,255,255,1),rgba(255,255,255,1)), linear-gradient(135deg,#ff6a00,#ee0979)"
+        : "none",
+      backgroundOrigin: isFoc ? "border-box" : "padding-box",
+      backgroundClip: isFoc ? "padding-box, border-box" : "border-box",
+      border: isFoc ? "2px solid transparent" : "2px solid var(--border)",
+      transition: "background-color 0.2s ease",
+      appearance: "none",
+      WebkitAppearance: "none",
+    };
+  };
+}
+
+function useTextareaStyle(isDark: boolean, focused: string | null) {
+  return (name: string): React.CSSProperties => {
+    const isFoc = focused === name;
+    return {
+      width: "100%",
+      borderRadius: 0,
+      fontSize: 14,
+      color: "var(--fg)",
+      outline: "none",
+      fontFamily: "inherit",
+      boxSizing: "border-box",
+      padding: "12px 14px",
+      resize: "vertical",
+      backgroundColor: isFoc
+        ? "transparent"
+        : isDark
+        ? "rgba(255,255,255,0.04)"
+        : "rgba(0,0,0,0.03)",
+      backgroundImage: isFoc
+        ? isDark
+          ? "linear-gradient(rgba(14,15,26,1),rgba(14,15,26,1)), linear-gradient(135deg,#ff6a00,#ee0979)"
+          : "linear-gradient(rgba(255,255,255,1),rgba(255,255,255,1)), linear-gradient(135deg,#ff6a00,#ee0979)"
+        : "none",
+      backgroundOrigin: isFoc ? "border-box" : "padding-box",
+      backgroundClip: isFoc ? "padding-box, border-box" : "border-box",
+      border: isFoc ? "2px solid transparent" : "2px solid var(--border)",
+      transition: "background-color 0.2s ease",
+    };
+  };
+}
+
+/* ── Field validation icon ──────────────────────────────────── */
+function FieldIcon({ ok, forTextarea }: { ok: boolean; forTextarea?: boolean }) {
+  const style: React.CSSProperties = forTextarea
+    ? { position: "absolute", right: 12, top: 14, pointerEvents: "none" }
+    : { position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" };
+  return ok ? (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={style}>
+      <circle cx="8" cy="8" r="7" stroke="#22c55e" strokeWidth="1.5" />
+      <path d="M4.5 8l2.5 2.5L11.5 5" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={style}>
+      <circle cx="8" cy="8" r="7" stroke="#ef4444" strokeWidth="1.5" />
+      <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/* ── Step indicator ─────────────────────────────────────────── */
+function StepBar({ current, total }: { current: number; total: number }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 32 }}>
+      {APPLY_STEPS.map((s, i) => {
+        const done = current > s.id;
+        const active = current === s.id;
+        return (
+          <div key={s.id} style={{ display: "flex", alignItems: "center", flex: i < total - 1 ? 1 : "none" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+              <div style={{
+                width: 28,
+                height: 28,
+                borderRadius: "50%",
+                backgroundImage: done || active ? GRADIENT : "none",
+                backgroundColor: done || active ? "transparent" : "var(--surface2)",
+                border: done || active ? "none" : "2px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700,
+                color: done || active ? "#fff" : "var(--muted)",
+                flexShrink: 0,
+                transition: "all 0.3s ease",
+              }}>
+                {done ? (
+                  <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+                    <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ) : s.id}
+              </div>
+            </div>
+            {i < total - 1 && (
+              <div style={{
+                flex: 1,
+                height: 2,
+                margin: "0 6px",
+                backgroundImage: done ? GRADIENT : "none",
+                backgroundColor: done ? "transparent" : "var(--border)",
+                transition: "background-color 0.3s ease",
+              }} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ── Summary row ────────────────────────────────────────────── */
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start",
+      gap: 20,
+      padding: "12px 0",
+      borderBottom: "1px solid var(--border)",
+    }}>
+      <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", flexShrink: 0 }}>
+        {label}
+      </span>
+      <span style={{ fontSize: 13, color: "var(--fg)", fontWeight: 500, textAlign: "right" }}>
+        {value || "—"}
+      </span>
+    </div>
+  );
+}
+
+/* ── Apply Overlay ──────────────────────────────────────────── */
+function ApplyOverlay({
+  job,
+  onClose,
+  isDark,
+}: {
+  job: Job;
+  onClose: () => void;
+  isDark: boolean;
+}) {
+  const [step, setStep] = useState(1);
+  const [form, setForm] = useState<ApplyForm>(EMPTY_FORM);
+  const [focused, setFocused] = useState<string | null>(null);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [skillInput, setSkillInput] = useState("");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  const inputStyle = useInputStyle(isDark, focused);
+  const textareaStyle = useTextareaStyle(isDark, focused);
+
+  const set = (key: keyof ApplyForm, val: string) =>
+    setForm((f) => ({ ...f, [key]: val }));
+
+  const addSkill = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed || form.skills.includes(trimmed)) return;
+    setForm((f) => ({ ...f, skills: [...f.skills, trimmed] }));
+    setSkillInput("");
+  };
+
+  const removeSkill = (idx: number) =>
+    setForm((f) => ({ ...f, skills: f.skills.filter((_, i) => i !== idx) }));
+
+  const touch = (field: string) =>
+    setTouched((t) => ({ ...t, [field]: true }));
+
+  const validate = (field: string, val: string) => {
+    if (field === "name") return val.trim().length >= 2;
+    if (field === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+    if (field === "experience") return val.length > 0;
+    if (field === "whyJoin") return val.trim().length >= 20;
+    return true;
+  };
+
+  const canNext = () => {
+    if (step === 1) return form.name.trim().length >= 2 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+    if (step === 2) return form.experience.length > 0;
+    if (step === 3) return form.whyJoin.trim().length >= 20;
+    return true;
+  };
+
+  const animateStep = (direction: "forward" | "back", callback: () => void) => {
+    if (contentRef.current) {
+      contentRef.current.style.opacity = "0";
+      contentRef.current.style.transform = direction === "forward" ? "translateX(20px)" : "translateX(-20px)";
+    }
+    setTimeout(() => {
+      callback();
+      if (contentRef.current) {
+        contentRef.current.style.transform = direction === "forward" ? "translateX(-20px)" : "translateX(20px)";
+        setTimeout(() => {
+          if (contentRef.current) {
+            contentRef.current.style.transition = "opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1)";
+            contentRef.current.style.opacity = "1";
+            contentRef.current.style.transform = "translateX(0)";
+          }
+        }, 20);
+      }
+    }, 180);
+  };
+
+  const goNext = () => animateStep("forward", () => setStep((s) => s + 1));
+  const goBack = () => animateStep("back", () => setStep((s) => s - 1));
+
+  const handleSubmit = async () => {
+    setSending(true);
+    await new Promise((r) => setTimeout(r, 1400));
+    setSending(false);
+    setSubmitted(true);
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: "block",
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+    color: "var(--muted)",
+    marginBottom: 8,
+  };
+
+  const fieldGap: React.CSSProperties = { marginBottom: 18 };
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 900,
+        background: "rgba(0,0,0,0.7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 24,
+        overflowY: "auto",
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "var(--surface)",
+          border: "1px solid var(--border)",
+          borderRadius: 0,
+          width: "100%",
+          maxWidth: 640,
+          maxHeight: "90vh",
+          display: "flex",
+          flexDirection: "column",
+          position: "relative",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{
+          padding: "20px 28px",
+          borderBottom: "1px solid var(--border)",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: 16,
+          flexShrink: 0,
+        }}>
+          <div>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 4px" }}>
+              Apply for
+            </p>
+            <h2 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{job.title}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: "transparent",
+              border: "1px solid var(--border)",
+              color: "var(--muted)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 32,
+              height: 32,
+              borderRadius: 0,
+              flexShrink: 0,
+            }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          {submitted ? (
+            <div style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "60px 28px",
+              textAlign: "center",
+            }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                backgroundImage: GRADIENT,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: 24,
+              }}>
+                <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                  <path d="M4 13l6 6L22 7" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <h3 style={{ fontSize: 22, fontWeight: 700, color: "var(--fg)", margin: "0 0 12px", letterSpacing: "-0.5px" }}>
+                Application Submitted!
+              </h3>
+              <p style={{ fontSize: 14, color: "var(--muted)", lineHeight: 1.75, maxWidth: 360, margin: "0 0 32px" }}>
+                We&apos;ll review your application and get back to you within 5 business days.
+              </p>
+              <button
+                onClick={onClose}
+                style={{
+                  padding: "13px 28px",
+                  backgroundImage: GRADIENT,
+                  color: "#fff",
+                  border: "none",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  borderRadius: 0,
+                  boxShadow: "0 6px 24px rgba(255,106,0,0.35)",
+                }}
+              >
+                Back to Careers
+              </button>
+            </div>
+          ) : (
+            <div style={{ padding: "28px 28px 0" }}>
+              {/* Step indicator */}
+              <StepBar current={step} total={APPLY_STEPS.length} />
+
+              {/* Step label */}
+              <div style={{ marginBottom: 28 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 4px" }}>
+                  Step {step} of {APPLY_STEPS.length}
+                </p>
+                <h3 style={{ fontSize: 18, fontWeight: 600, color: "var(--fg)", margin: 0, letterSpacing: "-0.4px" }}>
+                  {APPLY_STEPS[step - 1].label}
+                </h3>
+              </div>
+
+              {/* Step content */}
+              <div ref={contentRef} style={{ transition: "opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1)" }}>
+
+                {/* Step 1: Personal Info */}
+                {step === 1 && (
+                  <div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Full Name <span style={{ color: "#ff6a00" }}>*</span></label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="text"
+                          placeholder="Jane Smith"
+                          value={form.name}
+                          onChange={(e) => set("name", e.target.value)}
+                          onFocus={() => setFocused("name")}
+                          onBlur={() => { setFocused(null); touch("name"); }}
+                          style={{ ...inputStyle("name"), paddingRight: touched["name"] ? 40 : 14 }}
+                        />
+                        {touched["name"] && <FieldIcon ok={validate("name", form.name)} />}
+                      </div>
+                    </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Email Address <span style={{ color: "#ff6a00" }}>*</span></label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="email"
+                          placeholder="jane@example.com"
+                          value={form.email}
+                          onChange={(e) => set("email", e.target.value)}
+                          onFocus={() => setFocused("email")}
+                          onBlur={() => { setFocused(null); touch("email"); }}
+                          style={{ ...inputStyle("email"), paddingRight: touched["email"] ? 40 : 14 }}
+                        />
+                        {touched["email"] && <FieldIcon ok={validate("email", form.email)} />}
+                      </div>
+                    </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Phone Number</label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="tel"
+                          placeholder="+92 300 1234567"
+                          value={form.phone}
+                          onChange={(e) => set("phone", e.target.value)}
+                          onFocus={() => setFocused("phone")}
+                          onBlur={() => setFocused(null)}
+                          style={inputStyle("phone")}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Professional */}
+                {step === 2 && (
+                  <div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Portfolio / Website URL</label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="url"
+                          placeholder="yourportfolio.com"
+                          value={form.portfolio}
+                          onChange={(e) => set("portfolio", e.target.value)}
+                          onFocus={() => setFocused("portfolio")}
+                          onBlur={() => setFocused(null)}
+                          style={inputStyle("portfolio")}
+                        />
+                      </div>
+                    </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>LinkedIn Profile</label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="url"
+                          placeholder="linkedin.com/in/yourname"
+                          value={form.linkedin}
+                          onChange={(e) => set("linkedin", e.target.value)}
+                          onFocus={() => setFocused("linkedin")}
+                          onBlur={() => setFocused(null)}
+                          style={inputStyle("linkedin")}
+                        />
+                      </div>
+                    </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Years of Experience <span style={{ color: "#ff6a00" }}>*</span></label>
+                      <div style={{ position: "relative" }}>
+                        <select
+                          value={form.experience}
+                          onChange={(e) => set("experience", e.target.value)}
+                          onFocus={() => setFocused("experience")}
+                          onBlur={() => { setFocused(null); touch("experience"); }}
+                          style={{ ...inputStyle("experience"), paddingRight: touched["experience"] ? 44 : 36 }}
+                        >
+                          <option value="">Select experience level...</option>
+                          {EXP_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"
+                          style={{ position: "absolute", right: touched["experience"] ? 32 : 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none", color: "var(--muted)" }}>
+                          <path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        {touched["experience"] && <FieldIcon ok={validate("experience", form.experience)} />}
+                      </div>
+                    </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Current Role / Title</label>
+                      <div style={{ position: "relative" }}>
+                        <input
+                          type="text"
+                          placeholder="e.g. Frontend Developer at Acme"
+                          value={form.currentRole}
+                          onChange={(e) => set("currentRole", e.target.value)}
+                          onFocus={() => setFocused("currentRole")}
+                          onBlur={() => setFocused(null)}
+                          style={inputStyle("currentRole")}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3: Application */}
+                {step === 3 && (
+                  <div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Why do you want to join Brand Edge? <span style={{ color: "#ff6a00" }}>*</span></label>
+                      <div style={{ position: "relative" }}>
+                        <textarea
+                          rows={4}
+                          placeholder="Tell us what excites you about this role and our agency..."
+                          value={form.whyJoin}
+                          onChange={(e) => set("whyJoin", e.target.value)}
+                          onFocus={() => setFocused("whyJoin")}
+                          onBlur={() => { setFocused(null); touch("whyJoin"); }}
+                          style={{ ...textareaStyle("whyJoin"), minHeight: 120, paddingRight: touched["whyJoin"] ? 40 : 14 }}
+                        />
+                        {touched["whyJoin"] && <FieldIcon ok={validate("whyJoin", form.whyJoin)} forTextarea />}
+                      </div>
+                    </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Skills <span style={{ color: "var(--muted)", fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>(press Enter to add)</span></label>
+                      {/* Chips */}
+                      {form.skills.length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+                          {form.skills.map((skill, i) => (
+                            <span key={i} style={{
+                              display: "inline-flex", alignItems: "center", gap: 6,
+                              padding: "4px 10px",
+                              background: isDark ? "rgba(255,106,0,0.12)" : "rgba(255,106,0,0.08)",
+                              border: "1px solid rgba(255,106,0,0.35)",
+                              borderRadius: 0, fontSize: 12, fontWeight: 600, color: "#ff6a00",
+                            }}>
+                              {skill}
+                              <button type="button" onClick={() => removeSkill(i)} style={{
+                                background: "none", border: "none", cursor: "pointer",
+                                color: "#ff6a00", padding: 0, lineHeight: 1,
+                                display: "flex", alignItems: "center", fontSize: 16,
+                              }}>×</button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <input
+                        type="text"
+                        placeholder="e.g. React, Figma, SEO..."
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onFocus={() => setFocused("skills")}
+                        onBlur={() => { setFocused(null); if (skillInput.trim()) addSkill(skillInput); }}
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill(skillInput); } }}
+                        style={inputStyle("skills")}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Confirm */}
+                {step === 4 && (
+                  <div style={{ paddingBottom: 4 }}>
+                    <div style={{ padding: "20px 24px", border: "1px solid var(--border)", background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", marginBottom: 16 }}>
+                      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 12px" }}>Personal</p>
+                      <SummaryRow label="Name" value={form.name} />
+                      <SummaryRow label="Email" value={form.email} />
+                      <SummaryRow label="Phone" value={form.phone} />
+                    </div>
+                    <div style={{ padding: "20px 24px", border: "1px solid var(--border)", background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)", marginBottom: 16 }}>
+                      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 12px" }}>Professional</p>
+                      <SummaryRow label="Experience" value={form.experience} />
+                      {form.currentRole && <SummaryRow label="Current Role" value={form.currentRole} />}
+                      {form.portfolio && <SummaryRow label="Portfolio" value={form.portfolio} />}
+                      {form.linkedin && <SummaryRow label="LinkedIn" value={form.linkedin} />}
+                    </div>
+                    <div style={{ padding: "20px 24px", border: "1px solid var(--border)", background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)" }}>
+                      <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 12px" }}>Application</p>
+                      <div style={{ padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
+                        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", display: "block", marginBottom: 8 }}>Why Brand Edge</span>
+                        <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.65, margin: 0 }}>{form.whyJoin || "—"}</p>
+                      </div>
+                      {form.skills.length > 0 && (
+                        <div style={{ padding: "12px 0" }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", display: "block", marginBottom: 8 }}>Skills</span>
+                          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                            {form.skills.map((s, i) => (
+                              <span key={i} style={{
+                                display: "inline-block", padding: "3px 10px",
+                                background: isDark ? "rgba(255,106,0,0.12)" : "rgba(255,106,0,0.08)",
+                                border: "1px solid rgba(255,106,0,0.35)",
+                                borderRadius: 0, fontSize: 12, fontWeight: 600, color: "#ff6a00",
+                              }}>{s}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation */}
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "24px 0", gap: 12 }}>
+                {step > 1 ? (
+                  <button
+                    onClick={goBack}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "11px 22px",
+                      border: "2px solid var(--border)",
+                      background: "transparent",
+                      color: "var(--fg)",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      borderRadius: 0,
+                    }}
+                  >
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                      <path d="M10 7H4M7 4L4 7l3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Back
+                  </button>
+                ) : <div />}
+
+                {step < 4 ? (
+                  <button
+                    onClick={goNext}
+                    disabled={!canNext()}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "11px 28px",
+                      border: "none",
+                      backgroundImage: GRADIENT,
+                      color: "#fff",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: canNext() ? "pointer" : "not-allowed",
+                      fontFamily: "inherit",
+                      borderRadius: 0,
+                      opacity: canNext() ? 1 : 0.45,
+                      boxShadow: canNext() ? "0 6px 24px rgba(255,106,0,0.3)" : "none",
+                      transition: "opacity 0.2s ease, box-shadow 0.2s ease",
+                    }}
+                  >
+                    Continue
+                    <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                      <path d="M4 7h6M7 4l3 3-3 3" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleSubmit}
+                    disabled={sending}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "11px 28px",
+                      border: "none",
+                      backgroundImage: GRADIENT,
+                      color: "#fff",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: sending ? "not-allowed" : "pointer",
+                      fontFamily: "inherit",
+                      borderRadius: 0,
+                      opacity: sending ? 0.75 : 1,
+                      boxShadow: "0 6px 24px rgba(255,106,0,0.3)",
+                    }}
+                  >
+                    {sending ? (
+                      <>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ animation: "spin 0.8s linear infinite" }}>
+                          <circle cx="7" cy="7" r="5" stroke="rgba(255,255,255,0.3)" strokeWidth="2" />
+                          <path d="M7 2a5 5 0 0 1 5 5" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        Submit Application
+                        <svg width="13" height="13" viewBox="0 0 14 14" fill="none">
+                          <path d="M2 7h10M8 3l4 4-4 4" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+
+              {/* Progress bar */}
+              <div style={{ height: 2, background: "var(--border)", overflow: "hidden", marginBottom: 28 }}>
+                <div style={{
+                  height: "100%",
+                  backgroundImage: GRADIENT,
+                  width: `${((step - 1) / (APPLY_STEPS.length - 1)) * 100}%`,
+                  transition: "width 0.4s cubic-bezier(0.16,1,0.3,1)",
+                }} />
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ── Main page ──────────────────────────────────────────────── */
+export default function CareersPage() {
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [scrolled, setScrolled] = useState(false);
+  const [activeJob, setActiveJob] = useState<Job | null>(null);
+  const [hoveredJob, setHoveredJob] = useState<number | null>(null);
+
+  const isDark = theme === "dark";
+
+  useEffect(() => {
+    const saved = localStorage.getItem("be-theme") as "dark" | "light" | null;
+    if (saved) setTheme(saved);
+  }, []);
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    if (activeJob) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [activeJob]);
+
+  const toggle = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    localStorage.setItem("be-theme", next);
+  };
+
+  return (
+    <div
+      data-theme={theme}
+      style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--fg)", display: "flex", flexDirection: "column", cursor: "none" }}
+    >
+      <style>{`
+        ::placeholder { color: var(--muted); opacity: 0.55; }
+        select option { background: var(--bg); color: var(--fg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+      `}</style>
+
+      <CustomCursor />
+      <Header theme={theme} onToggle={toggle} scrolled={scrolled} />
+
+      <main style={{ flex: 1 }}>
+
+        {/* ── Hero ── */}
+        <section style={{
+          padding: "clamp(100px,14vh,160px) 24px clamp(64px,8vh,100px)",
+          maxWidth: 760,
+          margin: "0 auto",
+          animation: "fadeUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards",
+        }}>
+          {/* Badge */}
+          <div style={{ marginBottom: 28 }}>
+            <span style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 14px",
+              border: "1px solid var(--border)",
+              background: "var(--surface)",
+              fontSize: 11,
+              fontWeight: 700,
+              letterSpacing: "0.14em",
+              textTransform: "uppercase",
+              color: "var(--fg)",
+            }}>
+              <span style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "#ff6a00",
+                display: "inline-block",
+                boxShadow: "0 0 6px rgba(255,106,0,0.6)",
+              }} />
+              We&apos;re Hiring
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h1 style={{
+            fontSize: "clamp(32px, 5vw, 62px)",
+            fontWeight: 400,
+            letterSpacing: "-2px",
+            lineHeight: 1.08,
+            color: "var(--fg)",
+            margin: "0 0 20px",
+          }}>
+            Join the team building{" "}
+            <span style={{
+              backgroundImage: GRADIENT,
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}>
+              bold brands
+            </span>
+          </h1>
+
+          {/* Subtext */}
+          <p style={{
+            fontSize: "clamp(15px,1.6vw,18px)",
+            color: "var(--muted)",
+            lineHeight: 1.75,
+            maxWidth: 560,
+            margin: "0 0 36px",
+          }}>
+            We&apos;re a growing creative agency. If you&apos;re talented, driven, and love great work — you belong here.
+          </p>
+
+          {/* Stats */}
+          <div style={{ display: "flex", gap: 32, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 32, height: 32, backgroundImage: GRADIENT, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="7" width="20" height="14" />
+                  <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                </svg>
+              </div>
+              <div>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", display: "block", lineHeight: 1.1 }}>5</span>
+                <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Open Roles</span>
+              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <div style={{ width: 32, height: 32, backgroundImage: GRADIENT, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+              </div>
+              <div>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", display: "block", lineHeight: 1.1 }}>Remote</span>
+                <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Friendly</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Jobs listing ── */}
+        <section style={{
+          maxWidth: 860,
+          margin: "0 auto",
+          padding: "0 24px clamp(64px,8vh,96px)",
+        }}>
+          <div style={{ marginBottom: 32 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 8px" }}>
+              Open Positions
+            </p>
+            <h2 style={{ fontSize: "clamp(20px,2.4vw,28px)", fontWeight: 600, color: "var(--fg)", margin: 0, letterSpacing: "-0.6px" }}>
+              Find your role
+            </h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }} className="jobs-grid">
+            <style>{`@media(max-width:640px){.jobs-grid{grid-template-columns:1fr!important}}`}</style>
+            {JOBS.map((job) => (
+              <div
+                key={job.id}
+                onMouseEnter={() => setHoveredJob(job.id)}
+                onMouseLeave={() => setHoveredJob(null)}
+                style={{
+                  background: "var(--surface)",
+                  border: `1px solid ${hoveredJob === job.id ? "rgba(255,106,0,0.4)" : "var(--border)"}`,
+                  borderRadius: 0,
+                  padding: 28,
+                  transition: "border-color 0.2s ease",
+                }}
+              >
+                {/* Top row: badges */}
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+                  <span style={{
+                    display: "inline-block",
+                    padding: "3px 9px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    background: "var(--surface2)",
+                    color: "var(--muted)",
+                    borderRadius: 0,
+                  }}>
+                    {job.department}
+                  </span>
+                  <span style={{
+                    display: "inline-block",
+                    padding: "3px 9px",
+                    fontSize: 11,
+                    fontWeight: 700,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                    background: "var(--surface2)",
+                    color: "var(--muted)",
+                    borderRadius: 0,
+                  }}>
+                    {job.type}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: "0 0 10px", letterSpacing: "-0.3px" }}>
+                  {job.title}
+                </h3>
+
+                {/* Location + Level */}
+                <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 12 }}>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--muted)" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                      <circle cx="12" cy="10" r="3" />
+                    </svg>
+                    {job.location}
+                  </span>
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 13, color: "var(--muted)" }}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                    {job.level}
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p style={{
+                  fontSize: 14,
+                  color: "var(--muted)",
+                  lineHeight: 1.65,
+                  margin: "0 0 20px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
+                }}>
+                  {job.description}
+                </p>
+
+                {/* Bottom row */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => setActiveJob(job)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      padding: "10px 22px",
+                      backgroundImage: GRADIENT,
+                      color: "#fff",
+                      border: "none",
+                      fontSize: 13,
+                      fontWeight: 700,
+                      cursor: "pointer",
+                      fontFamily: "inherit",
+                      borderRadius: 0,
+                      boxShadow: "0 4px 16px rgba(255,106,0,0.25)",
+                      transition: "box-shadow 0.2s ease",
+                    }}
+                  >
+                    Apply Now
+                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 7h8M8 4l3 3-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  <span style={{ fontSize: 12, color: "var(--muted)" }}>Posted {job.posted}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ── Why Brand Edge ── */}
+        <section style={{
+          borderTop: "1px solid var(--border)",
+          padding: "clamp(64px,8vh,96px) 24px",
+          maxWidth: 860,
+          margin: "0 auto",
+        }}>
+          <div style={{ marginBottom: 40 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 8px" }}>
+              Why work here
+            </p>
+            <h2 style={{ fontSize: "clamp(20px,2.4vw,28px)", fontWeight: 600, color: "var(--fg)", margin: 0, letterSpacing: "-0.6px" }}>
+              Why Brand Edge?
+            </h2>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 20 }}>
+            {PERKS.map((perk) => (
+              <div
+                key={perk.title}
+                style={{
+                  background: "var(--surface)",
+                  border: "1px solid var(--border)",
+                  borderRadius: 0,
+                  padding: 28,
+                }}
+              >
+                <div style={{
+                  width: 36,
+                  height: 36,
+                  backgroundImage: GRADIENT,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: 16,
+                  borderRadius: 0,
+                }}>
+                  {perk.icon}
+                </div>
+                <h3 style={{ fontSize: 15, fontWeight: 700, color: "var(--fg)", margin: "0 0 8px", letterSpacing: "-0.2px" }}>
+                  {perk.title}
+                </h3>
+                <p style={{ fontSize: 13, color: "var(--muted)", lineHeight: 1.6, margin: 0 }}>
+                  {perk.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+      </main>
+
+      <Footer theme={theme} />
+
+      {/* Apply overlay */}
+      {activeJob && (
+        <ApplyOverlay
+          job={activeJob}
+          onClose={() => setActiveJob(null)}
+          isDark={isDark}
+        />
+      )}
+    </div>
+  );
+}
