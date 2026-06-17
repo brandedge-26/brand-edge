@@ -27,7 +27,7 @@ const INFO = [
   },
   {
     label: "Location",
-    value: "Mumbai, India",
+    value: "Karachi Pakistan",
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M9 1.5a5.5 5.5 0 0 1 5.5 5.5c0 4-5.5 9.5-5.5 9.5S3.5 11 3.5 7A5.5 5.5 0 0 1 9 1.5Z" stroke="currentColor" strokeWidth="1.4" />
@@ -58,42 +58,11 @@ export default function ContactPage() {
   const [form, setForm] = useState<FormState>({ name: "", email: "", phone: "", service: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
-
-  const validate = (field: string, val: string) => {
-    if (field === "name") return val.trim().length >= 2;
-    if (field === "email") return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
-    if (field === "phone") return val === "" || val.replace(/\D/g, "").length >= 10;
-    if (field === "message") return val.trim().length >= 10;
-    return true;
-  };
-
-  const touch = (field: string) => setTouched(t => ({ ...t, [field]: true }));
-
-  const fieldIcon = (field: string, val: string, forTextarea = false) => {
-    if (!touched[field]) return null;
-    const ok = validate(field, val);
-    const style: React.CSSProperties = forTextarea
-      ? { position: "absolute", right: 12, top: 14, pointerEvents: "none" }
-      : { position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" };
-    return ok ? (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={style}>
-        <circle cx="8" cy="8" r="7" stroke="#22c55e" strokeWidth="1.5"/>
-        <path d="M4.5 8l2.5 2.5L11.5 5" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-      </svg>
-    ) : (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={style}>
-        <circle cx="8" cy="8" r="7" stroke="#ef4444" strokeWidth="1.5"/>
-        <path d="M5.5 5.5l5 5M10.5 5.5l-5 5" stroke="#ef4444" strokeWidth="1.5" strokeLinecap="round"/>
-      </svg>
-    );
-  };
-
   const heroRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const saved = localStorage.getItem("be-theme") as "dark" | "light" | null;
+    const saved = localStorage.getItem("theme") as "dark" | "light" | null;
     if (saved) setTheme(saved);
   }, []);
 
@@ -122,7 +91,7 @@ export default function ContactPage() {
   const toggle = () => {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
-    localStorage.setItem("be-theme", next);
+    localStorage.setItem("theme", next);
   };
 
   const isDark = theme === "dark";
@@ -373,35 +342,29 @@ export default function ContactPage() {
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>
                       Name <span style={{ color: "#ff6a00" }}>*</span>
                     </label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        type="text" name="name" required
-                        placeholder="John Doe"
-                        value={form.name}
-                        onChange={handleChange}
-                        onFocus={() => setFocused("name")}
-                        onBlur={() => { setFocused(null); touch("name"); }}
-                        style={{ ...getInputStyle("name"), paddingRight: touched["name"] ? 40 : 15 }}
-                      />
-                      {fieldIcon("name", form.name)}
-                    </div>
+                    <input
+                      type="text" name="name" required
+                      placeholder="John Doe"
+                      value={form.name}
+                      onChange={handleChange}
+                      onFocus={() => setFocused("name")}
+                      onBlur={() => setFocused(null)}
+                      style={getInputStyle("name")}
+                    />
                   </div>
                   <div>
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>
                       Phone
                     </label>
-                    <div style={{ position: "relative" }}>
-                      <input
-                        type="tel" name="phone"
-                        placeholder="+91 98765 43210"
-                        value={form.phone}
-                        onChange={handleChange}
-                        onFocus={() => setFocused("phone")}
-                        onBlur={() => { setFocused(null); touch("phone"); }}
-                        style={{ ...getInputStyle("phone"), paddingRight: touched["phone"] ? 40 : 15 }}
-                      />
-                      {fieldIcon("phone", form.phone)}
-                    </div>
+                    <input
+                      type="tel" name="phone"
+                      placeholder="+91 98765 43210"
+                      value={form.phone}
+                      onChange={handleChange}
+                      onFocus={() => setFocused("phone")}
+                      onBlur={() => setFocused(null)}
+                      style={getInputStyle("phone")}
+                    />
                   </div>
                 </div>
 
@@ -410,18 +373,15 @@ export default function ContactPage() {
                   <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>
                     Email <span style={{ color: "#ff6a00" }}>*</span>
                   </label>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      type="email" name="email" required
-                      placeholder="john@company.com"
-                      value={form.email}
-                      onChange={handleChange}
-                      onFocus={() => setFocused("email")}
-                      onBlur={() => { setFocused(null); touch("email"); }}
-                      style={{ ...getInputStyle("email"), paddingRight: touched["email"] ? 40 : 15 }}
-                    />
-                    {fieldIcon("email", form.email)}
-                  </div>
+                  <input
+                    type="email" name="email" required
+                    placeholder="john@company.com"
+                    value={form.email}
+                    onChange={handleChange}
+                    onFocus={() => setFocused("email")}
+                    onBlur={() => setFocused(null)}
+                    style={getInputStyle("email")}
+                  />
                 </div>
 
                 {/* Service */}
@@ -453,19 +413,16 @@ export default function ContactPage() {
                   <label style={{ display: "block", fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", marginBottom: 8 }}>
                     Message <span style={{ color: "#ff6a00" }}>*</span>
                   </label>
-                  <div style={{ position: "relative" }}>
-                    <textarea
-                      name="message" required
-                      rows={5}
-                      placeholder="Tell us about your project, goals, timeline..."
-                      value={form.message}
-                      onChange={handleChange}
-                      onFocus={() => setFocused("message")}
-                      onBlur={() => { setFocused(null); touch("message"); }}
-                      style={{ ...getInputStyle("message"), resize: "vertical", minHeight: 130, paddingRight: touched["message"] ? 40 : 15 }}
-                    />
-                    {fieldIcon("message", form.message, true)}
-                  </div>
+                  <textarea
+                    name="message" required
+                    rows={5}
+                    placeholder="Tell us about your project, goals, timeline..."
+                    value={form.message}
+                    onChange={handleChange}
+                    onFocus={() => setFocused("message")}
+                    onBlur={() => setFocused(null)}
+                    style={{ ...getInputStyle("message"), resize: "vertical", minHeight: 130 }}
+                  />
                 </div>
 
                 {/* Submit */}
