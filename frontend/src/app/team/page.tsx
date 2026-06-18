@@ -19,19 +19,19 @@ const ROLES = [
 
 
 const TEAM = [
-  { num: "01", name: "Muhammad Ubaid Khan", role: "Founder & CEO",            tags: "Vision · Brand Strategy",          grad: "linear-gradient(135deg,#ff6a00,#ee0979)", imgBg: "linear-gradient(145deg,#1a0800,#3d1200,#ff6a00)", initials: "MU", photo: "/profiles/ubaid.png",  female: false, linkedin: "" },
-  { num: "02", name: "Saghar Hassan",       role: "Creative Director",         tags: "Art Direction · Brand Identity",    grad: "linear-gradient(135deg,#c026d3,#7c3aed)", imgBg: "linear-gradient(145deg,#120020,#2d0050,#c026d3)", initials: "SH", photo: "/profiles/sagar.png", female: false, linkedin: "" },
-  { num: "03", name: "Syed Asif Shah",      role: "Senior Developer",          tags: "Next.js · System Architecture",     grad: "linear-gradient(135deg,#0891b2,#7c3aed)", imgBg: "linear-gradient(145deg,#000d1a,#001f3f,#0891b2)", initials: "SA", photo: "/profiles/asif.avif", female: false, linkedin: "" },
-  { num: "04", name: "Zaira Hussain",       role: "Full Stack Developer",      tags: "React · Node.js · APIs",            grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#001020,#002040,#06b6d4)", initials: "ZH", photo: null as string | null, female: true,  linkedin: "" },
-  { num: "05", name: "Muhammad Hammad",     role: "Backend Developer",         tags: "Node.js · Databases · APIs",        grad: "linear-gradient(135deg,#16a34a,#0891b2)", imgBg: "linear-gradient(145deg,#001a0a,#003d18,#16a34a)", initials: "MH", photo: null as string | null, female: false, linkedin: "" },
-  { num: "06", name: "Aniq Raza",           role: "Senior Graphic Designer",   tags: "Brand Design · Visual Identity",    grad: "linear-gradient(135deg,#ff6a00,#c026d3)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#c026d3)", initials: "AR", photo: "/profiles/aniq.jpg",  female: false, linkedin: "" },
-  { num: "07", name: "Khizar Mughal",       role: "Graphic Designer",          tags: "UI Design · Illustration",          grad: "linear-gradient(135deg,#d97706,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#d97706)", initials: "KM", photo: null as string | null, female: false, linkedin: "" },
-  { num: "08", name: "Umaima Malik",        role: "Video Editor",              tags: "Motion · Post Production",          grad: "linear-gradient(135deg,#ee0979,#7c3aed)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#ee0979)", initials: "UM", photo: null as string | null, female: true,  linkedin: "" },
-  { num: "09", name: "Muhammad Luqman Ali", role: "Social Media Manager",      tags: "Content Strategy · Growth",         grad: "linear-gradient(135deg,#3b82f6,#0891b2)", imgBg: "linear-gradient(145deg,#000d1a,#001840,#3b82f6)", initials: "ML", photo: null as string | null, female: false, linkedin: "" },
-  { num: "10", name: "Ahsan Khan",          role: "Digital Marketer",          tags: "SEO · Paid Media · Analytics",      grad: "linear-gradient(135deg,#22c55e,#16a34a)", imgBg: "linear-gradient(145deg,#001a08,#003315,#22c55e)", initials: "AK", photo: null as string | null, female: false, linkedin: "" },
-  { num: "11", name: "Syed Abdullah",       role: "Sales Executive",           tags: "Client Relations · BD",             grad: "linear-gradient(135deg,#f59e0b,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#f59e0b)", initials: "SA", photo: null as string | null, female: false, linkedin: "" },
-  { num: "12", name: "Ziyan Siddique",      role: "Sales Executive",           tags: "Lead Gen · Partnerships",           grad: "linear-gradient(135deg,#8b5cf6,#c026d3)", imgBg: "linear-gradient(145deg,#0d0020,#200040,#8b5cf6)", initials: "ZS", photo: null as string | null, female: false, linkedin: "" },
-  { num: "13", name: "Ayan Kamran",         role: "Sales Executive",           tags: "Business Dev · Client Success",     grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#000d20,#001840,#06b6d4)", initials: "AY", photo: null as string | null, female: false, linkedin: "" },
+  { num: "01", name: "Muhammad Ubaid Khan", role: "Founder & CEO",            tags: "Vision · Brand Strategy",          grad: "linear-gradient(135deg,#ff6a00,#ee0979)", imgBg: "linear-gradient(145deg,#1a0800,#3d1200,#ff6a00)", initials: "MU", photo: "/profiles/ubaid.png",  female: false, linkedin: "https://pk.linkedin.com/in/ubaid-khan-a362222a6" },
+  { num: "02", name: "Saghar Hassan",       role: "Creative Director",         tags: "Art Direction · Brand Identity",    grad: "linear-gradient(135deg,#c026d3,#7c3aed)", imgBg: "linear-gradient(145deg,#120020,#2d0050,#c026d3)", initials: "SH", photo: "/profiles/sagar.png", female: false, linkedin: "#" },
+  { num: "03", name: "Syed Asif Shah",      role: "Senior Developer",          tags: "Next.js · System Architecture",     grad: "linear-gradient(135deg,#0891b2,#7c3aed)", imgBg: "linear-gradient(145deg,#000d1a,#001f3f,#0891b2)", initials: "SA", photo: "/profiles/asif.avif", female: false, linkedin: "#" },
+  { num: "04", name: "Zaira Hussain",       role: "Full Stack Developer",      tags: "React · Node.js · APIs",            grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#001020,#002040,#06b6d4)", initials: "ZH", photo: null as string | null, female: true,  linkedin: "#" },
+  { num: "05", name: "Muhammad Hammad",     role: "Backend Developer",         tags: "Node.js · Databases · APIs",        grad: "linear-gradient(135deg,#16a34a,#0891b2)", imgBg: "linear-gradient(145deg,#001a0a,#003d18,#16a34a)", initials: "MH", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "06", name: "Aniq Raza",           role: "Senior Graphic Designer",   tags: "Brand Design · Visual Identity",    grad: "linear-gradient(135deg,#ff6a00,#c026d3)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#c026d3)", initials: "AR", photo: "/profiles/aniq.jpg",  female: false, linkedin: "#" },
+  { num: "07", name: "Khizar Mughal",       role: "Graphic Designer",          tags: "UI Design · Illustration",          grad: "linear-gradient(135deg,#d97706,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#d97706)", initials: "KM", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "08", name: "Umaima Malik",        role: "Video Editor",              tags: "Motion · Post Production",          grad: "linear-gradient(135deg,#ee0979,#7c3aed)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#ee0979)", initials: "UM", photo: null as string | null, female: true,  linkedin: "#" },
+  { num: "09", name: "Muhammad Luqman Ali", role: "Social Media Manager",      tags: "Content Strategy · Growth",         grad: "linear-gradient(135deg,#3b82f6,#0891b2)", imgBg: "linear-gradient(145deg,#000d1a,#001840,#3b82f6)", initials: "ML", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "10", name: "Ahsan Khan",          role: "Digital Marketer",          tags: "SEO · Paid Media · Analytics",      grad: "linear-gradient(135deg,#22c55e,#16a34a)", imgBg: "linear-gradient(145deg,#001a08,#003315,#22c55e)", initials: "AK", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "11", name: "Syed Abdullah",       role: "Sales Executive",           tags: "Client Relations · BD",             grad: "linear-gradient(135deg,#f59e0b,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#f59e0b)", initials: "SA", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "12", name: "Ziyan Siddique",      role: "Sales Executive",           tags: "Lead Gen · Partnerships",           grad: "linear-gradient(135deg,#8b5cf6,#c026d3)", imgBg: "linear-gradient(145deg,#0d0020,#200040,#8b5cf6)", initials: "ZS", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "13", name: "Ayan Kamran",         role: "Sales Executive",           tags: "Business Dev · Client Success",     grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#000d20,#001840,#06b6d4)", initials: "AY", photo: null as string | null, female: false, linkedin: "#" },
 ];
 
 const STATS = [
@@ -153,8 +153,54 @@ function TeamSection({ theme }: { theme: "dark" | "light" }) {
         </p>
       </div>
 
-      {/* List rows */}
-      <div style={{ borderTop: "1px solid var(--border)" }}>
+      {/* ── Mobile Cards Grid ── */}
+      <div className="md:hidden" style={{ borderTop: "1px solid var(--border)", padding: "24px 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {TEAM.map((member) => (
+          <div key={member.num} style={{ border: "1px solid var(--border)", background: "var(--surface)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            {/* Image area */}
+            <div style={{ height: 160, position: "relative", overflow: "hidden", background: member.photo ? "#111" : member.imgBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              {member.photo ? (
+                <img src={member.photo} alt={member.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top center", position: "absolute", inset: 0 }} />
+              ) : member.female ? (
+                <FemaleAvatar size={80} />
+              ) : (
+                <>
+                  <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.08)", filter: "blur(24px)" }} />
+                  <div style={{ width: 64, height: 64, borderRadius: "50%", background: "rgba(255,255,255,0.15)", backdropFilter: "blur(8px)", border: "1px solid rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                    <span style={{ fontSize: 18, fontWeight: 800, color: "white", letterSpacing: "-0.5px" }}>{member.initials}</span>
+                  </div>
+                </>
+              )}
+              {/* Number badge */}
+              <span style={{ position: "absolute", top: 8, left: 8, fontSize: 9, fontWeight: 700, letterSpacing: "0.15em", color: "rgba(255,255,255,0.6)", background: "rgba(0,0,0,0.35)", padding: "2px 6px" }}>
+                {member.num}
+              </span>
+            </div>
+
+            {/* Info */}
+            <div style={{ padding: "12px", display: "flex", flexDirection: "column", gap: 6, flex: 1 }}>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--fg)", lineHeight: 1.3, letterSpacing: "-0.3px" }}>{member.name}</p>
+              <p style={{ margin: 0, fontSize: 10, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", lineHeight: 1.3 }}>{member.role}</p>
+              {member.linkedin && (
+                <a
+                  href={member.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, color: "#0a66c2", textDecoration: "none", border: "1px solid #0a66c2", padding: "4px 8px", alignSelf: "flex-start" }}
+                >
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                  LinkedIn
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* List rows — desktop only */}
+      <div className="hidden md:block" style={{ borderTop: "1px solid var(--border)" }}>
         {TEAM.map((member, i) => {
           const isHovered = hoveredIdx === i;
           const isTapped = tappedIdx === i;
@@ -238,31 +284,6 @@ function TeamSection({ theme }: { theme: "dark" | "light" }) {
                 </div>
               </div>
 
-              {/* Mobile tap — image reveal */}
-              <div className="md:hidden overflow-hidden transition-all duration-500"
-                style={{ maxHeight: isTapped ? "220px" : "0px", opacity: isTapped ? 1 : 0 }}>
-                <div className="relative w-full h-[180px] flex items-center justify-center overflow-hidden"
-                  style={{ background: member.photo ? "#000" : member.imgBg }}>
-                  {member.photo ? (
-                    <img src={member.photo} alt={member.name} style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", position: "absolute", inset: 0 }} />
-                  ) : member.female ? (
-                    <FemaleAvatar size={72} />
-                  ) : (
-                    <div style={{
-                      width: 72, height: 72, borderRadius: "50%",
-                      background: "rgba(255,255,255,0.15)",
-                      backdropFilter: "blur(8px)",
-                      border: "1px solid rgba(255,255,255,0.25)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}>
-                      <span style={{ fontSize: 22, fontWeight: 800, color: "white", letterSpacing: "-1px" }}>{member.initials}</span>
-                    </div>
-                  )}
-                  <div className="absolute inset-x-0 bottom-0 p-4" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent)" }}>
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-white/70">{member.role}</span>
-                  </div>
-                </div>
-              </div>
             </div>
           );
         })}
