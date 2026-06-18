@@ -188,7 +188,7 @@ export default function Header({
         flex items-center h-12 px-1.5 pl-4
         ${glassBg} backdrop-blur-xl
         border-t border-l border-r ${borderCls}
-        ${menuOpen ? "rounded-t-[14px] border-b border-b-transparent" : `border-b ${borderCls}`}
+        ${menuOpen ? "border-b border-b-transparent" : `border-b ${borderCls}`}
         ${isDark
           ? "shadow-[0_4px_24px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.06)]"
           : "shadow-[0_4px_24px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]"}
@@ -257,7 +257,7 @@ export default function Header({
 
           {isMobile && (
             <button onClick={() => setMenuOpen(o => !o)}
-              className={`w-[34px] h-[34px] rounded-[9px] border flex flex-col items-center justify-center gap-[4px] cursor-pointer ${iconBg}`}>
+              className={`w-[34px] h-[34px] border flex flex-col items-center justify-center gap-[4px] cursor-pointer ${iconBg}`}>
               <span className={`block w-3.5 h-[1.5px] bg-[var(--fg)] rounded transition-transform duration-200 ${menuOpen ? "rotate-45 translate-y-[5.5px]" : ""}`} />
               <span className={`block w-3.5 h-[1.5px] bg-[var(--fg)] rounded transition-opacity duration-200 ${menuOpen ? "opacity-0" : ""}`} />
               <span className={`block w-3.5 h-[1.5px] bg-[var(--fg)] rounded transition-transform duration-200 ${menuOpen ? "-rotate-45 -translate-y-[5.5px]" : ""}`} />
@@ -268,12 +268,12 @@ export default function Header({
 
       {/* Mobile menu */}
       {isMobile && menuOpen && (
-        <div className={`${glassBg} backdrop-blur-xl border-l border-r border-b ${borderCls} rounded-b-[14px] pb-3 overflow-hidden`}
+        <div className={`${glassBg} backdrop-blur-xl border-l border-r border-b ${borderCls}  pb-3 overflow-hidden`}
           style={{ animation: "slideDown 0.22s ease forwards" }}>
           <div className="flex flex-col gap-0.5 p-2">
             {NAV_LINKS.map(({ label, href }) => (
               <Link key={label} href={href}
-                className={`block px-3.5 py-2.5 rounded-[9px] text-sm font-medium no-underline transition-all duration-150
+                className={`block px-3.5 py-2.5 text-sm font-medium no-underline transition-all duration-150
                   ${isActive(href) ? "" : `${navColor} ${navHover}`}`}
                 style={isActive(href) ? ACTIVE_GRAD : {}}
               >
@@ -282,7 +282,7 @@ export default function Header({
             ))}
             <button
               onClick={() => setMobileServicesOpen(o => !o)}
-              className={`flex items-center justify-between w-full px-3.5 py-2.5 rounded-[9px] text-sm font-medium transition-all duration-150 cursor-pointer border-none bg-transparent text-left ${navColor} ${navHover}`}
+              className={`flex items-center justify-between w-full px-3.5 py-2.5 text-sm font-medium transition-all duration-150 cursor-pointer border-none bg-transparent text-left ${navColor} ${navHover}`}
             >
               <span>Services</span>
               <svg width="14" height="14" viewBox="0 0 10 10" fill="none"
