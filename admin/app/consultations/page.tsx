@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useConsultationsStore, Consultation, ConsultationStatus } from "@/stores/useConsultationsStore";
+import { useToast } from "@/components/Toast";
+
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const EyeIcon = () => (
@@ -24,104 +28,7 @@ const XIcon = () => (
 );
 
 // ── Types ──────────────────────────────────────────────────────────────────
-type Status = "Pending" | "In Progress" | "Completed";
-
-interface Consultation {
-  id: number;
-  // Contact
-  name: string;
-  email: string;
-  phone: string;
-  // Company
-  company: string;
-  website: string;
-  teamSize: string;
-  industry: string;
-  // Project
-  services: string[];
-  urgency: string;
-  goals: string;
-  // Schedule
-  days: string[];
-  timeSlot: string;
-  // Meta
-  date: string;
-  status: Status;
-}
-
-// ── Mock data ───────────────────────────────────────────────────────────────
-const INITIAL: Consultation[] = [
-  {
-    id: 1, name: "Sarah Mitchell", email: "sarah@novatech.co", phone: "+1 555 234 5678",
-    company: "NovaTech", website: "novatech.co", teamSize: "11–50", industry: "SaaS / Tech",
-    services: ["Website Design", "SEO"], urgency: "ASAP",
-    goals: "We want a complete redesign of our SaaS landing page to improve conversions.",
-    days: ["Mon", "Wed"], timeSlot: "Morning", date: "Jun 15", status: "Pending",
-  },
-  {
-    id: 2, name: "James Okafor", email: "james@flowapp.io", phone: "+44 7700 900123",
-    company: "FlowApp", website: "flowapp.io", teamSize: "2–10", industry: "SaaS / Tech",
-    services: ["App Development", "Software Development"], urgency: "This Month",
-    goals: "Build an MVP mobile app for task management with team collaboration features.",
-    days: ["Tue", "Thu"], timeSlot: "Afternoon", date: "Jun 14", status: "In Progress",
-  },
-  {
-    id: 3, name: "Priya Sharma", email: "priya@brightloop.co", phone: "+92 321 456 7890",
-    company: "BrightLoop", website: "brightloop.co", teamSize: "2–10", industry: "E-Commerce",
-    services: ["360 Marketing", "Branding"], urgency: "Next Quarter",
-    goals: "Expand our brand into new markets through a multi-channel marketing strategy.",
-    days: ["Mon", "Fri"], timeSlot: "Evening", date: "Jun 13", status: "Completed",
-  },
-  {
-    id: 4, name: "Carlos Rivera", email: "carlos@designco.pk", phone: "+92 300 111 2222",
-    company: "DesignCo", website: "designco.pk", teamSize: "Solo", industry: "Agency",
-    services: ["Graphic Design", "Branding"], urgency: "Flexible",
-    goals: "Need a full brand identity kit — logo, color palette, and brand guidelines.",
-    days: ["Wed", "Thu"], timeSlot: "Morning", date: "Jun 12", status: "Pending",
-  },
-  {
-    id: 5, name: "Emma Thompson", email: "emma@softworks.io", phone: "+1 415 987 6543",
-    company: "SoftWorks", website: "softworks.io", teamSize: "50+", industry: "Finance",
-    services: ["Software Development"], urgency: "ASAP",
-    goals: "Custom ERP integration for our finance department with real-time reporting.",
-    days: ["Mon", "Tue", "Wed"], timeSlot: "Afternoon", date: "Jun 11", status: "In Progress",
-  },
-  {
-    id: 6, name: "Ahmed Khan", email: "ahmed@techpk.io", phone: "+92 333 765 4321",
-    company: "TechPK", website: "techpk.io", teamSize: "11–50", industry: "SaaS / Tech",
-    services: ["Website Design", "SEO"], urgency: "This Month",
-    goals: "Revamp our corporate website and improve organic search rankings.",
-    days: ["Thu", "Fri"], timeSlot: "Morning", date: "Jun 10", status: "Completed",
-  },
-  {
-    id: 7, name: "Lisa Wang", email: "lisa@growthlab.co", phone: "+1 310 456 7890",
-    company: "GrowthLab", website: "growthlab.co", teamSize: "2–10", industry: "Agency",
-    services: ["360 Marketing"], urgency: "This Month",
-    goals: "Set up paid ads campaigns on Meta and Google to drive qualified leads.",
-    days: ["Tue", "Wed"], timeSlot: "Evening", date: "Jun 9", status: "Pending",
-  },
-  {
-    id: 8, name: "Michael Brown", email: "mbrown@corp.io", phone: "+1 212 555 0199",
-    company: "CorpIO", website: "corp.io", teamSize: "50+", industry: "Finance",
-    services: ["App Development", "Software Development"], urgency: "Next Quarter",
-    goals: "Enterprise mobile app for internal HR processes and employee self-service.",
-    days: ["Mon", "Thu"], timeSlot: "Afternoon", date: "Jun 8", status: "In Progress",
-  },
-  {
-    id: 9, name: "Fatima Ali", email: "fatima@brand.pk", phone: "+92 301 234 0011",
-    company: "BrandPK", website: "brand.pk", teamSize: "Solo", industry: "Fashion & Lifestyle",
-    services: ["Graphic Design", "Product Photography"], urgency: "Flexible",
-    goals: "Product photography and visual identity for our new fashion label launch.",
-    days: ["Fri"], timeSlot: "Morning", date: "Jun 7", status: "Completed",
-  },
-  {
-    id: 10, name: "David Lee", email: "david@startupx.co", phone: "+1 650 321 9876",
-    company: "StartupX", website: "startupx.co", teamSize: "2–10", industry: "SaaS / Tech",
-    services: ["Software Development", "Website Design"], urgency: "ASAP",
-    goals: "Build a B2B SaaS platform from scratch — backend, dashboard, and landing page.",
-    days: ["Mon", "Tue"], timeSlot: "Morning", date: "Jun 6", status: "Pending",
-  },
-];
+type Status = ConsultationStatus;
 
 const STATUS_STYLES: Record<Status, { bg: string; color: string }> = {
   "Pending":     { bg: "rgba(245,158,11,0.15)", color: "#f59e0b" },
@@ -158,7 +65,7 @@ const tdStyle: React.CSSProperties = {
 };
 
 // ── Detail Modal ───────────────────────────────────────────────────────────
-function DetailModal({ item, onClose }: { item: Consultation; onClose: () => void }) {
+function DetailModal({ item, onClose, onStatusChange }: { item: Consultation; onClose: () => void; onStatusChange: (status: ConsultationStatus) => void }) {
   const Row = ({ label, value }: { label: string; value: string }) => (
     <div style={{ display: "flex", gap: 16, paddingBottom: 12, borderBottom: "1px solid var(--border)", marginBottom: 12 }}>
       <span style={{ width: 90, flexShrink: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", paddingTop: 1 }}>
@@ -188,7 +95,7 @@ function DetailModal({ item, onClose }: { item: Consultation; onClose: () => voi
           <div>
             <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{item.name}</h3>
             <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 3 }}>
-              Consultation #{item.id} &nbsp;·&nbsp; {item.date}
+              ID: {item._id.slice(-8)} &nbsp;·&nbsp; {fmtDate(item.createdAt)}
             </p>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
@@ -231,8 +138,30 @@ function DetailModal({ item, onClose }: { item: Consultation; onClose: () => voi
           <Row label="Time"     value={item.timeSlot} />
         </div>
 
-        {/* Modal footer */}
-        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+        {/* Modal footer — status change */}
+        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, flexShrink: 0 }}>
+          <div style={{ display: "flex", gap: 6 }}>
+            {(["Pending", "In Progress", "Completed"] as ConsultationStatus[]).map((s) => {
+              const isActive = item.status === s;
+              const colors: Record<ConsultationStatus, string> = {
+                "Pending": "#f59e0b",
+                "In Progress": "#60a5fa",
+                "Completed": "#22c55e",
+              };
+              return (
+                <button key={s} onClick={() => { if (!isActive) onStatusChange(s); }} style={{
+                  padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: isActive ? "default" : "pointer",
+                  border: `1px solid ${isActive ? colors[s] : "var(--border)"}`,
+                  background: isActive ? `${colors[s]}20` : "transparent",
+                  color: isActive ? colors[s] : "var(--muted)",
+                  borderRadius: 0, fontFamily: "inherit",
+                  transition: "all 0.15s",
+                }}>
+                  {s}
+                </button>
+              );
+            })}
+          </div>
           <button onClick={onClose} style={{
             padding: "9px 20px", border: "1px solid var(--border)",
             background: "transparent", color: "var(--fg)",
@@ -291,22 +220,34 @@ function DeleteModal({ item, onConfirm, onClose }: { item: Consultation; onConfi
 
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function ConsultationsPage() {
-  const [activeTab,  setActiveTab]  = useState<"All" | Status>("All");
-  const [search,     setSearch]     = useState("");
-  const [data,       setData]       = useState<Consultation[]>(INITIAL);
-  const [viewItem,   setViewItem]   = useState<Consultation | null>(null);
+  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState<"All" | ConsultationStatus>("All");
+  const [search, setSearch] = useState("");
+  const [viewItem, setViewItem] = useState<Consultation | null>(null);
   const [deleteItem, setDeleteItem] = useState<Consultation | null>(null);
+  const { consultations, loading, fetch, remove, updateStatus } = useConsultationsStore();
 
-  const filtered = data.filter((c) => {
-    const matchTab    = activeTab === "All" || c.status === activeTab;
-    const q           = search.toLowerCase();
-    const matchSearch = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.company.toLowerCase().includes(q) || c.services.join(" ").toLowerCase().includes(q);
+  useEffect(() => { fetch(); }, [fetch]);
+
+  const filtered = consultations.filter((c) => {
+    const matchTab = activeTab === "All" || c.status === activeTab;
+    const q = search.toLowerCase();
+    const matchSearch = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.company || "").toLowerCase().includes(q) || c.services.join(" ").toLowerCase().includes(q);
     return matchTab && matchSearch;
   });
 
-  const handleDelete = (id: number) => {
-    setData((prev) => prev.filter((c) => c.id !== id));
+  const handleStatusChange = async (id: string, status: ConsultationStatus) => {
+    await updateStatus(id, status);
+    if (viewItem && viewItem._id === id) {
+      setViewItem((prev) => prev ? { ...prev, status } : prev);
+    }
+    toast(`Status updated to "${status}".`);
+  };
+
+  const handleDelete = async (id: string) => {
+    await remove(id);
     setDeleteItem(null);
+    toast("Consultation deleted.", "error");
   };
 
   return (
@@ -367,18 +308,22 @@ export default function ConsultationsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={9} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>Loading...</td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={9} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>
                     No consultations found.
                   </td>
                 </tr>
-              ) : filtered.map((c) => (
-                <tr key={c.id}>
-                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{c.id}</td>
+              ) : filtered.map((c, i) => (
+                <tr key={c._id}>
+                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.name}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.email}</td>
-                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{c.company}</td>
+                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{c.company || "—"}</td>
                   <td style={{ ...tdStyle, whiteSpace: "nowrap", maxWidth: 180 }}>
                     <span title={c.services.join(", ")}>
                       {c.services[0]}{c.services.length > 1 ? ` +${c.services.length - 1}` : ""}
@@ -390,10 +335,10 @@ export default function ConsultationsPage() {
                       background: c.urgency === "ASAP" ? "rgba(239,68,68,0.12)" : "var(--surface2)",
                       color: c.urgency === "ASAP" ? "#ef4444" : "var(--muted)",
                     }}>
-                      {c.urgency}
+                      {c.urgency || "—"}
                     </span>
                   </td>
-                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.date}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDate(c.createdAt)}</td>
                   <td style={tdStyle}><StatusBadge status={c.status} /></td>
                   <td style={{ ...tdStyle, textAlign: "center" }}>
                     <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
@@ -425,12 +370,12 @@ export default function ConsultationsPage() {
           </table>
         </div>
         <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", fontSize: 12, color: "var(--muted)" }}>
-          Showing {filtered.length} of {data.length} consultations
+          Showing {filtered.length} of {consultations.length} consultations
         </div>
       </div>
 
-      {viewItem   && <DetailModal item={viewItem} onClose={() => setViewItem(null)} />}
-      {deleteItem && <DeleteModal item={deleteItem} onConfirm={() => handleDelete(deleteItem.id)} onClose={() => setDeleteItem(null)} />}
+      {viewItem && <DetailModal item={viewItem} onClose={() => setViewItem(null)} onStatusChange={(s) => handleStatusChange(viewItem._id, s)} />}
+      {deleteItem && <DeleteModal item={deleteItem} onConfirm={() => handleDelete(deleteItem._id)} onClose={() => setDeleteItem(null)} />}
     </main>
   );
 }

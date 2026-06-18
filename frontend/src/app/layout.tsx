@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import { ToastProvider } from "@/components/Toast";
 
 const oSans = localFont({
   src: [
@@ -28,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`h-full antialiased ${oSans.variable} ${oSans.className}`}>
-      <body className={`min-h-full flex flex-col ${oSans.className}`}>{children}</body>
+      <body className={`min-h-full flex flex-col ${oSans.className}`}><ToastProvider>{children}</ToastProvider></body>
     </html>
   );
 }

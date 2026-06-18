@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useContactsStore, Contact } from "@/stores/useContactsStore";
+import { useToast } from "@/components/Toast";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const EyeIcon = () => (
@@ -23,26 +25,10 @@ const XIcon = () => (
   </svg>
 );
 
-// ── Types & mock data ───────────────────────────────────────────────────────
-interface Contact {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  message: string;
-  date: string;
+// ── Types ──────────────────────────────────────────────────────────────────
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 }
-
-const INITIAL: Contact[] = [
-  { id: 1, name: "Ali Hassan",       email: "ali@gmail.com",      phone: "+92 301 234 5678", message: "Hi, I need help with my website redesign. We are looking for a complete overhaul of our online presence.",           date: "Jun 15" },
-  { id: 2, name: "Nadia Butt",       email: "nadia@corp.pk",      phone: "+92 321 876 5432", message: "Looking for a complete brand identity package including logo, colors, typography, and brand guidelines.",             date: "Jun 14" },
-  { id: 3, name: "Raza Shah",        email: "raza@startup.io",    phone: "+92 333 456 7890", message: "Interested in your digital marketing services, specifically social media management and paid ads.",                   date: "Jun 13" },
-  { id: 4, name: "Sara Malik",       email: "sara@business.co",   phone: "+92 311 234 9876", message: "We need a mobile app for our retail store to manage inventory and customer orders in real time.",                    date: "Jun 12" },
-  { id: 5, name: "Bilal Ahmed",      email: "bilal@freelance.pk", phone: "+92 345 678 1234", message: "Can you help with social media management? We want to grow our Instagram and LinkedIn presence significantly.",      date: "Jun 11" },
-  { id: 6, name: "Zara Khan",        email: "zara@agency.co",     phone: "+92 302 111 2233", message: "Looking for a professional portfolio website to showcase our creative work and attract new clients.",                date: "Jun 10" },
-  { id: 7, name: "Hassan Raza",      email: "hassan@tech.io",     phone: "+92 315 987 6543", message: "Need custom software for inventory tracking that integrates with our existing ERP system.",                          date: "Jun 9"  },
-  { id: 8, name: "Ayesha Siddiqui", email: "ayesha@boutique.pk", phone: "+92 300 123 0011", message: "Brand refresh for our fashion boutique — we want a modern look while keeping our existing brand recognition intact.", date: "Jun 8"  },
-];
 
 // ── Table styles ───────────────────────────────────────────────────────────
 const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
@@ -63,6 +49,13 @@ function truncate(str: string, max = 55) {
 
 // ── Modals ─────────────────────────────────────────────────────────────────
 function DetailModal({ item, onClose }: { item: Contact; onClose: () => void }) {
+  const rows = [
+    { label: "Name",    value: item.name },
+    { label: "Email",   value: item.email },
+    { label: "Phone",   value: item.phone || "—" },
+    { label: "Service", value: item.service || "—" },
+    { label: "Date",    value: fmtDate(item.createdAt) },
+  ];
   return (
     <div style={{
       position: "fixed", inset: 0, zIndex: 999,
@@ -73,55 +66,29 @@ function DetailModal({ item, onClose }: { item: Contact; onClose: () => void }) 
         background: "var(--surface)", border: "1px solid var(--border)",
         width: 500, maxWidth: "100%", borderRadius: 0, padding: 32,
       }} onClick={(e) => e.stopPropagation()}>
-        {/* Header */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
           <div>
             <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: 0 }}>Contact Details</h3>
-            <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 3 }}>#{item.id}</p>
+            <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 3 }}>ID: {item._id.slice(-8)}</p>
           </div>
-          <button onClick={onClose} style={{
-            background: "transparent", border: "1px solid var(--border)",
-            color: "var(--muted)", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 32, height: 32, borderRadius: 0,
-          }}>
+          <button onClick={onClose} style={{ background: "transparent", border: "1px solid var(--border)", color: "var(--muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0 }}>
             <XIcon />
           </button>
         </div>
-
-        {/* Fields */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {[
-            { label: "Name",  value: item.name },
-            { label: "Email", value: item.email },
-            { label: "Phone", value: item.phone },
-            { label: "Date",  value: item.date },
-          ].map(({ label, value }) => (
+        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {rows.map(({ label, value }) => (
             <div key={label} style={{ display: "flex", gap: 12 }}>
-              <span style={{ width: 70, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", flexShrink: 0, paddingTop: 2 }}>
-                {label}
-              </span>
+              <span style={{ width: 70, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", flexShrink: 0, paddingTop: 2 }}>{label}</span>
               <span style={{ fontSize: 13, color: "var(--fg)" }}>{value}</span>
             </div>
           ))}
-          {/* Message */}
           <div style={{ display: "flex", gap: 12 }}>
-            <span style={{ width: 70, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", flexShrink: 0, paddingTop: 2 }}>
-              Message
-            </span>
-            <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.6, margin: 0 }}>{item.message}</p>
+            <span style={{ width: 70, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", flexShrink: 0, paddingTop: 2 }}>Message</span>
+            <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.65, margin: 0 }}>{item.message}</p>
           </div>
         </div>
-
-        {/* Footer */}
         <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={{
-            padding: "9px 20px", border: "1px solid var(--border)",
-            background: "transparent", color: "var(--fg)",
-            fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0,
-          }}>
-            Close
-          </button>
+          <button onClick={onClose} style={{ padding: "9px 20px", border: "1px solid var(--border)", background: "transparent", color: "var(--fg)", fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0 }}>Close</button>
         </div>
       </div>
     </div>
@@ -178,19 +145,23 @@ function DeleteModal({ item, onConfirm, onClose }: { item: Contact; onConfirm: (
 
 // ── Page ──────────────────────────────────────────────────────────────────
 export default function ContactsPage() {
-  const [search,      setSearch]      = useState("");
-  const [contacts,    setContacts]    = useState<Contact[]>(INITIAL);
-  const [viewItem,    setViewItem]    = useState<Contact | null>(null);
-  const [deleteItem,  setDeleteItem]  = useState<Contact | null>(null);
+  const { toast } = useToast();
+  const [search, setSearch] = useState("");
+  const [viewItem, setViewItem] = useState<Contact | null>(null);
+  const [deleteItem, setDeleteItem] = useState<Contact | null>(null);
+  const { contacts, loading, fetch, remove } = useContactsStore();
+
+  useEffect(() => { fetch(); }, [fetch]);
 
   const filtered = contacts.filter((c) => {
     const q = search.toLowerCase();
-    return !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.phone.toLowerCase().includes(q);
+    return !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.phone || "").toLowerCase().includes(q);
   });
 
-  const handleDelete = (id: number) => {
-    setContacts((prev) => prev.filter((c) => c.id !== id));
+  const handleDelete = async (id: string) => {
+    await remove(id);
     setDeleteItem(null);
+    toast("Contact deleted.", "error");
   };
 
   return (
@@ -228,22 +199,26 @@ export default function ContactsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>Loading...</td>
+                </tr>
+              ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>
                     No contacts found.
                   </td>
                 </tr>
-              ) : filtered.map((c) => (
-                <tr key={c.id}>
-                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{c.id}</td>
+              ) : filtered.map((c, i) => (
+                <tr key={c._id}>
+                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.name}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.email}</td>
-                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone || "—"}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 260 }}>
                     {truncate(c.message)}
                   </td>
-                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.date}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDate(c.createdAt)}</td>
                   <td style={{ ...tdStyle, textAlign: "center" }}>
                     <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
                       {/* Eye / View */}
@@ -287,7 +262,7 @@ export default function ContactsPage() {
       {deleteItem && (
         <DeleteModal
           item={deleteItem}
-          onConfirm={() => handleDelete(deleteItem.id)}
+          onConfirm={() => handleDelete(deleteItem._id)}
           onClose={() => setDeleteItem(null)}
         />
       )}

@@ -194,8 +194,8 @@ export default function Header({
           : "shadow-[0_4px_24px_rgba(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)]"}
       `}>
         {/* Logo */}
-        <Link href="/" className="flex items-center no-underline whitespace-nowrap mt-2">
-          <img src={isDark ? "/brand-white-logo.png" : "/brand-black-logo.png"} alt="Brand Edge" style={{ height: 120, width: "auto", display: "block" }} />
+        <Link href="/" className="flex items-center no-underline whitespace-nowrap">
+          <img src={isDark ? "/brand-white-logo.png" : "/brand-black-logo.png"} alt="Brand Edge" style={{ height: 30, width: "auto", display: "block" }} />
         </Link>
 
         {!isMobile && <div className={`w-px h-5 mx-5 ${isDark ? "bg-white/10" : "bg-black/10"}`} />}

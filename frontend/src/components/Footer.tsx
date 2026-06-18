@@ -44,7 +44,7 @@ export default function Footer({ theme }: { theme: "dark" | "light" }) {
           {/* Brand col */}
           <div className="flex flex-col gap-5">
             <div className="flex items-center">
-              <img src={theme === "dark" ? "/brand-white-logo.png" : "/brand-black-logo.png"} alt="Brand Edge" style={{ height: 100, width: "auto", display: "block" }} />
+              <img src={theme === "dark" ? "/brand-white-logo.png" : "/brand-black-logo.png"} alt="Brand Edge" style={{ height: 30, width: "auto", display: "block" }} />
             </div>
             <p className="text-[13px] text-[var(--muted)] leading-relaxed" style={{ maxWidth: "240px" }}>
               A full-service creative agency building bold brands and digital experiences that drive real growth.
@@ -71,16 +71,28 @@ export default function Footer({ theme }: { theme: "dark" | "light" }) {
           {/* Services */}
           <div className="flex flex-col gap-4">
             <p className="text-[11px] font-bold text-[var(--fg)] uppercase tracking-[0.18em] mb-1">Services</p>
-            {["Marketing", "Website Design", "App Development", "Software Dev", "Graphic Design"].map(l => (
-              <a key={l} href="#" className="text-[13px] text-[var(--muted)] no-underline transition-colors duration-150 hover:text-[#ff6a00]">{l}</a>
+            {[
+              { label: "Marketing",       href: "/services" },
+              { label: "Website Design",  href: "/services" },
+              { label: "App Development", href: "/services" },
+              { label: "Software Dev",    href: "/services" },
+              { label: "Graphic Design",  href: "/services" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} className="text-[13px] text-[var(--muted)] no-underline transition-colors duration-150 hover:text-[#ff6a00]">{label}</a>
             ))}
           </div>
 
           {/* Company */}
           <div className="flex flex-col gap-4">
             <p className="text-[11px] font-bold text-[var(--fg)] uppercase tracking-[0.18em] mb-1">Company</p>
-            {["About Us", "Our Work", "Blog", "Careers", "Privacy Policy"].map(l => (
-              <a key={l} href="#" className="text-[13px] text-[var(--muted)] no-underline transition-colors duration-150 hover:text-[#ff6a00]">{l}</a>
+            {[
+              { label: "About Us",   href: "/story" },
+              { label: "Our Work",   href: "/portfolio" },
+              { label: "Careers",    href: "/careers" },
+              { label: "Contact",    href: "/contact" },
+              { label: "Our Team",   href: "/team" },
+            ].map(({ label, href }) => (
+              <a key={label} href={href} className="text-[13px] text-[var(--muted)] no-underline transition-colors duration-150 hover:text-[#ff6a00]">{label}</a>
             ))}
           </div>
 
@@ -92,8 +104,10 @@ export default function Footer({ theme }: { theme: "dark" | "light" }) {
                 <p className="font-semibold text-[var(--fg)]">Available Mon–Sat</p>
                 <p className="text-[var(--muted)]">10am – 7pm PKT</p>
               </div>
-              <a href="mailto:hello@brandedge.co" className="text-[var(--muted)] no-underline hover:text-[#ff6a00] transition-colors duration-150">hello@brandedge.co</a>
-              <a href="tel:+923001234567" className="text-[var(--muted)] no-underline hover:text-[#ff6a00] transition-colors duration-150">+92 300 123 4567</a>
+              <a href="mailto:info@brandedgecreations.io" className="text-[var(--muted)] no-underline hover:text-[#ff6a00] transition-colors duration-150">info@brandedgecreations.io</a>
+              <a href="mailto:brandedgecreations@gmail.com" className="text-[var(--muted)] no-underline hover:text-[#ff6a00] transition-colors duration-150">brandedgecreations@gmail.com</a>
+              <a href="tel:+923100035685" className="text-[var(--muted)] no-underline hover:text-[#ff6a00] transition-colors duration-150">0310 0035685</a>
+              <a href="tel:+923100304926" className="text-[var(--muted)] no-underline hover:text-[#ff6a00] transition-colors duration-150">0310 0304926</a>
               <p className="text-[var(--muted)]">Karachi, Pakistan</p>
             </div>
           </div>
@@ -102,7 +116,7 @@ export default function Footer({ theme }: { theme: "dark" | "light" }) {
       </div>
 
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-6 py-5" style={{ borderTop: "1px solid var(--border)" }}>
-        <p className="text-[12px] text-[var(--muted)]">© 2025 Brand Edge. All rights reserved.</p>
+        <p className="text-[12px] text-[var(--muted)]">© 2026 Brand Edge Creations. All rights reserved.</p>
         <p className="text-[12px] text-[var(--muted)]">Crafted with care — built to perform.</p>
       </div>
     </footer>

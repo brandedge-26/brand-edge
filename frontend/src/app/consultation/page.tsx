@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import Header from "@/components/SiteHeader";
 import CustomCursor from "@/components/CustomCursor";
 import Footer from "@/components/Footer";
+import api from "@/lib/axios";
+import { useToast } from "@/components/Toast";
 
 /* ── Constants ─────────────────────────────────────── */
 const GRADIENT = "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)";
@@ -206,6 +208,7 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
 
 /* ── Main page ───────────────────────────────────────── */
 export default function ConsultationPage() {
+  const { toast } = useToast();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [scrolled, setScrolled] = useState(false);
   const [step, setStep] = useState(1);
@@ -319,7 +322,12 @@ export default function ConsultationPage() {
 
   const handleSubmit = async () => {
     setSending(true);
-    await new Promise(r => setTimeout(r, 1600));
+    try {
+      await api.post("/consultations", form);
+      toast("Consultation booked! We'll reach out shortly.");
+    } catch {
+      toast("Something went wrong. Please try again.", "error");
+    }
     setSending(false);
     setSubmitted(true);
   };

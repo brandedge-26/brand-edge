@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from "react";
 import Header from "@/components/SiteHeader";
 import CustomCursor from "@/components/CustomCursor";
 import Footer from "@/components/Footer";
+import api from "@/lib/axios";
+import { useToast } from "@/components/Toast";
 
 const INFO = [
   {
     label: "Email",
-    value: "hello@brandedge.co",
+    values: ["info@brandedgecreations.io", "brandedgecreations@gmail.com"],
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <rect x="1.5" y="3.5" width="15" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
@@ -18,7 +20,7 @@ const INFO = [
   },
   {
     label: "Phone",
-    value: "+91 98765 43210",
+    values: ["0310 0035685", "0310 0304926"],
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M3 2.5h3.5l1.5 4-2 1.2A10.5 10.5 0 0 0 10.3 12l1.2-2 4 1.5V15c-7.5.5-13-6-12.5-12.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
@@ -27,7 +29,7 @@ const INFO = [
   },
   {
     label: "Location",
-    value: "Karachi Pakistan",
+    values: ["Karachi, Pakistan"],
     icon: (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
         <path d="M9 1.5a5.5 5.5 0 0 1 5.5 5.5c0 4-5.5 9.5-5.5 9.5S3.5 11 3.5 7A5.5 5.5 0 0 1 9 1.5Z" stroke="currentColor" strokeWidth="1.4" />
@@ -52,6 +54,7 @@ interface FormState {
 }
 
 export default function ContactPage() {
+  const { toast } = useToast();
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [scrolled, setScrolled] = useState(false);
   const [focused, setFocused] = useState<string | null>(null);
@@ -104,7 +107,12 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSending(true);
-    await new Promise(r => setTimeout(r, 1400));
+    try {
+      await api.post("/contacts", form);
+      toast("Message sent! We'll get back to you within 24 hours.");
+    } catch {
+      toast("Something went wrong. Please try again.", "error");
+    }
     setSending(false);
     setSubmitted(true);
   };
@@ -229,7 +237,7 @@ export default function ContactPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               {INFO.map((item, i) => (
                 <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 16,
+                  display: "flex", alignItems: "flex-start", gap: 16,
                   padding: "20px 0",
                   borderBottom: i < INFO.length - 1 ? "1px solid var(--border)" : "none",
                 }}>
@@ -238,17 +246,19 @@ export default function ContactPage() {
                     border: "1px solid var(--border)",
                     background: "var(--surface)",
                     display: "flex", alignItems: "center", justifyContent: "center",
-                    color: "var(--muted)",
+                    color: "var(--muted)", marginTop: 2,
                   }}>
                     {item.icon}
                   </div>
                   <div>
-                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", margin: "0 0 4px" }}>
+                    <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "var(--muted)", margin: "0 0 5px" }}>
                       {item.label}
                     </p>
-                    <p style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: 0 }}>
-                      {item.value}
-                    </p>
+                    {item.values.map((v, j) => (
+                      <p key={j} style={{ fontSize: 15, fontWeight: 500, color: "var(--fg)", margin: j < item.values.length - 1 ? "0 0 3px" : 0 }}>
+                        {v}
+                      </p>
+                    ))}
                   </div>
                 </div>
               ))}
@@ -285,6 +295,24 @@ export default function ContactPage() {
                   </p>
                 </div>
               ))}
+            </div>
+
+            {/* Map */}
+            <div style={{
+              padding: 3,
+              backgroundImage: GRADIENT,
+            }}>
+              <div style={{ overflow: "hidden", lineHeight: 0 }}>
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3616.9246659980663!2d67.05020379999999!3d24.9686776!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xa1e072b81dbdf463%3A0x203b2d9380edd35a!2sBrandEdge%20Creations!5e0!3m2!1sen!2s!4v1781768597052!5m2!1sen!2s"
+                  width="100%"
+                  height="220"
+                  style={{ border: 0, display: "block" }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
             </div>
           </div>
 

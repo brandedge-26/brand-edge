@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { useNotificationsStore } from "@/stores/useNotificationsStore";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const GridIcon = () => (
@@ -93,12 +95,29 @@ const PAGE_TITLES: Record<string, string> = {
   "/notifications":  "Notifications",
 };
 
+// ── LogOut Icon ────────────────────────────────────────────────────────────
+const LogOutIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+    <polyline points="16 17 21 12 16 7"/>
+    <line x1="21" y1="12" x2="9" y2="12"/>
+  </svg>
+);
+
 // ── AdminShell ─────────────────────────────────────────────────────────────
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuthStore();
+  const { notifications, fetch: fetchNotifs } = useNotificationsStore();
   const [theme, setTheme]     = useState<"dark" | "light">("dark");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push("/login");
+  };
 
   // After mount: read localStorage and sync DOM
   useEffect(() => {
@@ -121,6 +140,12 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   }, [collapsed]);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+
+  useEffect(() => { fetchNotifs(); }, [fetchNotifs]);
+
+  if (pathname === "/login") return <>{children}</>;
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
   const sidebarW    = collapsed ? 60 : 240;
@@ -260,6 +285,18 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = sb.btnColor; }}>
             {isDark ? <SunIcon /> : <MoonIcon />}
           </button>
+          {/* Logout button */}
+          {!isCollapsed && (
+            <button onClick={handleLogout} style={{
+              background: "transparent", border: "none", cursor: "pointer",
+              color: sb.text, fontSize: 12, fontWeight: 500, fontFamily: "inherit",
+              display: "flex", alignItems: "center", gap: 6, padding: "4px 0",
+              whiteSpace: "nowrap",
+            }}>
+              <LogOutIcon />
+              Logout
+            </button>
+          )}
           {/* Collapse toggle (desktop only) */}
           {!isMobile && (
             <button onClick={() => setCollapsed((c) => !c)} title={collapsed ? "Expand" : "Collapse"} style={{
@@ -329,6 +366,30 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <h1 style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0, flex: 1 }}>
             {pageTitle}
           </h1>
+
+          {/* Notification bell */}
+          <Link href="/notifications" title="Notifications" style={{
+            position: "relative",
+            background: "transparent", border: "1px solid var(--border)",
+            color: "var(--muted)", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 32, height: 32, borderRadius: 0, textDecoration: "none",
+            flexShrink: 0,
+          }}>
+            <BellIcon />
+            {unreadCount > 0 && (
+              <span style={{
+                position: "absolute", top: -6, right: -6,
+                minWidth: 17, height: 17, padding: "0 4px",
+                backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)",
+                color: "#fff", fontSize: 10, fontWeight: 700,
+                borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                lineHeight: 1,
+              }}>
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </Link>
 
           {/* Theme toggle (topbar) */}
           <button onClick={toggleTheme} title={isDark ? "Light mode" : "Dark mode"} style={{

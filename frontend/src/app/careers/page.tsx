@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import Header from "@/components/SiteHeader";
 import CustomCursor from "@/components/CustomCursor";
 import Footer from "@/components/Footer";
+import api from "@/lib/axios";
+import { useToast } from "@/components/Toast";
+
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 /* ── Constants ──────────────────────────────────────────────── */
 const GRADIENT = "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)";
@@ -25,73 +30,18 @@ const EXP_OPTIONS = [
 
 /* ── Job data ───────────────────────────────────────────────── */
 interface Job {
-  id: number;
+  _id: string;
   title: string;
   department: string;
   location: string;
   type: string;
   level: string;
   description: string;
-  posted: string;
+  requirements?: string;
+  deadline?: string;
+  status: "Active" | "Closed";
+  createdAt: string;
 }
-
-const JOBS: Job[] = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    department: "Engineering",
-    location: "Remote",
-    type: "Full-time",
-    level: "Senior Level",
-    description:
-      "Build cutting-edge web experiences using React, Next.js, and modern CSS. You'll work directly with our design team.",
-    posted: "Jun 10, 2025",
-  },
-  {
-    id: 2,
-    title: "Brand Strategist",
-    department: "Marketing",
-    location: "Karachi, PK",
-    type: "Full-time",
-    level: "Mid-level",
-    description:
-      "Develop brand identities, positioning strategies, and creative direction for our clients across industries.",
-    posted: "Jun 8, 2025",
-  },
-  {
-    id: 3,
-    title: "UI/UX Designer",
-    department: "Design",
-    location: "Hybrid",
-    type: "Full-time",
-    level: "Mid-level",
-    description:
-      "Craft pixel-perfect interfaces and user flows that convert. Figma expertise required.",
-    posted: "Jun 5, 2025",
-  },
-  {
-    id: 4,
-    title: "Digital Marketing Specialist",
-    department: "Marketing",
-    location: "Remote",
-    type: "Part-time",
-    level: "Junior",
-    description:
-      "Manage paid ads, SEO campaigns, and social media strategy for a diverse client portfolio.",
-    posted: "Jun 1, 2025",
-  },
-  {
-    id: 5,
-    title: "Content Writer",
-    department: "Content",
-    location: "Remote",
-    type: "Contract",
-    level: "Junior",
-    description:
-      "Write compelling copy for websites, blogs, and social media. Strong English and storytelling skills needed.",
-    posted: "May 28, 2025",
-  },
-];
 
 /* ── Perks data ─────────────────────────────────────────────── */
 const PERKS = [
@@ -141,6 +91,7 @@ interface ApplyForm {
   currentRole: string;
   whyJoin: string;
   skills: string[];
+  cv: File | null;
 }
 
 const EMPTY_FORM: ApplyForm = {
@@ -153,6 +104,7 @@ const EMPTY_FORM: ApplyForm = {
   currentRole: "",
   whyJoin: "",
   skills: [],
+  cv: null,
 };
 
 /* ── Input styles hook ──────────────────────────────────────── */
@@ -319,6 +271,7 @@ function ApplyOverlay({
   onClose: () => void;
   isDark: boolean;
 }) {
+  const { toast } = useToast();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<ApplyForm>(EMPTY_FORM);
   const [focused, setFocused] = useState<string | null>(null);
@@ -333,6 +286,9 @@ function ApplyOverlay({
 
   const set = (key: keyof ApplyForm, val: string) =>
     setForm((f) => ({ ...f, [key]: val }));
+
+  const setCV = (file: File | null) =>
+    setForm((f) => ({ ...f, cv: file }));
 
   const addSkill = (val: string) => {
     const trimmed = val.trim();
@@ -357,7 +313,7 @@ function ApplyOverlay({
 
   const canNext = () => {
     if (step === 1) return form.name.trim().length >= 2 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
-    if (step === 2) return form.experience.length > 0;
+    if (step === 2) return form.experience.length > 0 && !!form.cv;
     if (step === 3) return form.whyJoin.trim().length >= 20;
     return true;
   };
@@ -387,7 +343,27 @@ function ApplyOverlay({
 
   const handleSubmit = async () => {
     setSending(true);
-    await new Promise((r) => setTimeout(r, 1400));
+    try {
+      const fd = new FormData();
+      fd.append("name", form.name);
+      fd.append("email", form.email);
+      fd.append("phone", form.phone);
+      fd.append("portfolio", form.portfolio);
+      fd.append("linkedin", form.linkedin);
+      fd.append("experience", form.experience);
+      fd.append("currentRole", form.currentRole);
+      fd.append("whyJoin", form.whyJoin);
+      fd.append("skills", JSON.stringify(form.skills));
+      fd.append("jobId", job._id);
+      fd.append("jobTitle", job.title);
+      if (form.cv) fd.append("cv", form.cv);
+
+      await api.post("/applications", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      toast("Application submitted! We'll review it within 5 business days.");
+    } catch {
+      toast("Something went wrong. Please try again.", "error");
+      // proceed to success screen even if offline
+    }
     setSending(false);
     setSubmitted(true);
   };
@@ -652,6 +628,68 @@ function ApplyOverlay({
                         />
                       </div>
                     </div>
+                    <div style={fieldGap}>
+                      <label style={labelStyle}>Resume / CV <span style={{ color: "#ff6a00" }}>*</span>{" "}
+                        <span style={{ color: "var(--muted)", fontWeight: 500, textTransform: "none", letterSpacing: 0 }}>
+                          (PDF or Word, max 10 MB)
+                        </span>
+                      </label>
+                      <label
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          padding: "0 14px",
+                          height: 44,
+                          border: focused === "cv"
+                            ? "2px solid transparent"
+                            : "2px solid var(--border)",
+                          backgroundImage: focused === "cv"
+                            ? (isDark
+                              ? "linear-gradient(rgba(14,15,26,1),rgba(14,15,26,1)), linear-gradient(135deg,#ff6a00,#ee0979)"
+                              : "linear-gradient(rgba(255,255,255,1),rgba(255,255,255,1)), linear-gradient(135deg,#ff6a00,#ee0979)")
+                            : "none",
+                          backgroundOrigin: focused === "cv" ? "border-box" : "padding-box",
+                          backgroundClip: focused === "cv" ? "padding-box, border-box" : "border-box",
+                          backgroundColor: focused === "cv" ? "transparent" : (isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)"),
+                          cursor: "pointer",
+                          transition: "background-color 0.2s ease",
+                        }}
+                      >
+                        <div style={{
+                          display: "flex", alignItems: "center", justifyContent: "center",
+                          width: 28, height: 28, flexShrink: 0,
+                          backgroundImage: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
+                        }}>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                          </svg>
+                        </div>
+                        <span style={{ fontSize: 13, color: form.cv ? "var(--fg)" : "var(--muted)", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                          {form.cv ? form.cv.name : "Click to upload your CV..."}
+                        </span>
+                        {form.cv && (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.preventDefault(); setCV(null); }}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--muted)", padding: 0, display: "flex", alignItems: "center", fontSize: 16 }}
+                          >×</button>
+                        )}
+                        <input
+                          type="file"
+                          accept=".pdf,.doc,.docx"
+                          style={{ display: "none" }}
+                          onFocus={() => setFocused("cv")}
+                          onBlur={() => setFocused(null)}
+                          onChange={(e) => {
+                            const f = e.target.files?.[0] ?? null;
+                            setCV(f);
+                          }}
+                        />
+                      </label>
+                    </div>
                   </div>
                 )}
 
@@ -725,6 +763,23 @@ function ApplyOverlay({
                       {form.currentRole && <SummaryRow label="Current Role" value={form.currentRole} />}
                       {form.portfolio && <SummaryRow label="Portfolio" value={form.portfolio} />}
                       {form.linkedin && <SummaryRow label="LinkedIn" value={form.linkedin} />}
+                      {form.cv && (
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 20, padding: "12px 0", borderBottom: "1px solid var(--border)" }}>
+                          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", flexShrink: 0 }}>CV</span>
+                          <span style={{
+                            display: "inline-flex", alignItems: "center", gap: 6,
+                            padding: "3px 10px",
+                            background: isDark ? "rgba(255,106,0,0.12)" : "rgba(255,106,0,0.08)",
+                            border: "1px solid rgba(255,106,0,0.35)",
+                            borderRadius: 0, fontSize: 12, fontWeight: 600, color: "#ff6a00",
+                          }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            {form.cv.name}
+                          </span>
+                        </div>
+                      )}
                     </div>
                     <div style={{ padding: "20px 24px", border: "1px solid var(--border)", background: isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)" }}>
                       <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "0 0 12px" }}>Application</p>
@@ -869,7 +924,9 @@ export default function CareersPage() {
   const [theme, setTheme] = useState<"dark" | "light">("dark");
   const [scrolled, setScrolled] = useState(false);
   const [activeJob, setActiveJob] = useState<Job | null>(null);
-  const [hoveredJob, setHoveredJob] = useState<number | null>(null);
+  const [hoveredJob, setHoveredJob] = useState<string | null>(null);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [loadingJobs, setLoadingJobs] = useState(true);
 
   const isDark = theme === "dark";
 
@@ -882,6 +939,16 @@ export default function CareersPage() {
     const fn = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
+  }, []);
+
+  useEffect(() => {
+    api.get("/jobs")
+      .then((r) => {
+        const active = (r.data.data as Job[]).filter((j) => j.status === "Active");
+        setJobs(active);
+      })
+      .catch(() => {})
+      .finally(() => setLoadingJobs(false));
   }, []);
 
   useEffect(() => {
@@ -991,7 +1058,7 @@ export default function CareersPage() {
                 </svg>
               </div>
               <div>
-                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", display: "block", lineHeight: 1.1 }}>5</span>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", display: "block", lineHeight: 1.1 }}>{jobs.length}</span>
                 <span style={{ fontSize: 11, color: "var(--muted)", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Open Roles</span>
               </div>
             </div>
@@ -1028,14 +1095,22 @@ export default function CareersPage() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }} className="jobs-grid">
             <style>{`@media(max-width:640px){.jobs-grid{grid-template-columns:1fr!important}}`}</style>
-            {JOBS.map((job) => (
+            {loadingJobs ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 60, color: "var(--muted)", fontSize: 14 }}>
+                Loading open positions...
+              </div>
+            ) : jobs.length === 0 ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 60, color: "var(--muted)", fontSize: 14 }}>
+                No open positions at the moment. Check back soon!
+              </div>
+            ) : jobs.map((job) => (
               <div
-                key={job.id}
-                onMouseEnter={() => setHoveredJob(job.id)}
+                key={job._id}
+                onMouseEnter={() => setHoveredJob(job._id)}
                 onMouseLeave={() => setHoveredJob(null)}
                 style={{
                   background: "var(--surface)",
-                  border: `1px solid ${hoveredJob === job.id ? "rgba(255,106,0,0.4)" : "var(--border)"}`,
+                  border: `1px solid ${hoveredJob === job._id ? "rgba(255,106,0,0.4)" : "var(--border)"}`,
                   borderRadius: 0,
                   padding: 28,
                   transition: "border-color 0.2s ease",
@@ -1112,31 +1187,48 @@ export default function CareersPage() {
 
                 {/* Bottom row */}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                  <button
-                    onClick={() => setActiveJob(job)}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 8,
-                      padding: "10px 22px",
-                      backgroundImage: GRADIENT,
-                      color: "#fff",
-                      border: "none",
-                      fontSize: 13,
-                      fontWeight: 700,
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      borderRadius: 0,
-                      boxShadow: "0 4px 16px rgba(255,106,0,0.25)",
-                      transition: "box-shadow 0.2s ease",
-                    }}
-                  >
-                    Apply Now
-                    <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-                      <path d="M3 7h8M8 4l3 3-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </button>
-                  <span style={{ fontSize: 12, color: "var(--muted)" }}>Posted {job.posted}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <button
+                      onClick={() => setActiveJob(job)}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 8,
+                        padding: "10px 22px",
+                        backgroundImage: GRADIENT,
+                        color: "#fff",
+                        border: "none",
+                        fontSize: 13,
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        fontFamily: "inherit",
+                        borderRadius: 0,
+                        boxShadow: "0 4px 16px rgba(255,106,0,0.25)",
+                        transition: "box-shadow 0.2s ease",
+                      }}
+                    >
+                      Apply Now
+                      <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 7h8M8 4l3 3-3 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                    <Link href={`/careers/${job._id}`} style={{
+                      display: "inline-flex", alignItems: "center", gap: 6,
+                      padding: "10px 16px",
+                      border: "1px solid var(--border)",
+                      background: "transparent",
+                      color: "var(--muted)",
+                      fontSize: 13, fontWeight: 600, cursor: "pointer",
+                      textDecoration: "none", borderRadius: 0,
+                      transition: "color 0.15s, border-color 0.15s",
+                    }}>
+                      Details
+                      <svg width="11" height="11" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 7h8M8 4l3 3-3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </Link>
+                  </div>
+                  <span style={{ fontSize: 12, color: "var(--muted)" }}>Posted {fmtDate(job.createdAt)}</span>
                 </div>
               </div>
             ))}

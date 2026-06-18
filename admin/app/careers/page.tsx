@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useJobsStore, Job, Application } from "@/stores/useJobsStore";
+import { useToast } from "@/components/Toast";
+
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const EyeIcon = () => (
@@ -27,216 +31,36 @@ const PlusIcon = () => (
     <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
   </svg>
 );
+const EditIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+
+// ── Markdown renderer ───────────────────────────────────────────────────────
+function applyInline(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    .replace(/`(.+?)`/g, '<code style="background:rgba(255,106,0,0.1);color:#ff6a00;padding:1px 6px;font-size:12px;font-family:monospace">$1</code>');
+}
+
+function renderMarkdown(md: string): string {
+  if (!md) return "";
+  const escaped = md.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return escaped.split("\n").map(line => {
+    if (/^### /.test(line)) return `<h3 style="font-size:13px;font-weight:700;color:var(--fg);margin:10px 0 4px;letter-spacing:0">${applyInline(line.replace(/^### /, ""))}</h3>`;
+    if (/^## /.test(line)) return `<h2 style="font-size:14px;font-weight:700;color:var(--fg);margin:12px 0 6px;letter-spacing:0">${applyInline(line.replace(/^## /, ""))}</h2>`;
+    if (/^# /.test(line)) return `<h1 style="font-size:15px;font-weight:700;color:var(--fg);margin:14px 0 6px;letter-spacing:0">${applyInline(line.replace(/^# /, ""))}</h1>`;
+    if (/^[-*] /.test(line)) return `<div style="display:flex;align-items:flex-start;gap:8px;margin:3px 0"><span style="color:#ff6a00;font-weight:700;flex-shrink:0;margin-top:1px">•</span><span style="font-size:13px;color:var(--fg);line-height:1.6">${applyInline(line.replace(/^[-*] /, ""))}</span></div>`;
+    if (line.trim() === "") return `<div style="height:6px"></div>`;
+    return `<p style="margin:3px 0;font-size:13px;color:var(--fg);line-height:1.6">${applyInline(line)}</p>`;
+  }).join("");
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type JobStatus = "Active" | "Closed";
-
-interface Job {
-  id: number;
-  title: string;
-  department: string;
-  location: string;
-  type: string;
-  level: string;
-  deadline: string;
-  description: string;
-  requirements: string;
-  status: JobStatus;
-}
-
-interface Application {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  position: string;
-  experience: string;
-  date: string;
-  portfolio: string;
-  linkedin: string;
-  currentRole: string;
-  whyJoin: string;
-  extra: string;
-}
-
-// ── Mock data ───────────────────────────────────────────────────────────────
-const INITIAL_JOBS: Job[] = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    department: "Engineering",
-    location: "Remote",
-    type: "Full-time",
-    level: "Senior",
-    deadline: "Jul 31, 2025",
-    description: "Build cutting-edge web experiences using React, Next.js, and modern CSS. You'll work directly with our design team to translate bold visual concepts into fast, accessible, and production-ready interfaces.",
-    requirements: "4+ years of React/Next.js experience\nStrong TypeScript skills\nExperience with CSS-in-JS or modern CSS\nFamiliarity with performance optimization\nEye for design and attention to detail",
-    status: "Active",
-  },
-  {
-    id: 2,
-    title: "Brand Strategist",
-    department: "Marketing",
-    location: "Karachi, PK",
-    type: "Full-time",
-    level: "Mid-level",
-    deadline: "Jul 15, 2025",
-    description: "Develop brand identities, positioning strategies, and creative direction for our clients across industries. You'll work on diverse projects from startups to enterprise brands.",
-    requirements: "3+ years in brand strategy or marketing\nPortfolio of brand identity projects\nStrong written and verbal communication\nExperience with market research\nAbility to present concepts to clients",
-    status: "Active",
-  },
-  {
-    id: 3,
-    title: "UI/UX Designer",
-    department: "Design",
-    location: "Hybrid",
-    type: "Full-time",
-    level: "Mid-level",
-    deadline: "Jul 20, 2025",
-    description: "Craft pixel-perfect interfaces and user flows that convert. Figma expertise required. You'll own the design process from wireframe to final handoff.",
-    requirements: "Proficiency in Figma\nStrong portfolio of web/app UI work\nUnderstanding of UX principles and usability\nExperience with design systems\nAbility to collaborate with developers",
-    status: "Active",
-  },
-  {
-    id: 4,
-    title: "Digital Marketing Specialist",
-    department: "Marketing",
-    location: "Remote",
-    type: "Part-time",
-    level: "Junior",
-    deadline: "Jun 30, 2025",
-    description: "Manage paid ads, SEO campaigns, and social media strategy for a diverse client portfolio. You'll report on performance and iterate campaigns for continuous improvement.",
-    requirements: "Experience with Google Ads and Meta Ads\nBasic SEO knowledge\nData-driven mindset\nStrong analytical skills\nExcellent written communication",
-    status: "Closed",
-  },
-  {
-    id: 5,
-    title: "Content Writer",
-    department: "Content",
-    location: "Remote",
-    type: "Contract",
-    level: "Junior",
-    deadline: "Jun 25, 2025",
-    description: "Write compelling copy for websites, blogs, and social media. Strong English and storytelling skills needed. You'll work across multiple client verticals.",
-    requirements: "Excellent written English\nProven copywriting or content writing portfolio\nAbility to adapt tone to different brands\nFamiliarity with SEO writing best practices\nFast turnaround with strong attention to detail",
-    status: "Closed",
-  },
-];
-
-const INITIAL_APPLICATIONS: Application[] = [
-  {
-    id: 1,
-    name: "Zara Ahmed",
-    email: "zara@gmail.com",
-    phone: "+92 301 111 2222",
-    position: "UI/UX Designer",
-    experience: "3–5 years",
-    date: "Jun 14",
-    portfolio: "zaraahmed.design",
-    linkedin: "linkedin.com/in/zaraahmed",
-    currentRole: "UI Designer at PixelStudio",
-    whyJoin: "I've admired Brand Edge's work for years — the way the team blends sharp strategy with stunning visual execution is exactly what I want to be part of. I believe my experience designing for SaaS and e-commerce clients will bring immediate value to the team.",
-    extra: "I've published a Figma plugin used by 5,000+ designers and regularly mentor junior designers in my spare time.",
-  },
-  {
-    id: 2,
-    name: "Ali Hassan",
-    email: "ali@dev.io",
-    phone: "+92 321 234 5678",
-    position: "Senior Frontend Developer",
-    experience: "6–10 years",
-    date: "Jun 13",
-    portfolio: "alihassan.dev",
-    linkedin: "linkedin.com/in/alihassan-dev",
-    currentRole: "Lead Frontend Engineer at TechFlow",
-    whyJoin: "I want to move from a product-only environment to an agency where I can work across diverse, high-impact projects. Brand Edge's portfolio shows the kind of craftsmanship I care deeply about — performance, accessibility, and design fidelity.",
-    extra: "Open-source contributor to React ecosystem. Speaker at JSConf Karachi 2024.",
-  },
-  {
-    id: 3,
-    name: "Sara Malik",
-    email: "sara@creative.pk",
-    phone: "+92 333 456 7890",
-    position: "Brand Strategist",
-    experience: "1–2 years",
-    date: "Jun 12",
-    portfolio: "saramalik.pk",
-    linkedin: "linkedin.com/in/saramalik-brand",
-    currentRole: "Junior Brand Consultant at IdeaHouse",
-    whyJoin: "Brand Edge sits at the intersection of creativity and strategy — that's exactly where I thrive. I've worked on brand refreshes for 12+ clients and I'm eager to step into a more senior creative environment with real ownership.",
-    extra: "",
-  },
-  {
-    id: 4,
-    name: "Bilal Raza",
-    email: "bilal@copy.co",
-    phone: "+1 555 234 9876",
-    position: "Content Writer",
-    experience: "Less than 1 year",
-    date: "Jun 11",
-    portfolio: "bilalwrites.com",
-    linkedin: "linkedin.com/in/bilalraza-copy",
-    currentRole: "Freelance Copywriter",
-    whyJoin: "I discovered Brand Edge through a project you did for a Karachi-based fashion label and was immediately hooked on the copy quality. I write fast, adapt tone effortlessly, and have already delivered 80+ pieces of web and social copy for clients across niches.",
-    extra: "Native-level English. Bilingual in Urdu.",
-  },
-  {
-    id: 5,
-    name: "Nadia Khan",
-    email: "nadia@mkt.io",
-    phone: "+92 302 987 6543",
-    position: "Digital Marketing Specialist",
-    experience: "1–2 years",
-    date: "Jun 10",
-    portfolio: "nadiakhan.io/work",
-    linkedin: "linkedin.com/in/nadiakhan-mkt",
-    currentRole: "Marketing Executive at GrowFast",
-    whyJoin: "I'm passionate about performance marketing and have managed ad spend of up to $15k/month across Google and Meta. I want to grow in an environment that values both creativity and data — Brand Edge seems to balance both exceptionally well.",
-    extra: "Google Ads certified. HubSpot inbound marketing certified.",
-  },
-  {
-    id: 6,
-    name: "Hassan Ali",
-    email: "hassan@eng.pk",
-    phone: "+92 345 678 0011",
-    position: "Senior Frontend Developer",
-    experience: "3–5 years",
-    date: "Jun 9",
-    portfolio: "hassanali.pk",
-    linkedin: "linkedin.com/in/hassanali-eng",
-    currentRole: "Frontend Developer at CodeCraft",
-    whyJoin: "After 4 years in product development, I'm ready for the pace and variety of agency work. I love the challenge of adapting to new design systems and constraints with every project, and Brand Edge's reputation for quality is what drew me here.",
-    extra: "",
-  },
-  {
-    id: 7,
-    name: "Fatima Shah",
-    email: "fatima@design.co",
-    phone: "+92 311 222 3344",
-    position: "UI/UX Designer",
-    experience: "1–2 years",
-    date: "Jun 8",
-    portfolio: "fatimashah.design",
-    linkedin: "linkedin.com/in/fatimashah-ux",
-    currentRole: "Product Designer at Launchpad",
-    whyJoin: "I believe great design is never just cosmetic — it's strategic. Brand Edge's work proves that philosophy at every level. I'm eager to bring my product thinking into a creative agency context and contribute to client-facing design that truly moves the needle.",
-    extra: "Published UX case study featured in UX Collective.",
-  },
-  {
-    id: 8,
-    name: "David Park",
-    email: "david@startup.io",
-    phone: "+1 310 456 7890",
-    position: "Brand Strategist",
-    experience: "3–5 years",
-    date: "Jun 7",
-    portfolio: "davidpark.co",
-    linkedin: "linkedin.com/in/davidpark-brand",
-    currentRole: "Brand Manager at Nova Ventures",
-    whyJoin: "I've spent 5 years building brand strategies for venture-backed startups and I'm looking for a creative team that punches above its weight — that's Brand Edge. I want to bring Silicon Valley strategy thinking to a global creative context.",
-    extra: "Previously consulted for 3 Y Combinator companies on brand positioning.",
-  },
-];
 
 // ── Table styles ───────────────────────────────────────────────────────────
 const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
@@ -380,7 +204,7 @@ function AddJobModal({
   onAdd,
 }: {
   onClose: () => void;
-  onAdd: (job: Omit<Job, "id">) => void;
+  onAdd: (job: Omit<Job, "_id" | "createdAt">) => void;
 }) {
   const [form, setForm] = useState({
     title: "",
@@ -394,6 +218,7 @@ function AddJobModal({
     status: "Active" as JobStatus,
   });
   const [focused, setFocused] = useState<string | null>(null);
+  const [reqTab, setReqTab] = useState<"Write" | "Preview">("Write");
 
   const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -514,11 +339,25 @@ function AddJobModal({
           </div>
 
           <div style={fieldGap}>
-            <label style={labelStyle}>Requirements</label>
-            <textarea rows={4} placeholder="One requirement per line..."
-              value={form.requirements} onChange={(e) => set("requirements", e.target.value)}
-              onFocus={() => setFocused("requirements")} onBlur={() => setFocused(null)}
-              style={fStyle("requirements", true)} />
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <label style={labelStyle}>Requirements <span style={{ color: "var(--muted)", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>— supports **bold**, *italic*, - lists, ## headings</span></label>
+              <div style={{ display: "flex", gap: 0 }}>
+                {(["Write", "Preview"] as const).map((tab) => (
+                  <button key={tab} type="button" onClick={() => setReqTab(tab)} style={{ padding: "3px 10px", border: "1px solid var(--border)", borderLeft: tab === "Preview" ? "none" : "1px solid var(--border)", background: reqTab === tab ? "var(--fg)" : "transparent", color: reqTab === tab ? "var(--bg)" : "var(--muted)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", borderRadius: 0 }}>
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {reqTab === "Write" ? (
+              <textarea rows={5} placeholder={"Use markdown:\n- List item\n**Bold text**\n## Section heading"}
+                value={form.requirements} onChange={(e) => set("requirements", e.target.value)}
+                onFocus={() => setFocused("requirements")} onBlur={() => setFocused(null)}
+                style={fStyle("requirements", true)} />
+            ) : (
+              <div style={{ minHeight: 120, padding: "10px 14px", border: "1px solid var(--border)", background: "var(--surface2)", fontSize: 13, color: "var(--fg)", lineHeight: 1.6 }}
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(form.requirements) || '<span style="color:var(--muted);font-style:italic">Nothing to preview...</span>' }} />
+            )}
           </div>
 
           <SelectField label="Status" value={form.status} onChange={(v) => set("status", v)} options={STATUSES}
@@ -547,6 +386,202 @@ function AddJobModal({
             opacity: canSubmit ? 1 : 0.6,
           }}>
             Post Job
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Edit Job Modal ──────────────────────────────────────────────────────────
+function EditJobModal({
+  job,
+  onClose,
+  onSave,
+}: {
+  job: Job;
+  onClose: () => void;
+  onSave: (id: string, data: Omit<Job, "_id" | "createdAt">) => void;
+}) {
+  const [form, setForm] = useState({
+    title: job.title,
+    department: job.department,
+    location: job.location,
+    type: job.type,
+    level: job.level,
+    deadline: job.deadline,
+    description: job.description,
+    requirements: job.requirements,
+    status: job.status as JobStatus,
+  });
+  const [focused, setFocused] = useState<string | null>(null);
+  const [reqTab, setReqTab] = useState<"Write" | "Preview">("Write");
+
+  const set = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
+
+  const fStyle = (name: string, textarea = false): React.CSSProperties => {
+    const isFoc = focused === name;
+    return {
+      width: "100%",
+      ...(textarea ? { padding: "10px 14px", resize: "vertical" as const } : { height: 42, padding: "0 14px" }),
+      borderRadius: 0,
+      backgroundColor: isFoc ? "transparent" : "var(--surface2)",
+      backgroundImage: isFoc
+        ? "linear-gradient(var(--surface), var(--surface)), linear-gradient(135deg,#ff6a00,#ee0979)"
+        : "none",
+      backgroundOrigin: isFoc ? "border-box" : ("padding-box" as const),
+      backgroundClip: isFoc ? "padding-box, border-box" : ("border-box" as const),
+      border: isFoc ? "2px solid transparent" : "1px solid var(--border)",
+      color: "var(--fg)",
+      fontSize: 13,
+      fontFamily: "inherit",
+      outline: "none",
+      boxSizing: "border-box" as const,
+      transition: "background-color 0.18s ease",
+    };
+  };
+
+  const canSubmit =
+    form.title.trim() &&
+    form.department &&
+    form.location.trim() &&
+    form.type &&
+    form.level &&
+    form.description.trim();
+
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+    onSave(job._id, form);
+  };
+
+  return (
+    <div
+      style={{
+        position: "fixed", inset: 0, zIndex: 999,
+        background: "rgba(0,0,0,0.6)",
+        display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          background: "var(--surface)", border: "1px solid var(--border)",
+          width: 560, maxWidth: "100%", maxHeight: "90vh",
+          borderRadius: 0, display: "flex", flexDirection: "column",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div style={{
+          padding: "20px 24px", borderBottom: "1px solid var(--border)",
+          display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0,
+        }}>
+          <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: 0 }}>Edit Job</h3>
+          <button onClick={onClose} style={{
+            background: "transparent", border: "1px solid var(--border)",
+            color: "var(--muted)", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 32, height: 32, borderRadius: 0,
+          }}>
+            <XIcon />
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div style={{ overflowY: "auto", flex: 1, padding: "24px" }}>
+          <style>{`::placeholder { color: var(--muted); opacity: 0.55; } select option { background: var(--bg); color: var(--fg); }`}</style>
+
+          <div style={fieldGap}>
+            <label style={labelStyle}>Job Title <span style={{ color: "#ff6a00" }}>*</span></label>
+            <input type="text" placeholder="e.g. Senior Frontend Developer" value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              onFocus={() => setFocused("title")} onBlur={() => setFocused(null)}
+              style={fStyle("title")} />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
+            <SelectField label="Department" value={form.department} onChange={(v) => set("department", v)} options={DEPARTMENTS} required
+              fieldStyle={fStyle} name="department" onFocus={setFocused} onBlur={() => setFocused(null)} />
+            <SelectField label="Job Type" value={form.type} onChange={(v) => set("type", v)} options={JOB_TYPES} required
+              fieldStyle={fStyle} name="type" onFocus={setFocused} onBlur={() => setFocused(null)} />
+          </div>
+
+          <div style={fieldGap}>
+            <label style={labelStyle}>Location <span style={{ color: "#ff6a00" }}>*</span></label>
+            <input type="text" placeholder="e.g. Remote, Karachi PK, Hybrid" value={form.location}
+              onChange={(e) => set("location", e.target.value)}
+              onFocus={() => setFocused("location")} onBlur={() => setFocused(null)}
+              style={fStyle("location")} />
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 18 }}>
+            <SelectField label="Experience Level" value={form.level} onChange={(v) => set("level", v)} options={LEVELS} required
+              fieldStyle={fStyle} name="level" onFocus={setFocused} onBlur={() => setFocused(null)} />
+            <div style={fieldGap}>
+              <label style={labelStyle}>Application Deadline</label>
+              <input type="text" placeholder="e.g. Jul 31, 2025" value={form.deadline}
+                onChange={(e) => set("deadline", e.target.value)}
+                onFocus={() => setFocused("deadline")} onBlur={() => setFocused(null)}
+                style={fStyle("deadline")} />
+            </div>
+          </div>
+
+          <div style={fieldGap}>
+            <label style={labelStyle}>Job Description <span style={{ color: "#ff6a00" }}>*</span></label>
+            <textarea rows={4} placeholder="Describe the role, responsibilities, and what success looks like..."
+              value={form.description} onChange={(e) => set("description", e.target.value)}
+              onFocus={() => setFocused("description")} onBlur={() => setFocused(null)}
+              style={fStyle("description", true)} />
+          </div>
+
+          <div style={fieldGap}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+              <label style={labelStyle}>Requirements <span style={{ color: "var(--muted)", fontWeight: 400, textTransform: "none", letterSpacing: 0, fontSize: 10 }}>— supports **bold**, *italic*, - lists, ## headings</span></label>
+              <div style={{ display: "flex", gap: 0 }}>
+                {(["Write", "Preview"] as const).map((tab) => (
+                  <button key={tab} type="button" onClick={() => setReqTab(tab)} style={{ padding: "3px 10px", border: "1px solid var(--border)", borderLeft: tab === "Preview" ? "none" : "1px solid var(--border)", background: reqTab === tab ? "var(--fg)" : "transparent", color: reqTab === tab ? "var(--bg)" : "var(--muted)", fontSize: 11, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", borderRadius: 0 }}>
+                    {tab}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {reqTab === "Write" ? (
+              <textarea rows={5} placeholder={"Use markdown:\n- List item\n**Bold text**\n## Section heading"}
+                value={form.requirements} onChange={(e) => set("requirements", e.target.value)}
+                onFocus={() => setFocused("requirements")} onBlur={() => setFocused(null)}
+                style={fStyle("requirements", true)} />
+            ) : (
+              <div style={{ minHeight: 120, padding: "10px 14px", border: "1px solid var(--border)", background: "var(--surface2)", fontSize: 13, color: "var(--fg)", lineHeight: 1.6 }}
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(form.requirements) || '<span style="color:var(--muted);font-style:italic">Nothing to preview...</span>' }} />
+            )}
+          </div>
+
+          <SelectField label="Status" value={form.status} onChange={(v) => set("status", v)} options={STATUSES}
+            fieldStyle={fStyle} name="status" onFocus={setFocused} onBlur={() => setFocused(null)} />
+        </div>
+
+        {/* Footer */}
+        <div style={{
+          padding: "16px 24px", borderTop: "1px solid var(--border)",
+          display: "flex", justifyContent: "flex-end", gap: 10, flexShrink: 0,
+        }}>
+          <button onClick={onClose} style={{
+            padding: "9px 20px", border: "1px solid var(--border)",
+            background: "transparent", color: "var(--fg)",
+            fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0, fontFamily: "inherit",
+          }}>
+            Cancel
+          </button>
+          <button onClick={handleSubmit} disabled={!canSubmit} style={{
+            padding: "9px 22px", border: "none",
+            backgroundImage: canSubmit ? GRADIENT : "none",
+            backgroundColor: canSubmit ? "transparent" : "var(--surface2)",
+            color: canSubmit ? "#fff" : "var(--muted)",
+            fontSize: 13, fontWeight: 600, cursor: canSubmit ? "pointer" : "not-allowed",
+            borderRadius: 0, fontFamily: "inherit",
+            opacity: canSubmit ? 1 : 0.6,
+          }}>
+            Save Changes
           </button>
         </div>
       </div>
@@ -585,7 +620,7 @@ function JobDetailModal({ job, onClose }: { job: Job; onClose: () => void }) {
           <div>
             <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>{job.title}</h3>
             <p style={{ color: "var(--muted)", fontSize: 12, margin: 0 }}>
-              Job #{job.id} &nbsp;·&nbsp; <StatusBadge status={job.status} />
+              ID: {job._id.slice(-8)} &nbsp;·&nbsp; <StatusBadge status={job.status} />
             </p>
           </div>
           <button onClick={onClose} style={{
@@ -619,11 +654,7 @@ function JobDetailModal({ job, onClose }: { job: Job; onClose: () => void }) {
               <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>
                 Requirements
               </p>
-              <ul style={{ margin: 0, paddingLeft: 18, listStyleType: "disc" }}>
-                {job.requirements.split("\n").filter(Boolean).map((req, i) => (
-                  <li key={i} style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.7, marginBottom: 4 }}>{req}</li>
-                ))}
-              </ul>
+              <div dangerouslySetInnerHTML={{ __html: renderMarkdown(job.requirements) }} />
             </>
           )}
         </div>
@@ -700,6 +731,23 @@ function DeleteModal({
 
 // ── Application Detail Modal ─────────────────────────────────────────────────
 function AppDetailModal({ app, onClose }: { app: Application; onClose: () => void }) {
+  const handleDownloadCV = async () => {
+    try {
+      const res = await fetch(app.cvUrl);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${app.name.replace(/\s+/g, "_")}_CV.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      window.open(app.cvUrl, "_blank");
+    }
+  };
+
   const Row = ({ label, value }: { label: string; value: string }) => (
     <div style={{ display: "flex", gap: 16, paddingBottom: 12, borderBottom: "1px solid var(--border)", marginBottom: 12 }}>
       <span style={{ width: 100, flexShrink: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", paddingTop: 1 }}>
@@ -729,8 +777,8 @@ function AppDetailModal({ app, onClose }: { app: Application; onClose: () => voi
           <div>
             <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: "0 0 3px" }}>{app.name}</h3>
             <p style={{ color: "var(--muted)", fontSize: 12, margin: 0 }}>
-              Application #{app.id} &nbsp;·&nbsp; Applied {app.date} &nbsp;·&nbsp;
-              <span style={{ color: "var(--fg)", fontWeight: 500 }}>{app.position}</span>
+              ID: {app._id.slice(-8)} &nbsp;·&nbsp; Applied {fmtDate(app.createdAt)} &nbsp;·&nbsp;
+              <span style={{ color: "var(--fg)", fontWeight: 500 }}>{app.jobTitle}</span>
             </p>
           </div>
           <button onClick={onClose} style={{
@@ -754,7 +802,7 @@ function AppDetailModal({ app, onClose }: { app: Application; onClose: () => voi
           <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>
             Professional
           </p>
-          <Row label="Position" value={app.position} />
+          <Row label="Position" value={app.jobTitle} />
           <Row label="Experience" value={app.experience} />
           <Row label="Current Role" value={app.currentRole} />
           {app.portfolio && <Row label="Portfolio" value={app.portfolio} />}
@@ -769,18 +817,45 @@ function AppDetailModal({ app, onClose }: { app: Application; onClose: () => voi
             </span>
             <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.7, margin: 0 }}>{app.whyJoin}</p>
           </div>
-          {app.extra && (
+          {app.skills && app.skills.length > 0 && (
             <div>
               <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", display: "block", marginBottom: 8 }}>
-                Additional Info
+                Skills
               </span>
-              <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.7, margin: 0 }}>{app.extra}</p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {app.skills.map((s: string, i: number) => (
+                  <span key={i} style={{ padding: "3px 10px", background: "rgba(255,106,0,0.1)", border: "1px solid rgba(255,106,0,0.3)", fontSize: 12, fontWeight: 600, color: "#ff6a00" }}>{s}</span>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
+        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexShrink: 0 }}>
+          {app.cvUrl ? (
+            <button
+              onClick={handleDownloadCV}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 8,
+                padding: "9px 18px",
+                backgroundImage: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
+                color: "#fff", border: "none",
+                fontSize: 13, fontWeight: 700, cursor: "pointer",
+                textDecoration: "none", borderRadius: 0, fontFamily: "inherit",
+                boxShadow: "0 4px 14px rgba(255,106,0,0.3)",
+              }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download CV
+            </button>
+          ) : (
+            <span style={{ fontSize: 12, color: "var(--muted)" }}>No CV attached</span>
+          )}
           <button onClick={onClose} style={{
             padding: "9px 20px", border: "1px solid var(--border)",
             background: "transparent", color: "var(--fg)",
@@ -798,23 +873,47 @@ function AppDetailModal({ app, onClose }: { app: Application; onClose: () => voi
 type Tab = "Job Postings" | "Applications";
 
 export default function CareersAdminPage() {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<Tab>("Job Postings");
-  const [jobs, setJobs] = useState<Job[]>(INITIAL_JOBS);
-  const [applications] = useState<Application[]>(INITIAL_APPLICATIONS);
   const [showAddModal, setShowAddModal] = useState(false);
   const [viewJob, setViewJob] = useState<Job | null>(null);
   const [deleteJob, setDeleteJob] = useState<Job | null>(null);
   const [viewApp, setViewApp] = useState<Application | null>(null);
+  const [editJob, setEditJob] = useState<Job | null>(null);
+  const [deleteApp, setDeleteApp] = useState<Application | null>(null);
+  const { jobs, applications, loadingJobs, loadingApps, fetchJobs, fetchApplications, addJob, removeJob, updateJob, removeApplication } = useJobsStore();
 
-  const nextId = jobs.length > 0 ? Math.max(...jobs.map((j) => j.id)) + 1 : 1;
+  useEffect(() => { fetchJobs(); fetchApplications(); }, [fetchJobs, fetchApplications]);
 
-  const handleAddJob = (data: Omit<Job, "id">) => {
-    setJobs((prev) => [{ id: nextId, ...data }, ...prev]);
+  const handleAddJob = async (data: Omit<Job, "_id" | "createdAt">) => {
+    try {
+      await addJob(data);
+      toast("Job posted successfully!");
+    } catch {
+      toast("Failed to post job.", "error");
+    }
   };
 
-  const handleDeleteJob = (id: number) => {
-    setJobs((prev) => prev.filter((j) => j.id !== id));
+  const handleDeleteJob = async (id: string) => {
+    await removeJob(id);
     setDeleteJob(null);
+    toast("Job deleted.", "error");
+  };
+
+  const handleEditJob = async (id: string, data: Omit<Job, "_id" | "createdAt">) => {
+    try {
+      await updateJob(id, data);
+      setEditJob(null);
+      toast("Job updated successfully!");
+    } catch {
+      toast("Failed to update job.", "error");
+    }
+  };
+
+  const handleDeleteApp = async (id: string) => {
+    await removeApplication(id);
+    setDeleteApp(null);
+    toast("Application deleted.", "error");
   };
 
   const TABS: Tab[] = ["Job Postings", "Applications"];
@@ -925,15 +1024,17 @@ export default function CareersAdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {jobs.length === 0 ? (
+                  {loadingJobs ? (
+                    <tr><td colSpan={9} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>Loading...</td></tr>
+                  ) : jobs.length === 0 ? (
                     <tr>
                       <td colSpan={9} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>
                         No job postings yet.
                       </td>
                     </tr>
-                  ) : jobs.map((job) => (
-                    <tr key={job.id}>
-                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{job.id}</td>
+                  ) : jobs.map((job, i) => (
+                    <tr key={job._id}>
+                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
                       <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{job.title}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{job.department}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{job.location}</td>
@@ -956,6 +1057,16 @@ export default function CareersAdminPage() {
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}
                           >
                             <EyeIcon />
+                          </button>
+                          <button onClick={() => setEditJob(job)} title="Edit" style={{
+                            width: 30, height: 30, border: "1px solid var(--border)",
+                            background: "transparent", color: "var(--muted)",
+                            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                            borderRadius: 0, transition: "all 0.15s",
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                            <EditIcon />
                           </button>
                           <button
                             onClick={() => setDeleteJob(job)}
@@ -1024,30 +1135,47 @@ export default function CareersAdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {applications.map((app) => (
-                    <tr key={app.id}>
-                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{app.id}</td>
+                  {loadingApps ? (
+                    <tr><td colSpan={8} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>Loading...</td></tr>
+                  ) : applications.length === 0 ? (
+                    <tr><td colSpan={8} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>No applications yet.</td></tr>
+                  ) : null}
+                  {!loadingApps && applications.map((app, i) => (
+                    <tr key={app._id}>
+                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
                       <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{app.name}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.email}</td>
-                      <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.phone}</td>
-                      <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{app.position}</td>
+                      <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.phone || "—"}</td>
+                      <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{app.jobTitle}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.experience}</td>
-                      <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.date}</td>
+                      <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDate(app.createdAt)}</td>
                       <td style={{ ...tdStyle, textAlign: "center" }}>
-                        <button
-                          onClick={() => setViewApp(app)}
-                          title="View application"
-                          style={{
-                            width: 30, height: 30, border: "1px solid var(--border)",
-                            background: "transparent", color: "var(--muted)",
+                        <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                          <button
+                            onClick={() => setViewApp(app)}
+                            title="View application"
+                            style={{
+                              width: 30, height: 30, border: "1px solid var(--border)",
+                              background: "transparent", color: "var(--muted)",
+                              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+                              borderRadius: 0, transition: "all 0.15s",
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}
+                          >
+                            <EyeIcon />
+                          </button>
+                          <button onClick={() => setDeleteApp(app)} title="Delete" style={{
+                            width: 30, height: 30, border: "1px solid rgba(239,68,68,0.35)",
+                            background: "transparent", color: "#ef4444",
                             cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-                            borderRadius: 0, margin: "0 auto", transition: "all 0.15s",
+                            borderRadius: 0, transition: "all 0.15s",
                           }}
-                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
-                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}
-                        >
-                          <EyeIcon />
-                        </button>
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(239,68,68,0.1)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; }}>
+                            <TrashIcon />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -1072,11 +1200,25 @@ export default function CareersAdminPage() {
       {deleteJob && (
         <DeleteModal
           jobTitle={deleteJob.title}
-          onConfirm={() => handleDeleteJob(deleteJob.id)}
+          onConfirm={() => handleDeleteJob(deleteJob._id)}
           onClose={() => setDeleteJob(null)}
         />
       )}
       {viewApp && <AppDetailModal app={viewApp} onClose={() => setViewApp(null)} />}
+      {editJob && (
+        <EditJobModal
+          job={editJob}
+          onClose={() => setEditJob(null)}
+          onSave={handleEditJob}
+        />
+      )}
+      {deleteApp && (
+        <DeleteModal
+          jobTitle={`${deleteApp.name}'s application`}
+          onConfirm={() => handleDeleteApp(deleteApp._id)}
+          onClose={() => setDeleteApp(null)}
+        />
+      )}
     </main>
   );
 }
