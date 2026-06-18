@@ -154,7 +154,7 @@ function TeamSection({ theme }: { theme: "dark" | "light" }) {
       </div>
 
       {/* ── Mobile Cards Grid ── */}
-      <div className="md:hidden" style={{ borderTop: "1px solid var(--border)", padding: "24px 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+      <div className="md:hidden grid grid-cols-2" style={{ borderTop: "1px solid var(--border)", padding: "24px 16px", gap: 12 }}>
         {TEAM.map((member) => (
           <div key={member.num} style={{ border: "1px solid var(--border)", background: "var(--surface)", overflow: "hidden", display: "flex", flexDirection: "column" }}>
             {/* Image area */}
