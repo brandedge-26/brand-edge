@@ -10,35 +10,35 @@ import Footer from "@/components/Footer";
 const CELL = 44;
 
 const ROLES = [
-  { text: "Designers",   gradient: "linear-gradient(135deg, #ff6a00, #ee0979)" },
-  { text: "Developers",  gradient: "linear-gradient(135deg, #c026d3, #7c3aed)" },
+  { text: "Designers", gradient: "linear-gradient(135deg, #ff6a00, #ee0979)" },
+  { text: "Developers", gradient: "linear-gradient(135deg, #c026d3, #7c3aed)" },
   { text: "Strategists", gradient: "linear-gradient(135deg, #16a34a, #0891b2)" },
-  { text: "Creators",    gradient: "linear-gradient(135deg, #0891b2, #7c3aed)" },
-  { text: "Builders",    gradient: "linear-gradient(135deg, #d97706, #ff6a00)" },
+  { text: "Creators", gradient: "linear-gradient(135deg, #0891b2, #7c3aed)" },
+  { text: "Builders", gradient: "linear-gradient(135deg, #d97706, #ff6a00)" },
 ];
 
 
 const TEAM = [
-  { num: "01", name: "Muhammad Ubaid Khan", role: "Founder & CEO",            tags: "Vision · Brand Strategy",          grad: "linear-gradient(135deg,#ff6a00,#ee0979)", imgBg: "linear-gradient(145deg,#1a0800,#3d1200,#ff6a00)", initials: "MU", photo: "/profiles/ubaid.png",  female: false, linkedin: "https://pk.linkedin.com/in/ubaid-khan-a362222a6" },
-  { num: "02", name: "Saghar Hassan",       role: "Creative Director",         tags: "Art Direction · Brand Identity",    grad: "linear-gradient(135deg,#c026d3,#7c3aed)", imgBg: "linear-gradient(145deg,#120020,#2d0050,#c026d3)", initials: "SH", photo: "/profiles/sagar.png", female: false, linkedin: "#" },
-  { num: "03", name: "Syed Asif Shah",      role: "Senior Developer",          tags: "Next.js · System Architecture",     grad: "linear-gradient(135deg,#0891b2,#7c3aed)", imgBg: "linear-gradient(145deg,#000d1a,#001f3f,#0891b2)", initials: "SA", photo: "/profiles/asif.avif", female: false, linkedin: "#" },
-  { num: "04", name: "Zaira Hussain",       role: "Full Stack Developer",      tags: "React · Node.js · APIs",            grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#001020,#002040,#06b6d4)", initials: "ZH", photo: null as string | null, female: true,  linkedin: "#" },
-  { num: "05", name: "Muhammad Hammad",     role: "Backend Developer",         tags: "Node.js · Databases · APIs",        grad: "linear-gradient(135deg,#16a34a,#0891b2)", imgBg: "linear-gradient(145deg,#001a0a,#003d18,#16a34a)", initials: "MH", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "06", name: "Aniq Raza",           role: "Senior Graphic Designer",   tags: "Brand Design · Visual Identity",    grad: "linear-gradient(135deg,#ff6a00,#c026d3)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#c026d3)", initials: "AR", photo: "/profiles/aniq.jpg",  female: false, linkedin: "#" },
-  { num: "07", name: "Khizar Mughal",       role: "Graphic Designer",          tags: "UI Design · Illustration",          grad: "linear-gradient(135deg,#d97706,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#d97706)", initials: "KM", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "08", name: "Umaima Malik",        role: "Video Editor",              tags: "Motion · Post Production",          grad: "linear-gradient(135deg,#ee0979,#7c3aed)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#ee0979)", initials: "UM", photo: null as string | null, female: true,  linkedin: "#" },
-  { num: "09", name: "Muhammad Luqman Ali", role: "Social Media Manager",      tags: "Content Strategy · Growth",         grad: "linear-gradient(135deg,#3b82f6,#0891b2)", imgBg: "linear-gradient(145deg,#000d1a,#001840,#3b82f6)", initials: "ML", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "10", name: "Ahsan Khan",          role: "Digital Marketer",          tags: "SEO · Paid Media · Analytics",      grad: "linear-gradient(135deg,#22c55e,#16a34a)", imgBg: "linear-gradient(145deg,#001a08,#003315,#22c55e)", initials: "AK", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "11", name: "Syed Abdullah",       role: "Sales Executive",           tags: "Client Relations · BD",             grad: "linear-gradient(135deg,#f59e0b,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#f59e0b)", initials: "SA", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "12", name: "Ziyan Siddique",      role: "Sales Executive",           tags: "Lead Gen · Partnerships",           grad: "linear-gradient(135deg,#8b5cf6,#c026d3)", imgBg: "linear-gradient(145deg,#0d0020,#200040,#8b5cf6)", initials: "ZS", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "13", name: "Ayan Kamran",         role: "Sales Executive",           tags: "Business Dev · Client Success",     grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#000d20,#001840,#06b6d4)", initials: "AY", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "01", name: "Muhammad Ubaid Khan", role: "Founder & CEO", tags: "Vision · Brand Strategy", grad: "linear-gradient(135deg,#ff6a00,#ee0979)", imgBg: "linear-gradient(145deg,#1a0800,#3d1200,#ff6a00)", initials: "MU", photo: "/profiles/ubaid.png", female: false, linkedin: "https://pk.linkedin.com/in/ubaid-khan-a362222a6" },
+  { num: "02", name: "Saghar Hassan", role: "Creative Director", tags: "Art Direction · Brand Identity", grad: "linear-gradient(135deg,#c026d3,#7c3aed)", imgBg: "linear-gradient(145deg,#120020,#2d0050,#c026d3)", initials: "SH", photo: "/profiles/sagar.png", female: false, linkedin: "#" },
+  { num: "03", name: "Syed Asif Shah", role: "Senior Developer", tags: "Next.js · System Architecture", grad: "linear-gradient(135deg,#0891b2,#7c3aed)", imgBg: "linear-gradient(145deg,#000d1a,#001f3f,#0891b2)", initials: "SA", photo: "/profiles/asif.avif", female: false, linkedin: "https://pk.linkedin.com/in/syed-asif-shah-80625b328" },
+  { num: "04", name: "Zaira Hussain", role: "Full Stack Developer", tags: "React · Node.js · APIs", grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#001020,#002040,#06b6d4)", initials: "ZH", photo: null as string | null, female: true, linkedin: "#" },
+  { num: "05", name: "Muhammad Hammad", role: "Backend Developer", tags: "Node.js · Databases · APIs", grad: "linear-gradient(135deg,#16a34a,#0891b2)", imgBg: "linear-gradient(145deg,#001a0a,#003d18,#16a34a)", initials: "MH", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "06", name: "Aniq Raza", role: "Senior Graphic Designer", tags: "Brand Design · Visual Identity", grad: "linear-gradient(135deg,#ff6a00,#c026d3)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#c026d3)", initials: "AR", photo: "/profiles/aniq.jpg", female: false, linkedin: "https://www.instagram.com/mr__raxa__09?igsh=ankzc3djbWhvYmlq" },
+  { num: "07", name: "Khizar Mughal", role: "Graphic Designer", tags: "UI Design · Illustration", grad: "linear-gradient(135deg,#d97706,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#d97706)", initials: "KM", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "08", name: "Umaima Malik", role: "Video Editor", tags: "Motion · Post Production", grad: "linear-gradient(135deg,#ee0979,#7c3aed)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#ee0979)", initials: "UM", photo: null as string | null, female: true, linkedin: "#" },
+  { num: "09", name: "Muhammad Luqman Ali", role: "Social Media Manager", tags: "Content Strategy · Growth", grad: "linear-gradient(135deg,#3b82f6,#0891b2)", imgBg: "linear-gradient(145deg,#000d1a,#001840,#3b82f6)", initials: "ML", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "10", name: "Ahsan Khan", role: "Digital Marketer", tags: "SEO · Paid Media · Analytics", grad: "linear-gradient(135deg,#22c55e,#16a34a)", imgBg: "linear-gradient(145deg,#001a08,#003315,#22c55e)", initials: "AK", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "11", name: "Syed Abdullah", role: "Sales Executive", tags: "Client Relations · BD", grad: "linear-gradient(135deg,#f59e0b,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#f59e0b)", initials: "SA", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "12", name: "Ziyan Siddique", role: "Sales Executive", tags: "Lead Gen · Partnerships", grad: "linear-gradient(135deg,#8b5cf6,#c026d3)", imgBg: "linear-gradient(145deg,#0d0020,#200040,#8b5cf6)", initials: "ZS", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "13", name: "Ayan Kamran", role: "Sales Executive", tags: "Business Dev · Client Success", grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#000d20,#001840,#06b6d4)", initials: "AY", photo: null as string | null, female: false, linkedin: "#" },
 ];
 
 const STATS = [
-  { target: 13,  suffix: "+", label: "Team Members" },
-  { target: 5,   suffix: "+", label: "Years Together" },
+  { target: 13, suffix: "+", label: "Team Members" },
+  { target: 5, suffix: "+", label: "Years Together" },
   { target: 200, suffix: "+", label: "Projects Shipped" },
-  { target: 98,  suffix: "%", label: "Client Satisfaction" },
+  { target: 98, suffix: "%", label: "Client Satisfaction" },
 ];
 
 function FemaleAvatar({ size = 72 }: { size?: number }) {
@@ -189,7 +189,7 @@ function TeamSection({ theme }: { theme: "dark" | "light" }) {
                   style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5, fontSize: 11, fontWeight: 600, color: "#0a66c2", textDecoration: "none", border: "1px solid #0a66c2", padding: "4px 8px", alignSelf: "flex-start" }}
                 >
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                   </svg>
                   LinkedIn
                 </a>
@@ -272,7 +272,7 @@ function TeamSection({ theme }: { theme: "dark" | "light" }) {
                     aria-label={`${member.name} LinkedIn`}
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                     </svg>
                   </a>
                 )}
@@ -494,7 +494,7 @@ function ExpertiseSection({ theme }: { theme: "dark" | "light" }) {
                   {group.skills.map((skill) => (
                     <span key={skill} style={{
                       fontSize: 12, fontWeight: 600,
-                      padding: "4px 10px", 
+                      padding: "4px 10px",
                       border: "1px solid var(--border)",
                       background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)",
                       color: "var(--muted)",
@@ -688,9 +688,9 @@ export default function TeamPage() {
 
           {/* Animated segments */}
           {[
-            { h: true,  top: "132px",  anim: "moveRight 7s linear infinite" },
-            { h: true,  top: "352px",  anim: "moveRight 9s linear infinite 3s" },
-            { h: true,  top: "264px",  anim: "moveLeft 8s linear infinite 1.5s" },
+            { h: true, top: "132px", anim: "moveRight 7s linear infinite" },
+            { h: true, top: "352px", anim: "moveRight 9s linear infinite 3s" },
+            { h: true, top: "264px", anim: "moveLeft 8s linear infinite 1.5s" },
             { h: false, left: "308px", anim: "moveDown 6s linear infinite 0.5s" },
             { h: false, left: "616px", anim: "moveDown 10s linear infinite 4s" },
             { h: false, left: "484px", anim: "moveUp 8s linear infinite 2s" },
