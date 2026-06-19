@@ -1,14 +1,17 @@
 "use client";
 
 const CLIENTS = [
-  { name: "Ahmed Parts", src: "/clients/ahmed-parts-Photoroom.png" },
-  { name: "Auto Pub", src: "/clients/auto-pub-Photoroom.png" },
-  { name: "Green Zee", src: "/clients/green-zee-Photoroom.png" },
-  { name: "Ismail Auto", src: "/clients/ismail-auto-Photoroom.png" },
-  { name: "Memon", src: "/clients/memon-Photoroom.png" },
-  { name: "Qabil", src: "/clients/qabil-Photoroom.png" },
-  { name: "RBWM", src: "/clients/rbwm-Photoroom.png" },
-  { name: "Universal", src: "/clients/universal-Photoroom.png" },
+  { name: "Ahmed Parts",   src: "/clients/ahmed-parts-Photoroom.png" },
+  { name: "Auto Pub",      src: "/clients/auto-pub-Photoroom.png" },
+  { name: "Green Zee",     src: "/clients/green-zee-Photoroom.png" },
+  { name: "Ismail Auto",   src: "/clients/ismail-auto-Photoroom.png" },
+  { name: "Memon",         src: "/clients/memon-Photoroom.png" },
+  { name: "Qabil",         src: "/clients/qabil-Photoroom.png" },
+  { name: "RBWM",          src: "/clients/rbwm-Photoroom.png" },
+  { name: "Universal",     src: "/clients/universal-Photoroom.png" },
+  { name: "NANYA CNC",     src: "/clients/nanya.webp" },
+  { name: "Action Plus Tax", src: "/clients/action.png" },
+  { name: "Jesup Wireless", src: "/clients/jesup.svg" },
 ];
 
 // duplicate for seamless loop

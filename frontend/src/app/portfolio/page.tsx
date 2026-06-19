@@ -12,7 +12,7 @@ const MARQUEE_TAGS = [
   "Identity", "Digital Marketing", "Development", "Strategy",
 ];
 
-const FILTERS = ["All", "Web Design", "Branding", "E-Commerce"];
+const FILTERS = ["All", "Web Design", "Branding", "E-Commerce", "App Dev"];
 
 const PROJECTS = [
   {
@@ -38,6 +38,14 @@ const PROJECTS = [
     image: "/projects/action.png",
     desc: "A trust-first brand identity and professional website for a growing tax consultancy — designed to communicate authority and convert first-time visitors into long-term clients.",
     span: 1, tall: false,
+  },
+  {
+    id: 4, slug: "taeri",
+    title: "TAERI — Elderly Health App", client: "TAERI", year: "2025",
+    category: "App Dev", tags: ["App Dev", "UI/UX", "Health"],
+    image: "/projects/taeri.png",
+    desc: "A thoughtful health companion app designed for senior citizens — guiding them through personalised daily tasks, movement routines, and wellness check-ins with simplicity and care.",
+    span: 2, tall: false,
   },
 ];
 

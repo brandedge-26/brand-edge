@@ -93,6 +93,34 @@ export const ALL_PROJECTS = [
     ],
     outcome: "Action Plus Tax launched with a brand that finally matched the quality of their service. Consultation bookings tripled in the first month, and the client reported that new leads were arriving pre-sold on the brand — no longer needing to be convinced of credibility before the conversation even started.",
   },
+  {
+    slug: "taeri",
+    title: "TAERI — Elderly Health App",
+    client: "TAERI",
+    category: "App Dev",
+    year: "2025",
+    duration: "6 Weeks",
+    team: "1 Designer · 2 Developers · 1 Strategist",
+    deliverables: "Mobile App UI, Task Flow System, Health Dashboard",
+    image: "/projects/taeri.png",
+    liveUrl: "",
+    tags: ["App Dev", "UI/UX", "Health"],
+    overview: "TAERI is a health companion application built specifically for senior citizens — a demographic that is often underserved by modern technology. The app was designed around one core belief: that staying healthy in old age should feel empowering, not complicated. Users begin by selecting the type of activity they want to perform, then the app gently guides them through personalised parameters — how much time they have, the physical angle or posture involved, and the difficulty level that suits their current ability. Everything is designed with large text, simple navigation, and calm visuals to ensure comfort for elderly users.",
+    challenge: "Designing for senior citizens presents a unique set of challenges. Most apps assume a baseline of tech-literacy that older users may not have. Our challenge was to create an experience that felt warm and approachable — not clinical — while still being detailed enough to be genuinely useful for health management. Every tap, every screen, and every word of copy had to be considered through the lens of someone who may be encountering a smartphone app for the very first time.",
+    phases: [
+      { name: "Research & User Empathy",   duration: "1 week",  desc: "In-depth research into elderly UX patterns, accessibility standards, and common health concerns for senior citizens. Interviews and journey mapping focused on simplicity and trust." },
+      { name: "Task Flow Design",           duration: "1 week",  desc: "Designed the core task selection system — users pick an activity (e.g. walking, stretching, physiotherapy), then set time duration, body angle/posture, and difficulty level on a simple slider scale." },
+      { name: "UI Design & Accessibility", duration: "2 weeks", desc: "High-contrast visuals, large tap targets, clear iconography, and calm colour palette. Every screen was tested for readability and ease of use with minimal cognitive load." },
+      { name: "Development & Testing",     duration: "2 weeks", desc: "Full mobile app build with smooth onboarding flow, task tracking, daily progress summaries, and caregiver notification feature. Tested across multiple device sizes." },
+    ],
+    results: [
+      { val: "95%",  label: "Ease of Use Rating" },
+      { val: "3 taps", label: "Avg. to Start a Task" },
+      { val: "A+",   label: "Accessibility Score" },
+      { val: "6wks", label: "Concept to Delivery" },
+    ],
+    outcome: "TAERI delivered a product that genuinely resonated with its target audience — senior citizens who often feel left behind by technology. The simple task-selection flow, combined with thoughtful accessibility design, made it easy for elderly users to engage with their health routines daily. The client praised the team's ability to translate a complex health concept into something that felt effortless and human.",
+  },
 ];
 
 /* ── Components ─────────────────────────────────────── */
