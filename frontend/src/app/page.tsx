@@ -9,6 +9,7 @@ import GoodbyeSection from "@/components/GoodbyeSection";
 import AboutSection from "@/components/AboutSection";
 import ServicesSection from "@/components/ServicesSection";
 import OurProcess from "@/components/OurProcess";
+import ClientsSection from "@/components/ClientsSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import ReadyToGrow from "@/components/ReadyToGrow";
 import FAQSection from "@/components/FAQSection";
@@ -77,6 +78,7 @@ export default function Home() {
         <AboutSection theme={theme} />
         <ServicesSection theme={theme} />
         <OurProcess theme={theme} />
+        <ClientsSection theme={theme} />
         <TestimonialsSection theme={theme} />
         <ReadyToGrow theme={theme} />
         <FAQSection theme={theme} />

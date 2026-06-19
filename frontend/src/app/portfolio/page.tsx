@@ -8,75 +8,35 @@ import Footer from "@/components/Footer";
 
 /* ── Data ───────────────────────────────────────────── */
 const MARQUEE_TAGS = [
-  "Branding", "Web Design", "Mobile App", "SEO",
-  "Marketing", "Photography", "SaaS", "E-Commerce",
+  "Branding", "Web Design", "E-Commerce", "UI/UX",
+  "Identity", "Digital Marketing", "Development", "Strategy",
 ];
 
-const FILTERS = ["All", "Branding", "Web Design", "Marketing", "App Dev", "Photography", "Software"];
+const FILTERS = ["All", "Web Design", "Branding", "E-Commerce"];
 
 const PROJECTS = [
   {
-    id: 1, slug: "novatech-brand-identity",
-    title: "NovaTech Brand Identity", client: "NovaTech", year: "2024",
-    category: "Branding", tags: ["Logo", "Guidelines", "Identity"],
-    image: "/home/services/branding-service.webp",
-    desc: "Complete brand overhaul — from logo system to motion guidelines. Increased brand recognition by 3x in 6 months.",
+    id: 1, slug: "jesup-wireless",
+    title: "Jesup Wireless — Digital Store", client: "Jesup Wireless", year: "2024",
+    category: "E-Commerce", tags: ["E-Commerce", "Branding", "UI/UX"],
+    image: "/projects/jesup.png",
+    desc: "Full e-commerce build for a US-based wireless retailer — clean storefront, smooth checkout flow, and a brand identity that converts browsers into buyers.",
     span: 2, tall: true,
   },
   {
-    id: 2, slug: "flowapp-website",
-    title: "FlowApp Website", client: "FlowApp", year: "2024",
-    category: "Web Design", tags: ["UI/UX", "Dev", "CMS"],
-    image: "/home/services/website-service.webp",
-    desc: "Conversion-first SaaS landing page that drove a 210% uplift in trial sign-ups.",
+    id: 2, slug: "nanya-cnc",
+    title: "NANYA CNC — Web Presence", client: "NANYA CNC", year: "2024",
+    category: "Web Design", tags: ["Web Design", "UI/UX", "Development"],
+    image: "/projects/nanya.png",
+    desc: "A precision-forward website for a CNC manufacturing leader — built to reflect the quality of their machines and drive serious B2B inquiries.",
     span: 1, tall: false,
   },
   {
-    id: 3, slug: "growthlab-360-campaign",
-    title: "GrowthLab 360 Campaign", client: "GrowthLab", year: "2024",
-    category: "Marketing", tags: ["Ads", "Email", "Content"],
-    image: "/home/services/marketting.webp",
-    desc: "End-to-end digital campaign across Google, Meta, and email — 4.2x ROAS in 90 days.",
-    span: 1, tall: false,
-  },
-  {
-    id: 4, slug: "brightloop-mobile-app",
-    title: "BrightLoop Mobile App", client: "BrightLoop", year: "2023",
-    category: "App Dev", tags: ["iOS", "Android", "UI"],
-    image: "/home/services/mobile-app-service.webp",
-    desc: "Cross-platform learning app with 50k+ downloads in the first quarter post-launch.",
-    span: 1, tall: false,
-  },
-  {
-    id: 5, slug: "acmeco-visual-identity",
-    title: "AcmeCo Visual Identity", client: "AcmeCo", year: "2023",
-    category: "Branding", tags: ["Print", "Digital", "Motion"],
-    image: "/home/services/graphic-design-service.webp",
-    desc: "Full visual system for a D2C startup — packaging, social templates, and ad creatives.",
-    span: 1, tall: false,
-  },
-  {
-    id: 6, slug: "luxeshoot-product-series",
-    title: "LuxeShoot Product Series", client: "LuxeStore", year: "2024",
-    category: "Photography", tags: ["Studio", "Lifestyle", "Editing"],
-    image: "/home/services/product-photogrpahy.webp",
-    desc: "800+ product shots across 3 shoot days. Direct-to-ad images that cut CAC by 35%.",
-    span: 2, tall: false,
-  },
-  {
-    id: 7, slug: "datasync-saas-platform",
-    title: "DataSync SaaS Platform", client: "DataSync", year: "2023",
-    category: "Software", tags: ["SaaS", "API", "Dashboard"],
-    image: "/home/services/software-design-service.webp",
-    desc: "Custom admin dashboard and API suite built for a B2B data analytics startup.",
-    span: 1, tall: false,
-  },
-  {
-    id: 8, slug: "rankup-seo-strategy",
-    title: "RankUp SEO Strategy", client: "RankUp", year: "2024",
-    category: "Marketing", tags: ["SEO", "Content", "Links"],
-    image: "/home/services/seo-service.webp",
-    desc: "Organic traffic grew from 2k to 48k monthly visitors in under 8 months.",
+    id: 3, slug: "action-plus-tax",
+    title: "Action Plus Tax — Brand & Web", client: "Action Plus Tax", year: "2025",
+    category: "Branding", tags: ["Branding", "Web Design", "Identity"],
+    image: "/projects/action.png",
+    desc: "A trust-first brand identity and professional website for a growing tax consultancy — designed to communicate authority and convert first-time visitors into long-term clients.",
     span: 1, tall: false,
   },
 ];
@@ -414,7 +374,7 @@ export default function PortfolioPage() {
           </p>
 
           <div className="port-stats" style={{ display: "flex", alignItems: "center", border: "1px solid var(--border)", background: "var(--surface)", overflow: "hidden" }}>
-            {[{ val: "50+", label: "Projects" }, { val: "8", label: "Services" }, { val: "98%", label: "Retention" }, { val: "3x", label: "Avg. ROI" }].map((s, i) => (
+            {[{ val: "50+", label: "Projects" }, { val: "8", label: "Services" }, { val: "98%", label: "Satisfaction" }, { val: "3x", label: "Avg. Growth" }].map((s, i) => (
               <div key={i} style={{ padding: "20px 32px", borderRight: i < 3 ? "1px solid var(--border)" : "none", textAlign: "center" }}>
                 <p style={{ fontSize: "clamp(22px,2.5vw,32px)", fontWeight: 600, letterSpacing: "-1.5px", lineHeight: 1, margin: "0 0 4px", backgroundImage: "linear-gradient(135deg,#ff6a00,#ee0979)", WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent" }}>{s.val}</p>
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted)", margin: 0 }}>{s.label}</p>
