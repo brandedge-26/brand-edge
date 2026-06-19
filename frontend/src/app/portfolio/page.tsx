@@ -411,28 +411,35 @@ export default function PortfolioPage() {
         <div style={{ maxWidth: 1160, margin: "0 auto" }}>
 
           {/* Section header + filters */}
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 24, marginBottom: 48 }}>
-            <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
-                <span style={{ width: 28, height: 1.5, background: "#ff6a00", display: "inline-block", borderRadius: 2 }} />
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#ff6a00" }}>Selected Work</span>
-              </div>
-              <h2 style={{ fontSize: "clamp(26px,3.5vw,44px)", fontWeight: 500, letterSpacing: "-1.5px", color: "var(--fg)", margin: 0, lineHeight: 1.1 }}>
-                {activeFilter === "All" ? `${PROJECTS.length} projects` : `${filtered.length} in ${activeFilter}`}
-              </h2>
-            </div>
+          <div style={{ marginBottom: 56 }}>
 
-            {/* Filter tabs */}
-            <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-              {FILTERS.map(f => (
-                <button
-                  key={f}
-                  className={`port-filter-btn${activeFilter === f ? " active" : ""}`}
-                  onClick={() => setActiveFilter(f)}
-                >
-                  {f}
-                </button>
-              ))}
+            {/* Title block */}
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: 24, marginBottom: 24 }}>
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                  <span style={{ width: 28, height: 1.5, background: "#ff6a00", display: "inline-block", borderRadius: 2 }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#ff6a00" }}>Our Projects</span>
+                </div>
+                <h2 style={{ fontSize: "clamp(26px,3.5vw,44px)", fontWeight: 500, letterSpacing: "-1.5px", color: "var(--fg)", margin: "0 0 14px", lineHeight: 1.1 }}>
+                  Work we&apos;re proud of
+                </h2>
+                <p style={{ fontSize: "clamp(13px,1.2vw,15px)", color: "var(--muted)", lineHeight: 1.8, margin: 0, maxWidth: 560 }}>
+                  We&apos;ve had the privilege of partnering with ambitious businesses across industries — helping them build brands, launch digital products, and grow their presence online. Each project here represents real collaboration, real challenges, and real results. These are just a few of the stories we&apos;ve been part of.
+                </p>
+              </div>
+
+              {/* Filter tabs */}
+              <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignSelf: "flex-start" }}>
+                {FILTERS.map(f => (
+                  <button
+                    key={f}
+                    className={`port-filter-btn${activeFilter === f ? " active" : ""}`}
+                    onClick={() => setActiveFilter(f)}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
