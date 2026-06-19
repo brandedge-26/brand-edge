@@ -37,7 +37,10 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cors({
     origin: [
         "http://localhost:3000",
-        "http://localhost:3001"
+        "http://localhost:3001",
+        "https://brandedgecreations.io",
+        "https://www.brandedgecreations.io",
+        "https://admin.brandedgecreations.io",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
