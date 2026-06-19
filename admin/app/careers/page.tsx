@@ -732,6 +732,7 @@ function DeleteModal({
 // ── Application Detail Modal ─────────────────────────────────────────────────
 function AppDetailModal({ app, onClose }: { app: Application; onClose: () => void }) {
   const handleDownloadCV = async () => {
+    if (!app.cvUrl) return;
     try {
       const res = await fetch(app.cvUrl);
       const blob = await res.blob();
