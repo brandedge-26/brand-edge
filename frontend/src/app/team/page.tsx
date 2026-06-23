@@ -29,9 +29,9 @@ const TEAM = [
   { num: "08", name: "Umaima Malik", role: "Video Editor", tags: "Motion · Post Production", grad: "linear-gradient(135deg,#ee0979,#7c3aed)", imgBg: "linear-gradient(145deg,#1a0010,#3d0025,#ee0979)", initials: "UM", photo: null as string | null, female: true, linkedin: "#" },
   { num: "09", name: "Muhammad Luqman Ali", role: "Social Media Manager", tags: "Content Strategy · Growth", grad: "linear-gradient(135deg,#3b82f6,#0891b2)", imgBg: "linear-gradient(145deg,#000d1a,#001840,#3b82f6)", initials: "ML", photo: null as string | null, female: false, linkedin: "#" },
   { num: "10", name: "Ahsan Khan", role: "Digital Marketer", tags: "SEO · Paid Media · Analytics", grad: "linear-gradient(135deg,#22c55e,#16a34a)", imgBg: "linear-gradient(145deg,#001a08,#003315,#22c55e)", initials: "AK", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "11", name: "Syed Abdullah", role: "Sales Executive", tags: "Client Relations · BD", grad: "linear-gradient(135deg,#f59e0b,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#f59e0b)", initials: "SA", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "11", name: "Syed Abdullah", role: "Sales Executive", tags: "Client Relations · BD", grad: "linear-gradient(135deg,#f59e0b,#ff6a00)", imgBg: "linear-gradient(145deg,#1a0e00,#3d2200,#f59e0b)", initials: "SA", photo: "/profiles/abdullah.jpeg", female: false, linkedin: "#" },
   { num: "12", name: "Ziyan Siddique", role: "Sales Executive", tags: "Lead Gen · Partnerships", grad: "linear-gradient(135deg,#8b5cf6,#c026d3)", imgBg: "linear-gradient(145deg,#0d0020,#200040,#8b5cf6)", initials: "ZS", photo: null as string | null, female: false, linkedin: "#" },
-  { num: "13", name: "Ayan Kamran", role: "Sales Executive", tags: "Business Dev · Client Success", grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#000d20,#001840,#06b6d4)", initials: "AY", photo: null as string | null, female: false, linkedin: "#" },
+  { num: "13", name: "Ayan Kamran", role: "Sales Executive", tags: "Business Dev · Client Success", grad: "linear-gradient(135deg,#06b6d4,#3b82f6)", imgBg: "linear-gradient(145deg,#000d20,#001840,#06b6d4)", initials: "AY", photo: "/profiles/ayan.jpg", female: false, linkedin: "#" },
 ];
 
 const STATS = [
