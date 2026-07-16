@@ -35,17 +35,27 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // CORS CONFIGURATION
 app.use(cors({
-    origin: [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "https://brandedgecreations.io",
-        "https://www.brandedgecreations.io",
-        "https://admin.brandedgecreations.io",
-    ],
+    origin: (origin, callback) => {
+        const allowed = [
+            "http://localhost:3000",
+            "http://localhost:3001",
+            "https://brandedgecreations.io",
+            "https://www.brandedgecreations.io",
+            "https://admin.brandedgecreations.io",
+        ];
+        if (!origin || allowed.includes(origin)) return callback(null, true);
+        return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
 }));
+
+// No caching on API responses
+app.use((req, res, next) => {
+    res.setHeader("Cache-Control", "no-store");
+    next();
+});
 
 
 
