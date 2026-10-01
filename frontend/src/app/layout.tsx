@@ -27,6 +27,11 @@ export const metadata: Metadata = {
     "Brand Edge Creations is a full-service creative agency in Karachi, Pakistan — specializing in brand identity, web design, app development, digital marketing, and graphic design. We build bold brands and digital experiences that drive real growth.",
   keywords: [
     "brand edge creations",
+    "brand edge",
+    "brandedge",
+    "brandedgecreations",
+    "brand edge creations pakistan",
+    "brand edge creations karachi",
     "digital agency pakistan",
     "branding agency karachi",
     "web design pakistan",
