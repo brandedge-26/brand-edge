@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ToastProvider } from "@/components/Toast";
+import { SITE_URL, SITE_NAME } from "@/lib/site";
 
 const oSans = localFont({
   src: [
@@ -40,18 +41,18 @@ export const metadata: Metadata = {
     "brand identity design",
     "UI UX design pakistan",
   ],
-  authors: [{ name: "Brand Edge Creations", url: "https://brandedgecreations.io" }],
-  creator: "Brand Edge Creations",
-  publisher: "Brand Edge Creations",
-  metadataBase: new URL("https://brandedgecreations.io"),
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "en_PK",
-    url: "https://brandedgecreations.io",
-    siteName: "Brand Edge Creations",
+    url: SITE_URL,
+    siteName: SITE_NAME,
     title: "Brand Edge Creations — Digital Agency Pakistan",
     description:
       "Full-service creative agency in Karachi building bold brands, high-converting websites, and digital experiences that drive real growth.",
