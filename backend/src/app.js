@@ -39,9 +39,9 @@ app.use(cors({
         const allowed = [
             "http://localhost:3000",
             "http://localhost:3001",
-            "https://brandedgecreations.io",
-            "https://www.brandedgecreations.io",
-            "https://admin.brandedgecreations.io",
+            "https://brandedgecreations.pk",
+            "https://www.brandedgecreations.pk",
+            "https://admin.brandedgecreations.pk",
         ];
         if (!origin || allowed.includes(origin)) return callback(null, true);
         return callback(new Error("Not allowed by CORS"));
