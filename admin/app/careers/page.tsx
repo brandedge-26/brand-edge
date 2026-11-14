@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { useJobsStore, Job, Application } from "@/stores/useJobsStore";
 import { useToast } from "@/components/Toast";
+import Pagination from "@/components/Pagination";
+
+const PAGE_SIZE = 10;
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
@@ -882,9 +885,19 @@ export default function CareersAdminPage() {
   const [viewApp, setViewApp] = useState<Application | null>(null);
   const [editJob, setEditJob] = useState<Job | null>(null);
   const [deleteApp, setDeleteApp] = useState<Application | null>(null);
+  const [jobsPage, setJobsPage] = useState(1);
+  const [appsPage, setAppsPage] = useState(1);
   const { jobs, applications, loadingJobs, loadingApps, fetchJobs, fetchApplications, addJob, removeJob, updateJob, removeApplication } = useJobsStore();
 
   useEffect(() => { fetchJobs(); fetchApplications(); }, [fetchJobs, fetchApplications]);
+
+  const jobsPageCount = Math.max(1, Math.ceil(jobs.length / PAGE_SIZE));
+  const safeJobsPage = Math.min(jobsPage, jobsPageCount);
+  const jobsPageItems = jobs.slice((safeJobsPage - 1) * PAGE_SIZE, safeJobsPage * PAGE_SIZE);
+
+  const appsPageCount = Math.max(1, Math.ceil(applications.length / PAGE_SIZE));
+  const safeAppsPage = Math.min(appsPage, appsPageCount);
+  const appsPageItems = applications.slice((safeAppsPage - 1) * PAGE_SIZE, safeAppsPage * PAGE_SIZE);
 
   const handleAddJob = async (data: Omit<Job, "_id" | "createdAt">) => {
     try {
@@ -1033,9 +1046,9 @@ export default function CareersAdminPage() {
                         No job postings yet.
                       </td>
                     </tr>
-                  ) : jobs.map((job, i) => (
+                  ) : jobsPageItems.map((job, i) => (
                     <tr key={job._id}>
-                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
+                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{(safeJobsPage - 1) * PAGE_SIZE + i + 1}</td>
                       <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{job.title}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{job.department}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{job.location}</td>
@@ -1090,8 +1103,9 @@ export default function CareersAdminPage() {
                 </tbody>
               </table>
             </div>
-            <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", fontSize: 12, color: "var(--muted)" }}>
-              {jobs.filter((j) => j.status === "Active").length} active &nbsp;·&nbsp; {jobs.filter((j) => j.status === "Closed").length} closed
+            <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, fontSize: 12, color: "var(--muted)" }}>
+              <span>{jobs.filter((j) => j.status === "Active").length} active &nbsp;·&nbsp; {jobs.filter((j) => j.status === "Closed").length} closed</span>
+              {jobsPageCount > 1 && <Pagination page={safeJobsPage} pageCount={jobsPageCount} onPageChange={setJobsPage} />}
             </div>
           </div>
         </>
@@ -1141,9 +1155,9 @@ export default function CareersAdminPage() {
                   ) : applications.length === 0 ? (
                     <tr><td colSpan={8} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>No applications yet.</td></tr>
                   ) : null}
-                  {!loadingApps && applications.map((app, i) => (
+                  {!loadingApps && appsPageItems.map((app, i) => (
                     <tr key={app._id}>
-                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
+                      <td style={{ ...tdStyle, color: "var(--muted)" }}>{(safeAppsPage - 1) * PAGE_SIZE + i + 1}</td>
                       <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{app.name}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.email}</td>
                       <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{app.phone || "—"}</td>
@@ -1183,8 +1197,9 @@ export default function CareersAdminPage() {
                 </tbody>
               </table>
             </div>
-            <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", fontSize: 12, color: "var(--muted)" }}>
-              Showing {applications.length} applications
+            <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, fontSize: 12, color: "var(--muted)" }}>
+              <span>Showing {appsPageItems.length === 0 ? 0 : (safeAppsPage - 1) * PAGE_SIZE + 1}–{(safeAppsPage - 1) * PAGE_SIZE + appsPageItems.length} of {applications.length} applications</span>
+              {appsPageCount > 1 && <Pagination page={safeAppsPage} pageCount={appsPageCount} onPageChange={setAppsPage} />}
             </div>
           </div>
         </>

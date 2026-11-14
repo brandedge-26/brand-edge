@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { useConsultationsStore, Consultation, ConsultationStatus } from "@/stores/useConsultationsStore";
 import { useToast } from "@/components/Toast";
+import Pagination from "@/components/Pagination";
+
+const PAGE_SIZE = 10;
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
@@ -26,7 +29,6 @@ const XIcon = () => (
     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
-
 // ── Types ──────────────────────────────────────────────────────────────────
 type Status = ConsultationStatus;
 
@@ -223,6 +225,7 @@ export default function ConsultationsPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"All" | ConsultationStatus>("All");
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [viewItem, setViewItem] = useState<Consultation | null>(null);
   const [deleteItem, setDeleteItem] = useState<Consultation | null>(null);
   const { consultations, loading, fetch, remove, updateStatus } = useConsultationsStore();
@@ -235,6 +238,10 @@ export default function ConsultationsPage() {
     const matchSearch = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.company || "").toLowerCase().includes(q) || c.services.join(" ").toLowerCase().includes(q);
     return matchTab && matchSearch;
   });
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const handleStatusChange = async (id: string, status: ConsultationStatus) => {
     await updateStatus(id, status);
@@ -265,7 +272,7 @@ export default function ConsultationsPage() {
           {TABS.map((tab) => {
             const isActive = activeTab === tab;
             return (
-              <button key={tab} onClick={() => setActiveTab(tab)} style={{
+              <button key={tab} onClick={() => { setActiveTab(tab); setPage(1); }} style={{
                 padding: "8px 16px",
                 border: "1px solid var(--border)",
                 borderLeft: tab === "All" ? "1px solid var(--border)" : "none",
@@ -281,7 +288,7 @@ export default function ConsultationsPage() {
           })}
         </div>
         <input type="text" placeholder="Search by name, email, company..." value={search}
-          onChange={(e) => setSearch(e.target.value)} style={{
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }} style={{
             height: 36, padding: "0 12px",
             border: "1px solid var(--border)", borderRadius: 0,
             background: "var(--surface)", color: "var(--fg)",
@@ -318,9 +325,9 @@ export default function ConsultationsPage() {
                     No consultations found.
                   </td>
                 </tr>
-              ) : filtered.map((c, i) => (
+              ) : pageItems.map((c, i) => (
                 <tr key={c._id}>
-                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{(safePage - 1) * PAGE_SIZE + i + 1}</td>
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.name}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.email}</td>
                   <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{c.company || "—"}</td>
@@ -369,8 +376,9 @@ export default function ConsultationsPage() {
             </tbody>
           </table>
         </div>
-        <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", fontSize: 12, color: "var(--muted)" }}>
-          Showing {filtered.length} of {consultations.length} consultations
+        <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, fontSize: 12, color: "var(--muted)" }}>
+          <span>Showing {pageItems.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{(safePage - 1) * PAGE_SIZE + pageItems.length} of {filtered.length} consultations</span>
+          {pageCount > 1 && <Pagination page={safePage} pageCount={pageCount} onPageChange={setPage} />}
         </div>
       </div>
 

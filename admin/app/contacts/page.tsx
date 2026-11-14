@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { useContactsStore, Contact } from "@/stores/useContactsStore";
 import { useToast } from "@/components/Toast";
+import Pagination from "@/components/Pagination";
+
+const PAGE_SIZE = 10;
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const EyeIcon = () => (
@@ -24,7 +27,6 @@ const XIcon = () => (
     <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
-
 // ── Types ──────────────────────────────────────────────────────────────────
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -147,6 +149,7 @@ function DeleteModal({ item, onConfirm, onClose }: { item: Contact; onConfirm: (
 export default function ContactsPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [viewItem, setViewItem] = useState<Contact | null>(null);
   const [deleteItem, setDeleteItem] = useState<Contact | null>(null);
   const { contacts, loading, fetch, remove } = useContactsStore();
@@ -157,6 +160,10 @@ export default function ContactsPage() {
     const q = search.toLowerCase();
     return !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || (c.phone || "").toLowerCase().includes(q);
   });
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const handleDelete = async (id: string) => {
     await remove(id);
@@ -174,7 +181,7 @@ export default function ContactsPage() {
           <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 4 }}>View and manage all incoming contact messages.</p>
         </div>
         <input type="text" placeholder="Search by name, email or phone..." value={search}
-          onChange={(e) => setSearch(e.target.value)} style={{
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }} style={{
             height: 36, padding: "0 12px",
             border: "1px solid var(--border)", borderRadius: 0,
             background: "var(--surface)", color: "var(--fg)",
@@ -209,9 +216,9 @@ export default function ContactsPage() {
                     No contacts found.
                   </td>
                 </tr>
-              ) : filtered.map((c, i) => (
+              ) : pageItems.map((c, i) => (
                 <tr key={c._id}>
-                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{i + 1}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{(safePage - 1) * PAGE_SIZE + i + 1}</td>
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.name}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.email}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone || "—"}</td>
@@ -250,8 +257,9 @@ export default function ContactsPage() {
             </tbody>
           </table>
         </div>
-        <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", fontSize: 12, color: "var(--muted)" }}>
-          Showing {filtered.length} of {contacts.length} contacts
+        <div style={{ padding: "12px 16px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, fontSize: 12, color: "var(--muted)" }}>
+          <span>Showing {pageItems.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{(safePage - 1) * PAGE_SIZE + pageItems.length} of {filtered.length} contacts</span>
+          {pageCount > 1 && <Pagination page={safePage} pageCount={pageCount} onPageChange={setPage} />}
         </div>
       </div>
 

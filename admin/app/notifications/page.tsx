@@ -1,8 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNotificationsStore, NotifType } from "@/stores/useNotificationsStore";
 import { useToast } from "@/components/Toast";
+import Pagination from "@/components/Pagination";
+
+const PAGE_SIZE = 10;
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const CalendarIcon = () => (
@@ -70,10 +73,15 @@ const TYPE_CONFIG: Record<NotifType, { icon: () => React.ReactElement; iconBg: s
 export default function NotificationsPage() {
   const { toast } = useToast();
   const { notifications, loading, fetch, markRead, markAllRead, remove } = useNotificationsStore();
+  const [page, setPage] = useState(1);
 
   useEffect(() => { fetch(); }, [fetch]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const pageCount = Math.max(1, Math.ceil(notifications.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageItems = notifications.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   const handleMarkAllRead = async () => {
     await markAllRead();
@@ -136,7 +144,7 @@ export default function NotificationsPage() {
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-          {notifications.map((n, i) => {
+          {pageItems.map((n, i) => {
             const cfg = TYPE_CONFIG[n.type] ?? TYPE_CONFIG.Contact;
             const Icon = cfg.icon;
             return (
@@ -196,6 +204,12 @@ export default function NotificationsPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {pageCount > 1 && (
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 20 }}>
+          <Pagination page={safePage} pageCount={pageCount} onPageChange={setPage} />
         </div>
       )}
     </main>

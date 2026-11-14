@@ -10,6 +10,7 @@ export const authenticate = (req, res, next) => {
   if (!token) return res.status(401).json({ success: false, message: "Unauthorized" });
   try {
     const decoded = jwt.verify(token, ENV.ACCESS_TOKEN_SECRET);
+    if (decoded.role === "sales") return res.status(401).json({ success: false, message: "Unauthorized" });
     req.admin = decoded;
     next();
   } catch {

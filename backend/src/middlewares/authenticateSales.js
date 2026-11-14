@@ -1,0 +1,21 @@
+import jwt from "jsonwebtoken";
+import { ENV } from "../config/envs.js";
+
+export const authenticateSales = (req, res, next) => {
+  const authHeader = req.headers["authorization"];
+  const token = (authHeader && authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7)
+    : null) || req.cookies?.sales_token;
+
+  if (!token) return res.status(401).json({ success: false, message: "Unauthorized" });
+  try {
+    const decoded = jwt.verify(token, ENV.ACCESS_TOKEN_SECRET);
+    if (decoded.role !== "sales" || !decoded.salesRepId) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
+    req.salesRep = decoded;
+    next();
+  } catch {
+    return res.status(401).json({ success: false, message: "Invalid token" });
+  }
+};

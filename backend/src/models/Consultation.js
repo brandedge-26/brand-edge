@@ -21,8 +21,14 @@ const consultationSchema = new mongoose.Schema(
         timezone: { type: String, trim: true, default: "" },
         // Admin
         status: { type: String, enum: ["Pending", "In Progress", "Completed"], default: "Pending" },
+        // Sales
+        assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: "SalesRep", default: null },
+        salesStatus: { type: String, enum: ["New", "Interested", "Follow-up", "Not Interested", "Converted"], default: "New" },
+        nextFollowUpDate: { type: Date, default: null },
     },
     { timestamps: true }
 );
+
+consultationSchema.index({ assignedTo: 1, salesStatus: 1 });
 
 export const Consultation = mongoose.model("Consultation", consultationSchema);

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNotificationsStore } from "@/stores/useNotificationsStore";
+import { useSalesRepsStore } from "@/stores/useSalesRepsStore";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const GridIcon = () => (
@@ -38,6 +39,12 @@ const BriefcaseIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
     <rect x="2" y="7" width="20" height="14"/>
     <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+  </svg>
+);
+const TrendingUpIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+    <polyline points="17 6 23 6 23 12"/>
   </svg>
 );
 const SunIcon = () => (
@@ -77,6 +84,11 @@ const ChevronRightIcon = () => (
     <polyline points="9 18 15 12 9 6"/>
   </svg>
 );
+const ChevronDownSmallIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9"/>
+  </svg>
+);
 
 // ── Nav config ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
@@ -84,6 +96,7 @@ const NAV_ITEMS = [
   { href: "/consultations",  label: "Consultations",  icon: CalendarIcon },
   { href: "/contacts",       label: "Contacts",       icon: UsersIcon },
   { href: "/careers",        label: "Careers",        icon: BriefcaseIcon },
+  { href: "/sales-team",     label: "Sales Team",     icon: TrendingUpIcon },
   { href: "/notifications",  label: "Notifications",  icon: BellIcon },
 ];
 
@@ -92,6 +105,7 @@ const PAGE_TITLES: Record<string, string> = {
   "/consultations":  "Consultations",
   "/contacts":       "Contacts",
   "/careers":        "Careers",
+  "/sales-team":     "Sales Team",
   "/notifications":  "Notifications",
 };
 
@@ -110,9 +124,11 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   const router = useRouter();
   const { logout } = useAuthStore();
   const { notifications, fetch: fetchNotifs } = useNotificationsStore();
+  const { reps, fetch: fetchReps } = useSalesRepsStore();
   const [theme, setTheme]     = useState<"dark" | "light">("dark");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [salesTeamExpanded, setSalesTeamExpanded] = useState(() => pathname.startsWith("/sales-team"));
 
   const handleLogout = async () => {
     await logout();
@@ -142,6 +158,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
   useEffect(() => { fetchNotifs(); }, [fetchNotifs]);
+  useEffect(() => { fetchReps(); }, [fetchReps]);
 
   if (pathname === "/login") return <>{children}</>;
 
@@ -149,7 +166,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
 
   const toggleTheme = () => setTheme((t) => (t === "dark" ? "light" : "dark"));
   const sidebarW    = collapsed ? 60 : 240;
-  const pageTitle   = PAGE_TITLES[pathname] ?? "Admin";
+  const pageTitle   = PAGE_TITLES[pathname] ?? (pathname.startsWith("/sales-team/") ? "Salesman Detail" : "Admin");
   const isDark      = theme === "dark";
 
   // ── Theme-aware sidebar palette ──
@@ -223,39 +240,96 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
         {/* ── Nav ── */}
         <nav style={{ flex: 1, padding: "10px 8px", overflowY: "auto", display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
-            const isActive = pathname === href;
+            const isActive = pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+            const isSalesTeam = href === "/sales-team";
             return (
-              <Link key={href} href={href} style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: isCollapsed ? "10px 0" : "10px 12px",
-                justifyContent: isCollapsed ? "center" : "flex-start",
-                textDecoration: "none",
-                color: isActive ? "#fff" : sb.text,
-                backgroundImage: isActive ? "linear-gradient(135deg,#ff6a00,#ee0979)" : "none",
-                backgroundColor: isActive ? undefined : "transparent",
-                borderLeft: isActive ? "3px solid rgba(255,255,255,0.55)" : "3px solid transparent",
-                fontSize: 13,
-                fontWeight: isActive ? 600 : 400,
-                transition: "color 0.15s, background 0.15s",
-                cursor: "pointer",
-              }}
-              onMouseEnter={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLAnchorElement).style.color = sb.title;
-                  (e.currentTarget as HTMLAnchorElement).style.background = sb.hover;
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isActive) {
-                  (e.currentTarget as HTMLAnchorElement).style.color = sb.text;
-                  (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
-                }
-              }}>
-                <span style={{ flexShrink: 0, display: "flex" }}><Icon /></span>
-                {!isCollapsed && <span style={{ whiteSpace: "nowrap" }}>{label}</span>}
-              </Link>
+              <div key={href}>
+                <Link href={href} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: isCollapsed ? "10px 0" : "10px 12px",
+                  justifyContent: isCollapsed ? "center" : "flex-start",
+                  textDecoration: "none",
+                  color: isActive ? "#fff" : sb.text,
+                  backgroundImage: isActive ? "linear-gradient(135deg,#ff6a00,#ee0979)" : "none",
+                  backgroundColor: isActive ? undefined : "transparent",
+                  borderLeft: isActive ? "3px solid rgba(255,255,255,0.55)" : "3px solid transparent",
+                  fontSize: 13,
+                  fontWeight: isActive ? 600 : 400,
+                  transition: "color 0.15s, background 0.15s",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLAnchorElement).style.color = sb.title;
+                    (e.currentTarget as HTMLAnchorElement).style.background = sb.hover;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    (e.currentTarget as HTMLAnchorElement).style.color = sb.text;
+                    (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
+                  }
+                }}>
+                  <span style={{ flexShrink: 0, display: "flex" }}><Icon /></span>
+                  {!isCollapsed && <span style={{ whiteSpace: "nowrap", flex: 1 }}>{label}</span>}
+                  {isSalesTeam && !isCollapsed && reps.length > 0 && (
+                    <span
+                      role="button"
+                      aria-label={salesTeamExpanded ? "Collapse sales team list" : "Expand sales team list"}
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSalesTeamExpanded((v) => !v); }}
+                      style={{
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        flexShrink: 0, padding: 4, marginLeft: 4,
+                        transform: salesTeamExpanded ? "rotate(0deg)" : "rotate(-90deg)",
+                        transition: "transform 0.15s",
+                      }}
+                    >
+                      <ChevronDownSmallIcon />
+                    </span>
+                  )}
+                </Link>
+
+                {/* Expanded salesman list under Sales Team */}
+                {isSalesTeam && !isCollapsed && reps.length > 0 && salesTeamExpanded && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 1, marginTop: 1 }}>
+                    {reps.map((rep) => {
+                      const repHref = `/sales-team/${rep._id}`;
+                      const repActive = pathname === repHref || pathname.startsWith(repHref + "/");
+                      return (
+                        <Link key={rep._id} href={`/sales-team/${rep._id}`} style={{
+                          display: "block",
+                          padding: "7px 12px 7px 38px",
+                          textDecoration: "none",
+                          fontSize: 12,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          color: repActive ? sb.title : sb.sub,
+                          background: repActive ? sb.hover : "transparent",
+                          fontWeight: repActive ? 600 : 400,
+                          transition: "color 0.15s, background 0.15s",
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!repActive) {
+                            (e.currentTarget as HTMLAnchorElement).style.color = sb.text;
+                            (e.currentTarget as HTMLAnchorElement).style.background = sb.hover;
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!repActive) {
+                            (e.currentTarget as HTMLAnchorElement).style.color = sb.sub;
+                            (e.currentTarget as HTMLAnchorElement).style.background = "transparent";
+                          }
+                        }}>
+                          {rep.name}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
