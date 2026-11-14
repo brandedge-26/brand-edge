@@ -1,9 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useDashboardStore } from "@/stores/useDashboardStore";
+import Link from "next/link";
+import { useState, useEffect, useMemo } from "react";
+import { useClientsStore, ClientPriority } from "@/stores/useClientsStore";
+import { useReportsStore } from "@/stores/useReportsStore";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const fmtDateTimeFull = (iso: string) => new Date(iso).toLocaleString("en-GB", {
+  weekday: "long", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
+});
 
 const dateInputStyle: React.CSSProperties = {
   height: 36, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 0,
@@ -36,12 +42,62 @@ const CheckIcon = () => (
   </svg>
 );
 
+const PRIORITY_STYLES: Record<ClientPriority, { bg: string; color: string }> = {
+  Low: { bg: "rgba(100,116,139,0.15)", color: "#64748b" },
+  Medium: { bg: "rgba(59,130,246,0.15)", color: "#3b82f6" },
+  High: { bg: "rgba(239,68,68,0.15)", color: "#ef4444" },
+};
+function PriorityBadge({ priority }: { priority: ClientPriority }) {
+  const s = PRIORITY_STYLES[priority];
+  return (
+    <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: s.bg, color: s.color, borderRadius: 0 }}>
+      {priority}
+    </span>
+  );
+}
+
+const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
+  "New": { bg: "var(--surface2)", color: "var(--muted)" },
+  "Follow-up": { bg: "rgba(245,158,11,0.15)", color: "#f59e0b" },
+  "Closed": { bg: "rgba(34,197,94,0.15)", color: "#22c55e" },
+};
+function StatusBadge({ status }: { status: string }) {
+  const s = STATUS_STYLES[status] ?? { bg: "var(--surface2)", color: "var(--muted)" };
+  return <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: s.bg, color: s.color, borderRadius: 0 }}>{status}</span>;
+}
+
+const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
+const thStyle: React.CSSProperties = {
+  padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 600,
+  textTransform: "uppercase", letterSpacing: "0.08em",
+  color: "var(--muted)", background: "var(--surface2)",
+  borderBottom: "1px solid var(--border)", whiteSpace: "nowrap",
+};
+const tdStyle: React.CSSProperties = {
+  padding: "12px 16px", borderBottom: "1px solid var(--border)",
+  color: "var(--fg)", verticalAlign: "middle",
+};
+
+function TableCard({ title, viewAllHref, children }: { title: string; viewAllHref: string; children: React.ReactNode }) {
+  return (
+    <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 0, marginBottom: 24, overflow: "hidden" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+        <span style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>{title}</span>
+        <Link href={viewAllHref} style={{ fontSize: 12, fontWeight: 700, color: "#ff6a00", textDecoration: "none" }}>View All →</Link>
+      </div>
+      <div style={{ overflowX: "auto" }}>{children}</div>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
-  const { stats, loading, fetch } = useDashboardStore();
+  const { clients, loading: clientsLoading, fetch: fetchClients } = useClientsStore();
+  const { reports, loading: reportsLoading, fetch: fetchReports } = useReportsStore();
   const [today, setToday] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
 
+  useEffect(() => { fetchClients(); fetchReports(); }, [fetchClients, fetchReports]);
   useEffect(() => {
     const t = todayISO();
     setToday(t);
@@ -49,16 +105,48 @@ export default function DashboardPage() {
     setTo(t);
   }, []);
 
-  const load = useCallback(() => { if (from && to) fetch(from, to); }, [fetch, from, to]);
-  useEffect(() => { load(); }, [load]);
-
   const isToday = today !== "" && from === today && to === today;
+  const loading = clientsLoading || reportsLoading;
+
+  const clientsAdded = useMemo(() => {
+    if (!from || !to) return 0;
+    return clients.filter((c) => {
+      const d = c.createdAt.slice(0, 10);
+      return d >= from && d <= to;
+    }).length;
+  }, [clients, from, to]);
+
+  const closedInRange = useMemo(() => {
+    if (!from || !to) return 0;
+    return clients.filter((c) => {
+      if (c.status !== "Closed" || !c.closedAt) return false;
+      const d = c.closedAt.slice(0, 10);
+      return d >= from && d <= to;
+    }).length;
+  }, [clients, from, to]);
+
+  const followUpsPending = useMemo(() => clients.filter((c) => c.status === "Follow-up").length, [clients]);
+
+  const callsMade = useMemo(() => {
+    if (!from || !to) return 0;
+    return reports.filter((r) => r.date >= from && r.date <= to).reduce((sum, r) => sum + r.callsMade, 0);
+  }, [reports, from, to]);
+
+  const recentReports = useMemo(() => reports.slice(0, 5), [reports]);
+  const recentClients = useMemo(() => clients.slice(0, 5), [clients]);
+  const upcomingFollowUps = useMemo(() =>
+    clients
+      .filter((c) => c.status === "Follow-up" && c.followUpDate)
+      .sort((a, b) => (a.followUpDate! < b.followUpDate! ? -1 : 1))
+      .slice(0, 5),
+    [clients]
+  );
 
   const STAT_CARDS = [
-    { label: "Calls Made",      value: stats?.callsCount ?? "—",       icon: PhoneIcon },
-    { label: "Follow-ups Done", value: stats?.followUpsCount ?? "—",   icon: ClockIcon },
-    { label: "Leads Assigned",  value: stats?.leadsAssignedCount ?? "—", icon: UsersIcon },
-    { label: "Conversions",     value: stats?.conversionsCount ?? "—", icon: CheckIcon },
+    { label: "Clients Added", value: clientsAdded, icon: UsersIcon },
+    { label: "Follow-ups Pending", value: followUpsPending, icon: ClockIcon },
+    { label: "Closed Clients", value: closedInRange, icon: CheckIcon },
+    { label: "Calls Made", value: callsMade, icon: PhoneIcon },
   ];
 
   return (
@@ -82,7 +170,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 16, marginBottom: 32 }}>
         {STAT_CARDS.map(({ label, value, icon: Icon }) => (
           <div key={label} style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 0, padding: 24 }}>
             <div style={{ marginBottom: 16 }}>
@@ -95,6 +183,61 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      <TableCard title="Recent Daily Reports" viewAllHref="/reports">
+        <table style={tableStyle}>
+          <thead><tr><th style={thStyle}>Date</th><th style={thStyle}>Calls Made</th><th style={thStyle}>Interested</th><th style={thStyle}>Notes</th></tr></thead>
+          <tbody>
+            {recentReports.length === 0 ? (
+              <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{reportsLoading ? "Loading..." : "No reports submitted yet"}</td></tr>
+            ) : recentReports.map((r) => (
+              <tr key={r._id}>
+                <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{fmtDate(r.date)}</td>
+                <td style={tdStyle}>{r.callsMade}</td>
+                <td style={tdStyle}>{r.interestedCount}</td>
+                <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 280 }}>{r.notes || "—"}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableCard>
+
+      <TableCard title="Recent Clients" viewAllHref="/clients">
+        <table style={tableStyle}>
+          <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Phone</th><th style={thStyle}>Priority</th><th style={thStyle}>Status</th><th style={thStyle}>Added</th></tr></thead>
+          <tbody>
+            {recentClients.length === 0 ? (
+              <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{clientsLoading ? "Loading..." : "No clients added yet"}</td></tr>
+            ) : recentClients.map((c) => (
+              <tr key={c._id}>
+                <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.businessName}</td>
+                <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone}</td>
+                <td style={tdStyle}><PriorityBadge priority={c.priority} /></td>
+                <td style={tdStyle}><StatusBadge status={c.status} /></td>
+                <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDate(c.createdAt)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableCard>
+
+      <TableCard title="Upcoming Follow-ups" viewAllHref="/follow-ups">
+        <table style={tableStyle}>
+          <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Phone</th><th style={thStyle}>Priority</th><th style={thStyle}>Due Date &amp; Time</th></tr></thead>
+          <tbody>
+            {upcomingFollowUps.length === 0 ? (
+              <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{clientsLoading ? "Loading..." : "No follow-ups scheduled"}</td></tr>
+            ) : upcomingFollowUps.map((c) => (
+              <tr key={c._id}>
+                <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.businessName}</td>
+                <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone}</td>
+                <td style={tdStyle}><PriorityBadge priority={c.priority} /></td>
+                <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{fmtDateTimeFull(c.followUpDate!)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </TableCard>
     </main>
   );
 }
