@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { useConsultationsStore, Consultation, ConsultationStatus } from "@/stores/useConsultationsStore";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 // ── Icons ──────────────────────────────────────────────────────────────────
-const EyeIcon = () => (
+const InfoIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 const TrashIcon = () => (
@@ -22,11 +22,6 @@ const TrashIcon = () => (
     <path d="M19 6l-1 14H6L5 6"/>
     <path d="M10 11v6"/><path d="M14 11v6"/>
     <path d="M9 6V4h6v2"/>
-  </svg>
-);
-const XIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -66,113 +61,30 @@ const tdStyle: React.CSSProperties = {
   color: "var(--fg)", verticalAlign: "middle",
 };
 
-// ── Detail Modal ───────────────────────────────────────────────────────────
-function DetailModal({ item, onClose, onStatusChange }: { item: Consultation; onClose: () => void; onStatusChange: (status: ConsultationStatus) => void }) {
-  const Row = ({ label, value }: { label: string; value: string }) => (
-    <div style={{ display: "flex", gap: 16, paddingBottom: 12, borderBottom: "1px solid var(--border)", marginBottom: 12 }}>
-      <span style={{ width: 90, flexShrink: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", paddingTop: 1 }}>
-        {label}
-      </span>
-      <span style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.5 }}>{value || "—"}</span>
-    </div>
-  );
-
+// ── Status change control (used inside the detail panel footer) ───────────
+function StatusChanger({ status, onChange }: { status: ConsultationStatus; onChange: (s: ConsultationStatus) => void }) {
+  const colors: Record<ConsultationStatus, string> = {
+    "Pending": "#f59e0b",
+    "In Progress": "#60a5fa",
+    "Completed": "#22c55e",
+  };
   return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 999,
-      background: "rgba(0,0,0,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-    }} onClick={onClose}>
-      <div style={{
-        background: "var(--surface)", border: "1px solid var(--border)",
-        width: 560, maxWidth: "100%", maxHeight: "85vh",
-        borderRadius: 0, display: "flex", flexDirection: "column",
-      }} onClick={(e) => e.stopPropagation()}>
-
-        {/* Modal header */}
-        <div style={{
-          padding: "20px 24px", borderBottom: "1px solid var(--border)",
-          display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0,
-        }}>
-          <div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: 0 }}>{item.name}</h3>
-            <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 3 }}>
-              ID: {item._id.slice(-8)} &nbsp;·&nbsp; {fmtDate(item.createdAt)}
-            </p>
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <StatusBadge status={item.status} />
-            <button onClick={onClose} style={{
-              background: "transparent", border: "1px solid var(--border)",
-              color: "var(--muted)", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              width: 32, height: 32, borderRadius: 0,
-            }}>
-              <XIcon />
-            </button>
-          </div>
-        </div>
-
-        {/* Modal body — scrollable */}
-        <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
-
-          {/* Contact */}
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", marginBottom: 12 }}>Contact</p>
-          <Row label="Email"   value={item.email} />
-          <Row label="Phone"   value={item.phone} />
-
-          {/* Company */}
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>Company</p>
-          <Row label="Company"   value={item.company} />
-          <Row label="Website"   value={item.website} />
-          <Row label="Team Size" value={item.teamSize} />
-          <Row label="Industry"  value={item.industry} />
-
-          {/* Project */}
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>Project</p>
-          <Row label="Services" value={item.services.join(", ")} />
-          <Row label="Urgency"  value={item.urgency} />
-          {item.goals && <Row label="Goals" value={item.goals} />}
-
-          {/* Schedule */}
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>Schedule</p>
-          <Row label="Days"     value={item.days.join(", ")} />
-          <Row label="Time"     value={item.timeSlot} />
-        </div>
-
-        {/* Modal footer — status change */}
-        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 10, flexShrink: 0 }}>
-          <div style={{ display: "flex", gap: 6 }}>
-            {(["Pending", "In Progress", "Completed"] as ConsultationStatus[]).map((s) => {
-              const isActive = item.status === s;
-              const colors: Record<ConsultationStatus, string> = {
-                "Pending": "#f59e0b",
-                "In Progress": "#60a5fa",
-                "Completed": "#22c55e",
-              };
-              return (
-                <button key={s} onClick={() => { if (!isActive) onStatusChange(s); }} style={{
-                  padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: isActive ? "default" : "pointer",
-                  border: `1px solid ${isActive ? colors[s] : "var(--border)"}`,
-                  background: isActive ? `${colors[s]}20` : "transparent",
-                  color: isActive ? colors[s] : "var(--muted)",
-                  borderRadius: 0, fontFamily: "inherit",
-                  transition: "all 0.15s",
-                }}>
-                  {s}
-                </button>
-              );
-            })}
-          </div>
-          <button onClick={onClose} style={{
-            padding: "9px 20px", border: "1px solid var(--border)",
-            background: "transparent", color: "var(--fg)",
-            fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0,
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      {(["Pending", "In Progress", "Completed"] as ConsultationStatus[]).map((s) => {
+        const isActive = status === s;
+        return (
+          <button key={s} onClick={() => { if (!isActive) onChange(s); }} style={{
+            padding: "6px 12px", fontSize: 11, fontWeight: 700, cursor: isActive ? "default" : "pointer",
+            border: `1px solid ${isActive ? colors[s] : "var(--border)"}`,
+            background: isActive ? `${colors[s]}20` : "transparent",
+            color: isActive ? colors[s] : "var(--muted)",
+            borderRadius: 0, fontFamily: "inherit",
+            transition: "all 0.15s",
           }}>
-            Close
+            {s}
           </button>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 }
@@ -357,7 +269,7 @@ export default function ConsultationsPage() {
                       }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
-                        <EyeIcon />
+                        <InfoIcon />
                       </button>
                       <button onClick={() => setDeleteItem(c)} title="Delete" style={{
                         width: 30, height: 30, border: "1px solid rgba(239,68,68,0.35)",
@@ -382,7 +294,30 @@ export default function ConsultationsPage() {
         </div>
       </div>
 
-      {viewItem && <DetailModal item={viewItem} onClose={() => setViewItem(null)} onStatusChange={(s) => handleStatusChange(viewItem._id, s)} />}
+      <DetailPanel
+        open={!!viewItem}
+        onClose={() => setViewItem(null)}
+        title={viewItem?.name ?? ""}
+        subtitle={viewItem && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            ID: {viewItem._id.slice(-8)} · {fmtDate(viewItem.createdAt)} <StatusBadge status={viewItem.status} />
+          </span>
+        )}
+        fields={viewItem ? [
+          { label: "Email", value: viewItem.email },
+          { label: "Phone", value: viewItem.phone },
+          { label: "Company", value: viewItem.company },
+          { label: "Website", value: viewItem.website },
+          { label: "Team Size", value: viewItem.teamSize },
+          { label: "Industry", value: viewItem.industry },
+          { label: "Services", value: viewItem.services.join(", ") },
+          { label: "Urgency", value: viewItem.urgency },
+          ...(viewItem.goals ? [{ label: "Goals", value: viewItem.goals, fullWidth: true }] : []),
+          { label: "Days", value: viewItem.days.join(", ") },
+          { label: "Time", value: viewItem.timeSlot },
+        ] : []}
+        footer={viewItem && <StatusChanger status={viewItem.status} onChange={(s) => handleStatusChange(viewItem._id, s)} />}
+      />
       {deleteItem && <DeleteModal item={deleteItem} onConfirm={() => handleDelete(deleteItem._id)} onClose={() => setDeleteItem(null)} />}
     </main>
   );

@@ -5,6 +5,7 @@ import { useClientsStore, Client, ClientPriority } from "@/stores/useClientsStor
 import { useToast } from "@/components/Toast";
 import FilterBar from "@/components/FilterBar";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
 const fmtDateTimeFull = (iso: string) => new Date(iso).toLocaleString("en-GB", {
@@ -27,6 +28,12 @@ function PriorityBadge({ priority }: { priority: ClientPriority }) {
   );
 }
 
+const InfoIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
 const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
 const thStyle: React.CSSProperties = {
   padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 600,
@@ -47,6 +54,7 @@ export default function FollowUpsPage() {
   const [today, setToday] = useState("");
   const [page, setPage] = useState(1);
   const [closingId, setClosingId] = useState<string | null>(null);
+  const [viewClient, setViewClient] = useState<Client | null>(null);
 
   useEffect(() => { fetch(); }, [fetch]);
   useEffect(() => { setToday(todayISO()); }, []);
@@ -134,17 +142,29 @@ export default function FollowUpsPage() {
                       {overdue && <span style={{ marginLeft: 8, fontSize: 10, fontWeight: 700, color: "#ef4444", textTransform: "uppercase" }}>Overdue</span>}
                       {dueToday && <span style={{ marginLeft: 8, fontSize: 10, fontWeight: 700, color: "#f59e0b", textTransform: "uppercase" }}>Today</span>}
                     </td>
-                    <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 280 }}>{c.note || "—"}</td>
+                    <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.note || "—"}</td>
                     <td style={{ ...tdStyle, textAlign: "center" }}>
-                      <button onClick={() => handleClose(c)} disabled={closingId === c._id} style={{
-                        padding: "6px 16px", border: "none",
-                        backgroundImage: closingId !== c._id ? "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)" : "none",
-                        backgroundColor: closingId !== c._id ? "transparent" : "var(--surface2)",
-                        color: closingId !== c._id ? "#fff" : "var(--muted)",
-                        fontSize: 12, fontWeight: 600, cursor: closingId === c._id ? "not-allowed" : "pointer", borderRadius: 0, fontFamily: "inherit",
-                      }}>
-                        {closingId === c._id ? "Saving..." : "Mark Done"}
-                      </button>
+                      <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                        <button onClick={() => setViewClient(c)} title="View details" style={{
+                          width: 30, height: 30, border: "1px solid var(--border)",
+                          background: "transparent", color: "var(--muted)",
+                          cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          borderRadius: 0, transition: "all 0.15s",
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                          <InfoIcon />
+                        </button>
+                        <button onClick={() => handleClose(c)} disabled={closingId === c._id} style={{
+                          padding: "0 16px", height: 30, border: "none",
+                          backgroundImage: closingId !== c._id ? "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)" : "none",
+                          backgroundColor: closingId !== c._id ? "transparent" : "var(--surface2)",
+                          color: closingId !== c._id ? "#fff" : "var(--muted)",
+                          fontSize: 12, fontWeight: 600, cursor: closingId === c._id ? "not-allowed" : "pointer", borderRadius: 0, fontFamily: "inherit",
+                        }}>
+                          {closingId === c._id ? "Saving..." : "Mark Done"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -157,6 +177,18 @@ export default function FollowUpsPage() {
           {pageCount > 1 && <Pagination page={safePage} pageCount={pageCount} onPageChange={setPage} />}
         </div>
       </div>
+
+      <DetailPanel
+        open={!!viewClient}
+        onClose={() => setViewClient(null)}
+        title={viewClient?.businessName ?? ""}
+        subtitle={viewClient?.followUpDate ? `Due ${fmtDateTimeFull(viewClient.followUpDate)}` : ""}
+        fields={viewClient ? [
+          { label: "Phone", value: viewClient.phone || "—" },
+          { label: "Priority", value: <PriorityBadge priority={viewClient.priority} /> },
+          { label: "Note", value: viewClient.note, fullWidth: true },
+        ] : []}
+      />
     </main>
   );
 }

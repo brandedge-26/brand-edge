@@ -6,6 +6,7 @@ import { useToast } from "@/components/Toast";
 import FilterBar from "@/components/FilterBar";
 import FollowUpDateModal from "@/components/FollowUpDateModal";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -29,6 +30,12 @@ function PriorityBadge({ priority }: { priority: ClientPriority }) {
   );
 }
 
+const InfoIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
 const STAGES: { status: Client["status"]; label: string; color: string; dateField: "createdAt" | "followUpDate" }[] = [
   { status: "New",       label: "Interested", color: "#22c55e", dateField: "createdAt" },
   { status: "Follow-up", label: "Follow-up",  color: "#f59e0b", dateField: "followUpDate" },
@@ -43,6 +50,7 @@ export default function PipelinePage() {
   const [followUpClient, setFollowUpClient] = useState<Client | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
   const [stagePages, setStagePages] = useState<Record<string, number>>({});
+  const [viewClient, setViewClient] = useState<Client | null>(null);
 
   useEffect(() => { fetch(); }, [fetch]);
   useEffect(() => {
@@ -132,7 +140,14 @@ export default function PipelinePage() {
                           ? `Due ${fmtDateTimeFull(c.followUpDate)}`
                           : `Added ${fmtDate(c.createdAt)}`}
                       </div>
-                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                      <div style={{ display: "flex", justifyContent: "flex-end", gap: 6 }}>
+                        <button onClick={() => setViewClient(c)} title="View details" style={{
+                          width: 26, height: 26, border: "1px solid var(--border)", background: "transparent",
+                          color: "var(--muted)", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                          borderRadius: 0, fontFamily: "inherit",
+                        }}>
+                          <InfoIcon />
+                        </button>
                         {stage.status === "New" ? (
                           <button onClick={() => setFollowUpClient(c)} style={{
                             padding: "4px 10px", border: "1px solid var(--border)", background: "transparent",
@@ -175,6 +190,20 @@ export default function PipelinePage() {
           onConfirm={(d) => handleMarkFollowUp(followUpClient._id, d)}
         />
       )}
+      <DetailPanel
+        open={!!viewClient}
+        onClose={() => setViewClient(null)}
+        title={viewClient?.businessName ?? ""}
+        subtitle={viewClient && (viewClient.status === "Follow-up" && viewClient.followUpDate
+          ? `Due ${fmtDateTimeFull(viewClient.followUpDate)}`
+          : `Added ${fmtDate(viewClient.createdAt)}`)}
+        fields={viewClient ? [
+          { label: "Phone", value: viewClient.phone },
+          { label: "Priority", value: <PriorityBadge priority={viewClient.priority} /> },
+          { label: "Status", value: viewClient.status },
+          { label: "Note", value: viewClient.note, fullWidth: true },
+        ] : []}
+      />
     </main>
   );
 }

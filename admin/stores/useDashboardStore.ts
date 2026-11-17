@@ -7,9 +7,11 @@ interface DashStats {
   totalApplications: number;
   pendingConsultations: number;
   completedConsultations: number;
+  totalCalls: number;
+  totalInterested: number;
 }
 
-interface RecentConsultation {
+export interface RecentConsultation {
   _id: string;
   name: string;
   services: string[];
@@ -17,7 +19,7 @@ interface RecentConsultation {
   createdAt: string;
 }
 
-interface RecentContact {
+export interface RecentContact {
   _id: string;
   name: string;
   email: string;
@@ -25,10 +27,18 @@ interface RecentContact {
   createdAt: string;
 }
 
+export interface RecentCall {
+  _id: string;
+  businessName: string;
+  createdAt: string;
+  salesRep: { _id: string; name: string } | null;
+}
+
 interface DashboardState {
   stats: DashStats | null;
   recentConsultations: RecentConsultation[];
   recentContacts: RecentContact[];
+  recentCalls: RecentCall[];
   loading: boolean;
   fetch: () => Promise<void>;
 }
@@ -37,6 +47,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   stats: null,
   recentConsultations: [],
   recentContacts: [],
+  recentCalls: [],
   loading: false,
 
   fetch: async () => {
@@ -48,6 +59,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
           stats: res.data.data.stats,
           recentConsultations: res.data.data.recentConsultations,
           recentContacts: res.data.data.recentContacts,
+          recentCalls: res.data.data.recentCalls,
         });
       }
     } catch {}

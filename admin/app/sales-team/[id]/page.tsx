@@ -28,6 +28,11 @@ const CheckIcon = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
+const PhoneIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+  </svg>
+);
 const ArrowRightIcon = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
     <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -52,26 +57,35 @@ interface ReportRow {
   interestedCount: number;
 }
 
+interface CallEntryRow {
+  _id: string;
+  businessName: string;
+  createdAt: string;
+}
+
 export default function SalesRepDetailPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const [rep, setRep] = useState<SalesRep | null>(null);
   const [clients, setClients] = useState<ClientRow[]>([]);
   const [reports, setReports] = useState<ReportRow[]>([]);
+  const [calls, setCalls] = useState<CallEntryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(todayISO()); // defaults to today; mandatory daily view
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [repRes, clientsRes, reportsRes] = await Promise.all([
+      const [repRes, clientsRes, reportsRes, callsRes] = await Promise.all([
         api.get(`/sales-reps/${id}`),
         api.get(`/sales-reps/${id}/clients`),
         api.get(`/sales-reps/${id}/reports`),
+        api.get(`/sales-reps/${id}/calls`),
       ]);
       if (repRes.data.success) setRep(repRes.data.data);
       if (clientsRes.data.success) setClients(clientsRes.data.data);
       if (reportsRes.data.success) setReports(reportsRes.data.data);
+      if (callsRes.data.success) setCalls(callsRes.data.data);
     } catch {}
     finally { setLoading(false); }
   }, [id]);
@@ -89,8 +103,11 @@ export default function SalesRepDetailPage() {
   const reportsInRange = date ? reports.filter((r) => r.date === date) : reports;
   const interestedSum = reportsInRange.reduce((sum, r) => sum + r.interestedCount, 0);
   const todaysReport = reports.find((r) => r.date === todayISO());
+  // Calls logged in the selected range (or all-time)
+  const callsInRange = date ? calls.filter((c) => c.createdAt.slice(0, 10) === date) : calls;
 
   const STAT_CARDS = [
+    { label: "Calls Made",         value: callsInRange.length,    icon: PhoneIcon },
     { label: "Clients Added",      value: clientsInRange.length,  icon: UsersIcon },
     { label: "Follow-ups Pending", value: followUpPendingCount,   icon: ClockIcon },
     { label: "Interested (Reported)", value: interestedSum,       icon: CheckIcon },
@@ -155,6 +172,21 @@ export default function SalesRepDetailPage() {
             <div style={{ fontSize: 12, color: "var(--muted)", marginTop: 6 }}>{label}</div>
           </div>
         ))}
+      </div>
+
+      {/* Calls — summary + View All */}
+      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", padding: "20px 24px", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12, marginBottom: 16 }}>
+        <div>
+          <span style={{ fontSize: 15, fontWeight: 600, color: "var(--fg)" }}>Calls</span>
+          <p style={{ color: "var(--muted)", fontSize: 13, marginTop: 4, marginBottom: 0 }}>{loading ? "Loading..." : `${calls.length} total logged`}</p>
+        </div>
+        <button onClick={() => router.push(`/sales-team/${id}/calls`)} style={{
+          display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 16px",
+          border: "1px solid var(--border)", background: "transparent", color: "var(--fg)",
+          fontSize: 13, fontWeight: 600, cursor: "pointer", borderRadius: 0, fontFamily: "inherit",
+        }}>
+          View All <ArrowRightIcon />
+        </button>
       </div>
 
       {/* Clients Added — summary + View All */}

@@ -35,6 +35,14 @@ const BellIcon = () => (
     <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
   </svg>
 );
+const RefreshIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <polyline points="23 4 23 10 17 10"/>
+    <polyline points="1 20 1 14 7 14"/>
+    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+    <path d="M20.49 15a9 9 0 0 1-14.85 3.36L1 14"/>
+  </svg>
+);
 const BriefcaseIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
     <rect x="2" y="7" width="20" height="14"/>
@@ -89,6 +97,12 @@ const ChevronDownSmallIcon = () => (
     <polyline points="6 9 12 15 18 9"/>
   </svg>
 );
+const CheckSquareIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <path d="M9 11l3 3L22 4"/>
+    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+  </svg>
+);
 
 // ── Nav config ─────────────────────────────────────────────────────────────
 const NAV_ITEMS = [
@@ -97,6 +111,7 @@ const NAV_ITEMS = [
   { href: "/contacts",       label: "Contacts",       icon: UsersIcon },
   { href: "/careers",        label: "Careers",        icon: BriefcaseIcon },
   { href: "/sales-team",     label: "Sales Team",     icon: TrendingUpIcon },
+  { href: "/closed-clients", label: "Closed Clients", icon: CheckSquareIcon },
   { href: "/notifications",  label: "Notifications",  icon: BellIcon },
 ];
 
@@ -106,6 +121,8 @@ const PAGE_TITLES: Record<string, string> = {
   "/contacts":       "Contacts",
   "/careers":        "Careers",
   "/sales-team":     "Sales Team",
+  "/closed-clients": "Closed Clients",
+  "/calls":          "Calls",
   "/notifications":  "Notifications",
 };
 
@@ -440,6 +457,16 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
           <h1 style={{ fontSize: 16, fontWeight: 600, color: "var(--fg)", margin: 0, flex: 1 }}>
             {pageTitle}
           </h1>
+
+          {/* Refresh — reloads the whole admin panel with fresh data */}
+          <button onClick={() => window.location.reload()} title="Refresh" style={{
+            background: "transparent", border: "1px solid var(--border)",
+            color: "var(--muted)", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            width: 32, height: 32, borderRadius: 0, flexShrink: 0,
+          }}>
+            <RefreshIcon />
+          </button>
 
           {/* Notification bell */}
           <Link href="/notifications" title="Notifications" style={{

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
+import CallCounterWidget from "@/components/CallCounterWidget";
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const GridIcon = () => (
@@ -108,7 +109,7 @@ const PAGE_TITLES: Record<string, string> = {
 export default function SalesShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuthStore();
+  const { logout, me, fetchMe } = useAuthStore();
   const [theme, setTheme]     = useState<"dark" | "light">("dark");
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -138,6 +139,7 @@ export default function SalesShell({ children }: { children: React.ReactNode }) 
   }, [collapsed]);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
+  useEffect(() => { fetchMe(); }, [fetchMe]);
 
   if (pathname === "/login") return <>{children}</>;
 
@@ -233,6 +235,21 @@ export default function SalesShell({ children }: { children: React.ReactNode }) 
           })}
         </nav>
 
+        {!isCollapsed && me && (
+          <div style={{
+            borderTop: `1px solid ${sb.border}`,
+            padding: "12px 16px",
+            flexShrink: 0,
+          }}>
+            <div style={{ color: sb.title, fontWeight: 600, fontSize: 13, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+              {me.name}
+            </div>
+            <div style={{ color: sb.sub, fontSize: 11, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", marginTop: 2 }}>
+              {me.email}
+            </div>
+          </div>
+        )}
+
         <div style={{
           borderTop: `1px solid ${sb.border}`,
           padding: isCollapsed ? "12px 8px" : "12px 16px",
@@ -324,6 +341,8 @@ export default function SalesShell({ children }: { children: React.ReactNode }) 
 
         <div style={{ flex: 1 }}>{children}</div>
       </div>
+
+      <CallCounterWidget />
     </>
   );
 }

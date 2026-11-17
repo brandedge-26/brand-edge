@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { useJobsStore, Job, Application } from "@/stores/useJobsStore";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 
 // ── Icons ──────────────────────────────────────────────────────────────────
-const EyeIcon = () => (
+const InfoIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 const TrashIcon = () => (
@@ -592,91 +592,6 @@ function EditJobModal({
   );
 }
 
-// ── Job Detail Modal ────────────────────────────────────────────────────────
-function JobDetailModal({ job, onClose }: { job: Job; onClose: () => void }) {
-  const Row = ({ label, value }: { label: string; value: string }) => (
-    <div style={{ display: "flex", gap: 16, paddingBottom: 12, borderBottom: "1px solid var(--border)", marginBottom: 12 }}>
-      <span style={{ width: 100, flexShrink: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", paddingTop: 1 }}>
-        {label}
-      </span>
-      <span style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.5 }}>{value || "—"}</span>
-    </div>
-  );
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 999,
-      background: "rgba(0,0,0,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-    }} onClick={onClose}>
-      <div style={{
-        background: "var(--surface)", border: "1px solid var(--border)",
-        width: 580, maxWidth: "100%", maxHeight: "85vh",
-        borderRadius: 0, display: "flex", flexDirection: "column",
-      }} onClick={(e) => e.stopPropagation()}>
-
-        {/* Header */}
-        <div style={{
-          padding: "20px 24px", borderBottom: "1px solid var(--border)",
-          display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0,
-        }}>
-          <div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: "0 0 4px" }}>{job.title}</h3>
-            <p style={{ color: "var(--muted)", fontSize: 12, margin: 0 }}>
-              ID: {job._id.slice(-8)} &nbsp;·&nbsp; <StatusBadge status={job.status} />
-            </p>
-          </div>
-          <button onClick={onClose} style={{
-            background: "transparent", border: "1px solid var(--border)",
-            color: "var(--muted)", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 32, height: 32, borderRadius: 0,
-          }}>
-            <XIcon />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", marginBottom: 12 }}>
-            Overview
-          </p>
-          <Row label="Department" value={job.department} />
-          <Row label="Location" value={job.location} />
-          <Row label="Type" value={job.type} />
-          <Row label="Level" value={job.level} />
-          <Row label="Deadline" value={job.deadline} />
-
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>
-            Description
-          </p>
-          <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.7, margin: "0 0 4px" }}>{job.description}</p>
-
-          {job.requirements && (
-            <>
-              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>
-                Requirements
-              </p>
-              <div dangerouslySetInnerHTML={{ __html: renderMarkdown(job.requirements) }} />
-            </>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end", flexShrink: 0 }}>
-          <button onClick={onClose} style={{
-            padding: "9px 20px", border: "1px solid var(--border)",
-            background: "transparent", color: "var(--fg)",
-            fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0, fontFamily: "inherit",
-          }}>
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // ── Delete Job Modal ────────────────────────────────────────────────────────
 function DeleteModal({
   jobTitle,
@@ -732,145 +647,23 @@ function DeleteModal({
   );
 }
 
-// ── Application Detail Modal ─────────────────────────────────────────────────
-function AppDetailModal({ app, onClose }: { app: Application; onClose: () => void }) {
-  const handleDownloadCV = async () => {
-    if (!app.cvUrl) return;
-    try {
-      const res = await fetch(app.cvUrl);
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${app.name.replace(/\s+/g, "_")}_CV.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch {
-      window.open(app.cvUrl, "_blank");
-    }
-  };
-
-  const Row = ({ label, value }: { label: string; value: string }) => (
-    <div style={{ display: "flex", gap: 16, paddingBottom: 12, borderBottom: "1px solid var(--border)", marginBottom: 12 }}>
-      <span style={{ width: 100, flexShrink: 0, fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", paddingTop: 1 }}>
-        {label}
-      </span>
-      <span style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.5 }}>{value || "—"}</span>
-    </div>
-  );
-
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 999,
-      background: "rgba(0,0,0,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-    }} onClick={onClose}>
-      <div style={{
-        background: "var(--surface)", border: "1px solid var(--border)",
-        width: 580, maxWidth: "100%", maxHeight: "85vh",
-        borderRadius: 0, display: "flex", flexDirection: "column",
-      }} onClick={(e) => e.stopPropagation()}>
-
-        {/* Header */}
-        <div style={{
-          padding: "20px 24px", borderBottom: "1px solid var(--border)",
-          display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexShrink: 0,
-        }}>
-          <div>
-            <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--fg)", margin: "0 0 3px" }}>{app.name}</h3>
-            <p style={{ color: "var(--muted)", fontSize: 12, margin: 0 }}>
-              ID: {app._id.slice(-8)} &nbsp;·&nbsp; Applied {fmtDate(app.createdAt)} &nbsp;·&nbsp;
-              <span style={{ color: "var(--fg)", fontWeight: 500 }}>{app.jobTitle}</span>
-            </p>
-          </div>
-          <button onClick={onClose} style={{
-            background: "transparent", border: "1px solid var(--border)",
-            color: "var(--muted)", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: 32, height: 32, borderRadius: 0,
-          }}>
-            <XIcon />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div style={{ padding: "20px 24px", overflowY: "auto", flex: 1 }}>
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", marginBottom: 12 }}>
-            Contact Info
-          </p>
-          <Row label="Email" value={app.email} />
-          <Row label="Phone" value={app.phone} />
-
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>
-            Professional
-          </p>
-          <Row label="Position" value={app.jobTitle} />
-          <Row label="Experience" value={app.experience} />
-          <Row label="Current Role" value={app.currentRole} />
-          {app.portfolio && <Row label="Portfolio" value={app.portfolio} />}
-          {app.linkedin && <Row label="LinkedIn" value={app.linkedin} />}
-
-          <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", color: "#ff6a00", margin: "20px 0 12px" }}>
-            Application
-          </p>
-          <div style={{ paddingBottom: 14, borderBottom: "1px solid var(--border)", marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", display: "block", marginBottom: 8 }}>
-              Why Brand Edge
-            </span>
-            <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.7, margin: 0 }}>{app.whyJoin}</p>
-          </div>
-          {app.skills && app.skills.length > 0 && (
-            <div>
-              <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", display: "block", marginBottom: 8 }}>
-                Skills
-              </span>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {app.skills.map((s: string, i: number) => (
-                  <span key={i} style={{ padding: "3px 10px", background: "rgba(255,106,0,0.1)", border: "1px solid rgba(255,106,0,0.3)", fontSize: 12, fontWeight: 600, color: "#ff6a00" }}>{s}</span>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div style={{ padding: "14px 24px", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexShrink: 0 }}>
-          {app.cvUrl ? (
-            <button
-              onClick={handleDownloadCV}
-              style={{
-                display: "inline-flex", alignItems: "center", gap: 8,
-                padding: "9px 18px",
-                backgroundImage: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
-                color: "#fff", border: "none",
-                fontSize: 13, fontWeight: 700, cursor: "pointer",
-                textDecoration: "none", borderRadius: 0, fontFamily: "inherit",
-                boxShadow: "0 4px 14px rgba(255,106,0,0.3)",
-              }}
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-              Download CV
-            </button>
-          ) : (
-            <span style={{ fontSize: 12, color: "var(--muted)" }}>No CV attached</span>
-          )}
-          <button onClick={onClose} style={{
-            padding: "9px 20px", border: "1px solid var(--border)",
-            background: "transparent", color: "var(--fg)",
-            fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0, fontFamily: "inherit",
-          }}>
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+// ── Download CV helper (used in the application detail panel footer) ───────
+async function downloadCV(app: Application) {
+  if (!app.cvUrl) return;
+  try {
+    const res = await fetch(app.cvUrl);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${app.name.replace(/\s+/g, "_")}_CV.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch {
+    window.open(app.cvUrl, "_blank");
+  }
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────
@@ -1070,7 +863,7 @@ export default function CareersAdminPage() {
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}
                           >
-                            <EyeIcon />
+                            <InfoIcon />
                           </button>
                           <button onClick={() => setEditJob(job)} title="Edit" style={{
                             width: 30, height: 30, border: "1px solid var(--border)",
@@ -1178,7 +971,7 @@ export default function CareersAdminPage() {
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}
                           >
-                            <EyeIcon />
+                            <InfoIcon />
                           </button>
                           <button onClick={() => setDeleteApp(app)} title="Delete" style={{
                             width: 30, height: 30, border: "1px solid rgba(239,68,68,0.35)",
@@ -1212,7 +1005,25 @@ export default function CareersAdminPage() {
           onAdd={handleAddJob}
         />
       )}
-      {viewJob && <JobDetailModal job={viewJob} onClose={() => setViewJob(null)} />}
+      <DetailPanel
+        open={!!viewJob}
+        onClose={() => setViewJob(null)}
+        title={viewJob?.title ?? ""}
+        subtitle={viewJob && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            ID: {viewJob._id.slice(-8)} <StatusBadge status={viewJob.status} />
+          </span>
+        )}
+        fields={viewJob ? [
+          { label: "Department", value: viewJob.department },
+          { label: "Location", value: viewJob.location },
+          { label: "Type", value: viewJob.type },
+          { label: "Level", value: viewJob.level },
+          { label: "Deadline", value: viewJob.deadline },
+          { label: "Description", value: viewJob.description, fullWidth: true },
+          ...(viewJob.requirements ? [{ label: "Requirements", value: <div dangerouslySetInnerHTML={{ __html: renderMarkdown(viewJob.requirements) }} />, fullWidth: true }] : []),
+        ] : []}
+      />
       {deleteJob && (
         <DeleteModal
           jobTitle={deleteJob.title}
@@ -1220,7 +1031,52 @@ export default function CareersAdminPage() {
           onClose={() => setDeleteJob(null)}
         />
       )}
-      {viewApp && <AppDetailModal app={viewApp} onClose={() => setViewApp(null)} />}
+      <DetailPanel
+        open={!!viewApp}
+        onClose={() => setViewApp(null)}
+        title={viewApp?.name ?? ""}
+        subtitle={viewApp && `ID: ${viewApp._id.slice(-8)} · Applied ${fmtDate(viewApp.createdAt)} · ${viewApp.jobTitle}`}
+        fields={viewApp ? [
+          { label: "Email", value: viewApp.email },
+          { label: "Phone", value: viewApp.phone },
+          { label: "Position", value: viewApp.jobTitle },
+          { label: "Experience", value: viewApp.experience },
+          { label: "Current Role", value: viewApp.currentRole },
+          ...(viewApp.portfolio ? [{ label: "Portfolio", value: viewApp.portfolio }] : []),
+          ...(viewApp.linkedin ? [{ label: "LinkedIn", value: viewApp.linkedin }] : []),
+          { label: "Why Brand Edge", value: viewApp.whyJoin, fullWidth: true },
+          ...(viewApp.skills && viewApp.skills.length > 0 ? [{
+            label: "Skills", fullWidth: true,
+            value: (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                {viewApp.skills.map((s: string, i: number) => (
+                  <span key={i} style={{ padding: "3px 10px", background: "rgba(255,106,0,0.1)", border: "1px solid rgba(255,106,0,0.3)", fontSize: 12, fontWeight: 600, color: "#ff6a00" }}>{s}</span>
+                ))}
+              </div>
+            ),
+          }] : []),
+        ] : []}
+        footer={viewApp && (
+          viewApp.cvUrl ? (
+            <button onClick={() => downloadCV(viewApp)} style={{
+              display: "inline-flex", alignItems: "center", gap: 8, padding: "9px 18px",
+              backgroundImage: "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)",
+              color: "#fff", border: "none", fontSize: 13, fontWeight: 700, cursor: "pointer",
+              textDecoration: "none", borderRadius: 0, fontFamily: "inherit",
+              boxShadow: "0 4px 14px rgba(255,106,0,0.3)",
+            }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download CV
+            </button>
+          ) : (
+            <span style={{ fontSize: 12, color: "var(--muted)" }}>No CV attached</span>
+          )
+        )}
+      />
       {editJob && (
         <EditJobModal
           job={editJob}

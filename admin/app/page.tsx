@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect } from "react";
-import { useDashboardStore } from "@/stores/useDashboardStore";
+import { useEffect, useState } from "react";
+import { useDashboardStore, RecentConsultation, RecentContact, RecentCall } from "@/stores/useDashboardStore";
+import DetailPanel from "@/components/DetailPanel";
 
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+const fmtDateTimeFull = (iso: string) => new Date(iso).toLocaleString("en-GB", {
+  weekday: "long", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
+});
 
 // ── Icons ──────────────────────────────────────────────────────────────────
 const CalendarIcon = () => (
@@ -27,6 +31,28 @@ const CheckIcon = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
+const PhoneIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+  </svg>
+);
+const TrendingUpIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+  </svg>
+);
+const InfoIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+const infoBtnStyle: React.CSSProperties = {
+  width: 28, height: 28, border: "1px solid var(--border)",
+  background: "transparent", color: "var(--muted)",
+  cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+  borderRadius: 0, transition: "all 0.15s",
+};
 
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
   "Pending":     { bg: "rgba(245,158,11,0.15)",  color: "#f59e0b" },
@@ -43,7 +69,10 @@ const thStyle: React.CSSProperties = { padding: "10px 16px", textAlign: "left", 
 const tdStyle: React.CSSProperties = { padding: "12px 16px", borderBottom: "1px solid var(--border)", color: "var(--fg)", verticalAlign: "middle" };
 
 export default function OverviewPage() {
-  const { stats, recentConsultations, recentContacts, loading, fetch } = useDashboardStore();
+  const { stats, recentConsultations, recentContacts, recentCalls, loading, fetch } = useDashboardStore();
+  const [viewConsultation, setViewConsultation] = useState<RecentConsultation | null>(null);
+  const [viewContact, setViewContact] = useState<RecentContact | null>(null);
+  const [viewCall, setViewCall] = useState<RecentCall | null>(null);
   useEffect(() => { fetch(); }, [fetch]);
 
   const STAT_CARDS = [
@@ -51,6 +80,8 @@ export default function OverviewPage() {
     { label: "Total Contacts",      value: stats?.totalContacts ?? "—",       icon: UsersIcon   },
     { label: "Pending Reviews",     value: stats?.pendingConsultations ?? "—", icon: ClockIcon  },
     { label: "Completed",           value: stats?.completedConsultations ?? "—", icon: CheckIcon },
+    { label: "Total Calls (Sales)", value: stats?.totalCalls ?? "—",          icon: PhoneIcon   },
+    { label: "Total Interested",    value: stats?.totalInterested ?? "—",     icon: TrendingUpIcon },
   ];
 
   return (
@@ -77,16 +108,23 @@ export default function OverviewPage() {
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={tableStyle}>
-            <thead><tr><th style={thStyle}>Name</th><th style={thStyle}>Service</th><th style={thStyle}>Date</th><th style={thStyle}>Status</th></tr></thead>
+            <thead><tr><th style={thStyle}>Name</th><th style={thStyle}>Service</th><th style={thStyle}>Date</th><th style={thStyle}>Status</th><th style={{ ...thStyle, textAlign: "center" }}></th></tr></thead>
             <tbody>
               {recentConsultations.length === 0 ? (
-                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{loading ? "Loading..." : "No data yet"}</td></tr>
+                <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{loading ? "Loading..." : "No data yet"}</td></tr>
               ) : recentConsultations.map((row) => (
                 <tr key={row._id}>
                   <td style={tdStyle}>{row.name}</td>
                   <td style={tdStyle}>{row.services?.[0] ?? "—"}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)" }}>{fmtDate(row.createdAt)}</td>
                   <td style={tdStyle}><StatusBadge status={row.status} /></td>
+                  <td style={{ ...tdStyle, textAlign: "center" }}>
+                    <button onClick={() => setViewConsultation(row)} title="View details" style={infoBtnStyle}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                      <InfoIcon />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -102,22 +140,94 @@ export default function OverviewPage() {
         </div>
         <div style={{ overflowX: "auto" }}>
           <table style={tableStyle}>
-            <thead><tr><th style={thStyle}>Name</th><th style={thStyle}>Email</th><th style={thStyle}>Phone</th><th style={thStyle}>Date</th></tr></thead>
+            <thead><tr><th style={thStyle}>Name</th><th style={thStyle}>Email</th><th style={thStyle}>Phone</th><th style={thStyle}>Date</th><th style={{ ...thStyle, textAlign: "center" }}></th></tr></thead>
             <tbody>
               {recentContacts.length === 0 ? (
-                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{loading ? "Loading..." : "No data yet"}</td></tr>
+                <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{loading ? "Loading..." : "No data yet"}</td></tr>
               ) : recentContacts.map((row) => (
                 <tr key={row._id}>
                   <td style={tdStyle}>{row.name}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)" }}>{row.email}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)" }}>{row.phone || "—"}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)" }}>{fmtDate(row.createdAt)}</td>
+                  <td style={{ ...tdStyle, textAlign: "center" }}>
+                    <button onClick={() => setViewContact(row)} title="View details" style={infoBtnStyle}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                      <InfoIcon />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Recent Calls */}
+      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 0, marginTop: 24, overflow: "hidden" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px", borderBottom: "1px solid var(--border)" }}>
+          <span style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>Recent Calls</span>
+          <Link href="/calls" style={{ fontSize: 12, fontWeight: 700, color: "#ff6a00", textDecoration: "none" }}>View All →</Link>
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table style={tableStyle}>
+            <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Salesman</th><th style={thStyle}>Time</th><th style={{ ...thStyle, textAlign: "center" }}></th></tr></thead>
+            <tbody>
+              {recentCalls.length === 0 ? (
+                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{loading ? "Loading..." : "No calls logged yet"}</td></tr>
+              ) : recentCalls.map((row) => (
+                <tr key={row._id}>
+                  <td style={{ ...tdStyle, fontWeight: 500 }}>{row.businessName}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)" }}>{row.salesRep?.name ?? "(deleted rep)"}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDateTimeFull(row.createdAt)}</td>
+                  <td style={{ ...tdStyle, textAlign: "center" }}>
+                    <button onClick={() => setViewCall(row)} title="View details" style={infoBtnStyle}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                      <InfoIcon />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <DetailPanel
+        open={!!viewConsultation}
+        onClose={() => setViewConsultation(null)}
+        title={viewConsultation?.name ?? ""}
+        subtitle={viewConsultation && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            ID: {viewConsultation._id.slice(-8)} · {fmtDate(viewConsultation.createdAt)} <StatusBadge status={viewConsultation.status} />
+          </span>
+        )}
+        fields={viewConsultation ? [
+          { label: "Services", value: viewConsultation.services.join(", ") || "—" },
+        ] : []}
+      />
+      <DetailPanel
+        open={!!viewContact}
+        onClose={() => setViewContact(null)}
+        title={viewContact?.name ?? ""}
+        subtitle={viewContact && `ID: ${viewContact._id.slice(-8)} · ${fmtDate(viewContact.createdAt)}`}
+        fields={viewContact ? [
+          { label: "Email", value: viewContact.email },
+          { label: "Phone", value: viewContact.phone || "—" },
+        ] : []}
+      />
+      <DetailPanel
+        open={!!viewCall}
+        onClose={() => setViewCall(null)}
+        title={viewCall?.businessName ?? ""}
+        subtitle={viewCall && fmtDateTimeFull(viewCall.createdAt)}
+        fields={viewCall ? [
+          { label: "Salesman", value: viewCall.salesRep?.name ?? "(deleted rep)" },
+          { label: "Time", value: fmtDateTimeFull(viewCall.createdAt) },
+        ] : []}
+      />
     </main>
   );
 }

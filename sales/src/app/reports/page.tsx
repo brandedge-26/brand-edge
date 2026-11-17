@@ -1,15 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useReportsStore } from "@/stores/useReportsStore";
+import { useReportsStore, DailyReport } from "@/stores/useReportsStore";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
 const fmtDate = (d: string) => new Date(d).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
 const todayISO = () => new Date().toISOString().slice(0, 10);
 
 const GRADIENT = "linear-gradient(135deg, #ff6a00 0%, #ee0979 100%)";
+
+const InfoIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
 
 const tableStyle: React.CSSProperties = { width: "100%", borderCollapse: "collapse", fontSize: 13 };
 const thStyle: React.CSSProperties = {
@@ -48,6 +55,7 @@ export default function ReportsPage() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [page, setPage] = useState(1);
+  const [viewReport, setViewReport] = useState<DailyReport | null>(null);
 
   useEffect(() => { fetch(); }, [fetch]);
   useEffect(() => { setToday(todayISO()); }, []);
@@ -140,19 +148,32 @@ export default function ReportsPage() {
                 <th style={thStyle}>Calls Made</th>
                 <th style={thStyle}>Interested</th>
                 <th style={thStyle}>Notes</th>
+                <th style={{ ...thStyle, textAlign: "center" }}></th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>Loading...</td></tr>
+                <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>Loading...</td></tr>
               ) : pastReports.length === 0 ? (
-                <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>No past reports yet.</td></tr>
+                <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 40 }}>No past reports yet.</td></tr>
               ) : pageItems.map((r) => (
                 <tr key={r._id}>
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{fmtDate(r.date)}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{r.callsMade}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{r.interestedCount}</td>
-                  <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 360 }}>{r.notes || "—"}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 360, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.notes || "—"}</td>
+                  <td style={{ ...tdStyle, textAlign: "center" }}>
+                    <button onClick={() => setViewReport(r)} title="View details" style={{
+                      width: 30, height: 30, border: "1px solid var(--border)",
+                      background: "transparent", color: "var(--muted)",
+                      cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                      borderRadius: 0, transition: "all 0.15s",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                      <InfoIcon />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -164,6 +185,17 @@ export default function ReportsPage() {
           </div>
         )}
       </div>
+
+      <DetailPanel
+        open={!!viewReport}
+        onClose={() => setViewReport(null)}
+        title={viewReport ? fmtDate(viewReport.date) : ""}
+        fields={viewReport ? [
+          { label: "Calls Made", value: viewReport.callsMade },
+          { label: "Interested", value: viewReport.interestedCount },
+          { label: "Notes", value: viewReport.notes, fullWidth: true },
+        ] : []}
+      />
     </main>
   );
 }

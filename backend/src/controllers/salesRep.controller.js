@@ -2,9 +2,9 @@ import bcrypt from "bcryptjs";
 import { SalesRep } from "../models/SalesRep.js";
 import { Contact } from "../models/Contact.js";
 import { Consultation } from "../models/Consultation.js";
-import { CallLog } from "../models/CallLog.js";
 import { Client } from "../models/Client.js";
 import { DailyReport } from "../models/DailyReport.js";
+import { CallEntry } from "../models/CallEntry.js";
 import { getStatsForRep } from "../utils/salesStats.js";
 
 export const createSalesRep = async (req, res, next) => {
@@ -97,18 +97,7 @@ export const getSalesRepLeads = async (req, res, next) => {
 export const getSalesRepCalls = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { from, to } = req.query;
-        const filter = { calledBy: id };
-        if (from || to) {
-            filter.calledAt = {};
-            if (from) filter.calledAt.$gte = new Date(from);
-            if (to) {
-                const toDate = new Date(to);
-                toDate.setHours(23, 59, 59, 999);
-                filter.calledAt.$lte = toDate;
-            }
-        }
-        const calls = await CallLog.find(filter).sort({ calledAt: -1 });
+        const calls = await CallEntry.find({ salesRep: id }).sort({ createdAt: -1 });
         res.json({ success: true, data: calls });
     } catch (err) {
         next(err);
@@ -130,6 +119,59 @@ export const getSalesRepReports = async (req, res, next) => {
         const { id } = req.params;
         const reports = await DailyReport.find({ salesRep: id }).sort({ date: -1 });
         res.json({ success: true, data: reports });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getClosedClients = async (req, res, next) => {
+    try {
+        const clients = await Client.find({ status: "Closed" })
+            .sort({ closedAt: -1 })
+            .populate("createdBy", "name");
+        res.json({ success: true, data: clients });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const getAllCalls = async (req, res, next) => {
+    try {
+        const calls = await CallEntry.find().sort({ createdAt: -1 }).populate("salesRep", "name");
+        res.json({ success: true, data: calls });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteClient = async (req, res, next) => {
+    try {
+        const { clientId } = req.params;
+        const deleted = await Client.findByIdAndDelete(clientId);
+        if (!deleted) return res.status(404).json({ success: false, message: "Not found" });
+        res.json({ success: true });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteReport = async (req, res, next) => {
+    try {
+        const { reportId } = req.params;
+        const deleted = await DailyReport.findByIdAndDelete(reportId);
+        if (!deleted) return res.status(404).json({ success: false, message: "Not found" });
+        res.json({ success: true });
+    } catch (err) {
+        next(err);
+    }
+};
+
+export const deleteCall = async (req, res, next) => {
+    try {
+        const { callId } = req.params;
+        const deleted = await CallEntry.findByIdAndDelete(callId);
+        if (!deleted) return res.status(404).json({ success: false, message: "Not found" });
+        res.json({ success: true });
     } catch (err) {
         next(err);
     }

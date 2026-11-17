@@ -4,14 +4,14 @@ import { useState, useEffect } from "react";
 import { useContactsStore, Contact } from "@/stores/useContactsStore";
 import { useToast } from "@/components/Toast";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
 
 // ── Icons ──────────────────────────────────────────────────────────────────
-const EyeIcon = () => (
+const InfoIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 const TrashIcon = () => (
@@ -20,11 +20,6 @@ const TrashIcon = () => (
     <path d="M19 6l-1 14H6L5 6"/>
     <path d="M10 11v6"/><path d="M14 11v6"/>
     <path d="M9 6V4h6v2"/>
-  </svg>
-);
-const XIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
   </svg>
 );
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -45,58 +40,7 @@ const tdStyle: React.CSSProperties = {
   color: "var(--fg)", verticalAlign: "middle",
 };
 
-function truncate(str: string, max = 55) {
-  return str.length > max ? str.slice(0, max) + "…" : str;
-}
-
 // ── Modals ─────────────────────────────────────────────────────────────────
-function DetailModal({ item, onClose }: { item: Contact; onClose: () => void }) {
-  const rows = [
-    { label: "Name",    value: item.name },
-    { label: "Email",   value: item.email },
-    { label: "Phone",   value: item.phone || "—" },
-    { label: "Service", value: item.service || "—" },
-    { label: "Date",    value: fmtDate(item.createdAt) },
-  ];
-  return (
-    <div style={{
-      position: "fixed", inset: 0, zIndex: 999,
-      background: "rgba(0,0,0,0.55)",
-      display: "flex", alignItems: "center", justifyContent: "center", padding: 24,
-    }} onClick={onClose}>
-      <div style={{
-        background: "var(--surface)", border: "1px solid var(--border)",
-        width: 500, maxWidth: "100%", borderRadius: 0, padding: 32,
-      }} onClick={(e) => e.stopPropagation()}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
-          <div>
-            <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--fg)", margin: 0 }}>Contact Details</h3>
-            <p style={{ color: "var(--muted)", fontSize: 12, marginTop: 3 }}>ID: {item._id.slice(-8)}</p>
-          </div>
-          <button onClick={onClose} style={{ background: "transparent", border: "1px solid var(--border)", color: "var(--muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", width: 32, height: 32, borderRadius: 0 }}>
-            <XIcon />
-          </button>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          {rows.map(({ label, value }) => (
-            <div key={label} style={{ display: "flex", gap: 12 }}>
-              <span style={{ width: 70, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", flexShrink: 0, paddingTop: 2 }}>{label}</span>
-              <span style={{ fontSize: 13, color: "var(--fg)" }}>{value}</span>
-            </div>
-          ))}
-          <div style={{ display: "flex", gap: 12 }}>
-            <span style={{ width: 70, fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--muted)", flexShrink: 0, paddingTop: 2 }}>Message</span>
-            <p style={{ fontSize: 13, color: "var(--fg)", lineHeight: 1.65, margin: 0 }}>{item.message}</p>
-          </div>
-        </div>
-        <div style={{ marginTop: 28, display: "flex", justifyContent: "flex-end" }}>
-          <button onClick={onClose} style={{ padding: "9px 20px", border: "1px solid var(--border)", background: "transparent", color: "var(--fg)", fontSize: 13, fontWeight: 500, cursor: "pointer", borderRadius: 0 }}>Close</button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function DeleteModal({ item, onConfirm, onClose }: { item: Contact; onConfirm: () => void; onClose: () => void }) {
   return (
     <div style={{
@@ -222,14 +166,14 @@ export default function ContactsPage() {
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.name}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.email}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone || "—"}</td>
-                  <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 260 }}>
-                    {truncate(c.message)}
+                  <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 260, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {c.message}
                   </td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDate(c.createdAt)}</td>
                   <td style={{ ...tdStyle, textAlign: "center" }}>
                     <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
-                      {/* Eye / View */}
-                      <button onClick={() => setViewItem(c)} title="View message" style={{
+                      {/* Info / View details */}
+                      <button onClick={() => setViewItem(c)} title="View details" style={{
                         width: 30, height: 30, border: "1px solid var(--border)",
                         background: "transparent", color: "var(--muted)",
                         cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
@@ -237,7 +181,7 @@ export default function ContactsPage() {
                       }}
                       onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
                       onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
-                        <EyeIcon />
+                        <InfoIcon />
                       </button>
                       {/* Trash / Delete */}
                       <button onClick={() => setDeleteItem(c)} title="Delete" style={{
@@ -263,8 +207,19 @@ export default function ContactsPage() {
         </div>
       </div>
 
-      {/* Detail Modal */}
-      {viewItem && <DetailModal item={viewItem} onClose={() => setViewItem(null)} />}
+      {/* Detail Panel */}
+      <DetailPanel
+        open={!!viewItem}
+        onClose={() => setViewItem(null)}
+        title={viewItem?.name ?? ""}
+        subtitle={viewItem ? `ID: ${viewItem._id.slice(-8)} · ${fmtDate(viewItem.createdAt)}` : ""}
+        fields={viewItem ? [
+          { label: "Email", value: viewItem.email },
+          { label: "Phone", value: viewItem.phone || "—" },
+          { label: "Service", value: viewItem.service || "—" },
+          { label: "Message", value: viewItem.message, fullWidth: true },
+        ] : []}
+      />
 
       {/* Delete Confirm Modal */}
       {deleteItem && (

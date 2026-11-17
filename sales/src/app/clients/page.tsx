@@ -5,11 +5,32 @@ import { useClientsStore, Client, ClientPriority } from "@/stores/useClientsStor
 import { useToast } from "@/components/Toast";
 import FollowUpDateModal from "@/components/FollowUpDateModal";
 import Pagination from "@/components/Pagination";
+import DetailPanel from "@/components/DetailPanel";
 
 const PAGE_SIZE = 10;
+const todayISO = () => new Date().toISOString().slice(0, 10);
 const fmtDateTimeFull = (iso: string) => new Date(iso).toLocaleString("en-GB", {
   weekday: "long", day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", hour12: true,
 });
+const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+const dateInputStyle: React.CSSProperties = {
+  height: 36, padding: "0 10px", border: "1px solid var(--border)", borderRadius: 0,
+  background: "var(--surface)", color: "var(--fg)", fontSize: 13, outline: "none", fontFamily: "inherit",
+};
+const dateBtnStyle: React.CSSProperties = {
+  height: 36, padding: "0 12px", border: "1px solid var(--border)", background: "var(--surface2)",
+  color: "var(--fg)", fontSize: 12, fontWeight: 600, cursor: "pointer", borderRadius: 0, fontFamily: "inherit",
+};
+const mobileCardStyle: React.CSSProperties = {
+  background: "var(--surface)", border: "1px solid var(--border)", padding: 14, marginBottom: 10,
+};
+const iconBtnStyle: React.CSSProperties = {
+  width: 30, height: 30, border: "1px solid var(--border)",
+  background: "transparent", color: "var(--muted)",
+  cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+  borderRadius: 0, transition: "all 0.15s",
+};
 
 const PRIORITY_STYLES: Record<ClientPriority, { bg: string; color: string }> = {
   Low: { bg: "rgba(100,116,139,0.15)", color: "#64748b" },
@@ -22,6 +43,28 @@ function PriorityBadge({ priority }: { priority: ClientPriority }) {
   return (
     <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: s.bg, color: s.color, borderRadius: 0 }}>
       {priority}
+    </span>
+  );
+}
+
+function StatusBadge({ client }: { client: Client }) {
+  if (client.status === "Follow-up") {
+    return (
+      <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: "rgba(245,158,11,0.15)", color: "#f59e0b", borderRadius: 0 }}>
+        Follow-up{client.followUpDate ? ` · ${fmtDateTimeFull(client.followUpDate)}` : ""}
+      </span>
+    );
+  }
+  if (client.status === "Closed") {
+    return (
+      <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: "rgba(34,197,94,0.15)", color: "#22c55e", borderRadius: 0 }}>
+        Closed
+      </span>
+    );
+  }
+  return (
+    <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: "var(--surface2)", color: "var(--muted)", borderRadius: 0 }}>
+      New
     </span>
   );
 }
@@ -50,6 +93,11 @@ const ClockIcon = () => (
 const CheckIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
     <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+const InfoIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>
 );
 
@@ -305,18 +353,23 @@ function EditClientModal({ client, onClose, onSave }: { client: Client; onClose:
 export default function ClientsPage() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [date, setDate] = useState("");
   const [page, setPage] = useState(1);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editClient, setEditClient] = useState<Client | null>(null);
   const [followUpClient, setFollowUpClient] = useState<Client | null>(null);
+  const [viewClient, setViewClient] = useState<Client | null>(null);
   const [closingId, setClosingId] = useState<string | null>(null);
   const { clients, loading, fetch, create, update, markFollowUp, closeClient } = useClientsStore();
 
   useEffect(() => { fetch(); }, [fetch]);
+  useEffect(() => { setDate(todayISO()); }, []);
 
   const filtered = clients.filter((c) => {
     const q = search.toLowerCase();
-    return !q || c.businessName.toLowerCase().includes(q) || c.phone.toLowerCase().includes(q);
+    const matchSearch = !q || c.businessName.toLowerCase().includes(q) || c.phone.toLowerCase().includes(q);
+    const matchDate = !date || c.createdAt.slice(0, 10) === date;
+    return matchSearch && matchDate;
   });
 
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -385,16 +438,21 @@ export default function ClientsPage() {
         </button>
       </div>
 
-      <div style={{ marginBottom: 20 }}>
+      <div style={{ marginBottom: 20, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
         <input type="text" placeholder="Search by business name or phone..." value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }} style={{
             height: 36, padding: "0 12px", border: "1px solid var(--border)", borderRadius: 0,
             background: "var(--surface)", color: "var(--fg)", fontSize: 13, outline: "none", width: 280,
           }}
         />
+        <input type="date" value={date} onChange={(e) => { setDate(e.target.value); setPage(1); }} style={dateInputStyle} />
+        <button onClick={() => { setDate(todayISO()); setPage(1); }} style={dateBtnStyle}>Today</button>
+        {date && <button onClick={() => { setDate(""); setPage(1); }} style={{ ...dateBtnStyle, background: "transparent" }}>Clear</button>}
       </div>
 
-      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", overflow: "hidden" }}>
+      {/* Desktop table */}
+      <div className="table-desktop" style={{ display: "none", background: "var(--surface)", border: "1px solid var(--border)", overflow: "hidden" }}>
+        <style>{`@media(min-width:768px){.table-desktop{display:block!important}.card-mobile{display:none!important}}`}</style>
         <div style={{ overflowX: "auto" }}>
           <table style={tableStyle}>
             <thead>
@@ -417,26 +475,22 @@ export default function ClientsPage() {
                 <tr key={c._id}>
                   <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.businessName}</td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone}</td>
-                  <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 320 }}>{c.note || "—"}</td>
+                  <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 320, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.note || "—"}</td>
                   <td style={tdStyle}><PriorityBadge priority={c.priority} /></td>
-                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>
-                    {c.status === "Follow-up" ? (
-                      <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: "rgba(245,158,11,0.15)", color: "#f59e0b", borderRadius: 0 }}>
-                        Follow-up · {c.followUpDate ? fmtDateTimeFull(c.followUpDate) : ""}
-                      </span>
-                    ) : c.status === "Closed" ? (
-                      <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: "rgba(34,197,94,0.15)", color: "#22c55e", borderRadius: 0 }}>
-                        Closed
-                      </span>
-                    ) : (
-                      <span style={{ display: "inline-block", padding: "3px 8px", fontSize: 11, fontWeight: 600, background: "var(--surface2)", color: "var(--muted)", borderRadius: 0 }}>
-                        New
-                      </span>
-                    )}
-                  </td>
+                  <td style={{ ...tdStyle, whiteSpace: "nowrap" }}><StatusBadge client={c} /></td>
                   <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDateTimeFull(c.createdAt)}</td>
                   <td style={{ ...tdStyle, textAlign: "center" }}>
                     <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                      <button onClick={() => setViewClient(c)} title="View details" style={{
+                        width: 30, height: 30, border: "1px solid var(--border)",
+                        background: "transparent", color: "var(--muted)",
+                        cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                        borderRadius: 0, transition: "all 0.15s",
+                      }}
+                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+                        <InfoIcon />
+                      </button>
                       <button onClick={() => setEditClient(c)} title="Edit client" style={{
                         width: 30, height: 30, border: "1px solid var(--border)",
                         background: "transparent", color: "var(--muted)",
@@ -483,8 +537,57 @@ export default function ClientsPage() {
         </div>
       </div>
 
+      {/* Mobile cards */}
+      <div className="card-mobile">
+        {loading ? (
+          <div style={{ padding: 40, textAlign: "center", color: "var(--muted)", fontSize: 13 }}>Loading...</div>
+        ) : filtered.length === 0 ? (
+          <div style={{ padding: 40, textAlign: "center", color: "var(--muted)", fontSize: 13 }}>No clients added yet.</div>
+        ) : (
+          <>
+            {pageItems.map((c: Client) => (
+              <div key={c._id} style={mobileCardStyle}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
+                  <span style={{ fontWeight: 600, fontSize: 14, color: "var(--fg)" }}>{c.businessName}</span>
+                  <PriorityBadge priority={c.priority} />
+                </div>
+                <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 6 }}>{c.phone}</div>
+                <div style={{ marginBottom: 8 }}><StatusBadge client={c} /></div>
+                {c.note && <div style={{ fontSize: 12, color: "var(--muted)", marginBottom: 8, lineHeight: 1.5 }}>{c.note}</div>}
+                <div style={{ fontSize: 11, color: "var(--muted)", marginBottom: 10 }}>Added {fmtDate(c.createdAt)}</div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button onClick={() => setViewClient(c)} title="View details" style={iconBtnStyle}><InfoIcon /></button>
+                  <button onClick={() => setEditClient(c)} title="Edit client" style={iconBtnStyle}><EditIcon /></button>
+                  {c.status === "Follow-up" ? (
+                    <button onClick={() => handleClose(c._id)} disabled={closingId === c._id} title="Mark done" style={{ ...iconBtnStyle, border: "1px solid rgba(34,197,94,0.35)", color: "#22c55e", opacity: closingId === c._id ? 0.5 : 1 }}><CheckIcon /></button>
+                  ) : c.status === "New" ? (
+                    <button onClick={() => setFollowUpClient(c)} title="Mark for follow-up" style={iconBtnStyle}><ClockIcon /></button>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12, fontSize: 12, color: "var(--muted)", marginTop: 4 }}>
+              <span>Showing {pageItems.length === 0 ? 0 : (safePage - 1) * PAGE_SIZE + 1}–{(safePage - 1) * PAGE_SIZE + pageItems.length} of {filtered.length} clients</span>
+              {pageCount > 1 && <Pagination page={safePage} pageCount={pageCount} onPageChange={setPage} />}
+            </div>
+          </>
+        )}
+      </div>
+
       {showAddModal && <AddClientModal onClose={() => setShowAddModal(false)} onAdd={handleAdd} />}
       {editClient && <EditClientModal client={editClient} onClose={() => setEditClient(null)} onSave={handleEdit} />}
+      <DetailPanel
+        open={!!viewClient}
+        onClose={() => setViewClient(null)}
+        title={viewClient?.businessName ?? ""}
+        subtitle={viewClient && `Added ${fmtDateTimeFull(viewClient.createdAt)}`}
+        fields={viewClient ? [
+          { label: "Phone", value: viewClient.phone },
+          { label: "Priority", value: <PriorityBadge priority={viewClient.priority} /> },
+          { label: "Status", value: <StatusBadge client={viewClient} /> },
+          { label: "Note", value: viewClient.note, fullWidth: true },
+        ] : []}
+      />
       {followUpClient && (
         <FollowUpDateModal
           businessName={followUpClient.businessName}

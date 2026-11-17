@@ -4,6 +4,7 @@ import { getMyLeads, getMyLeadDetail, logCall } from "../controllers/salesLead.c
 import { getMyDashboard } from "../controllers/salesDashboard.controller.js";
 import { createClient, getMyClients, updateClient, markFollowUp, closeClient } from "../controllers/salesClient.controller.js";
 import { upsertMyReport, getMyReports } from "../controllers/salesReport.controller.js";
+import { logCallEntry, getMyCallEntries } from "../controllers/salesCall.controller.js";
 import { authenticateSales } from "../middlewares/authenticateSales.js";
 
 const router = Router();
@@ -22,5 +23,7 @@ router.patch("/clients/:id/follow-up", authenticateSales, markFollowUp);
 router.patch("/clients/:id/close", authenticateSales, closeClient);
 router.post("/reports", authenticateSales, upsertMyReport);
 router.get("/reports", authenticateSales, getMyReports);
+router.post("/calls", authenticateSales, logCallEntry);
+router.get("/calls", authenticateSales, getMyCallEntries);
 
 export default router;

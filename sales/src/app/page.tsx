@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
-import { useClientsStore, ClientPriority } from "@/stores/useClientsStore";
-import { useReportsStore } from "@/stores/useReportsStore";
+import { useClientsStore, Client, ClientPriority } from "@/stores/useClientsStore";
+import { useReportsStore, DailyReport } from "@/stores/useReportsStore";
+import { useCallsStore } from "@/stores/useCallsStore";
+import DetailPanel from "@/components/DetailPanel";
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
@@ -41,6 +43,27 @@ const CheckIcon = () => (
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
+const InfoIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square">
+    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+  </svg>
+);
+
+const infoBtnStyle: React.CSSProperties = {
+  width: 28, height: 28, border: "1px solid var(--border)",
+  background: "transparent", color: "var(--muted)",
+  cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+  borderRadius: 0, transition: "all 0.15s",
+};
+function InfoButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button onClick={onClick} title="View details" style={infoBtnStyle}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "var(--surface2)"; (e.currentTarget as HTMLButtonElement).style.color = "var(--fg)"; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "transparent"; (e.currentTarget as HTMLButtonElement).style.color = "var(--muted)"; }}>
+      <InfoIcon />
+    </button>
+  );
+}
 
 const PRIORITY_STYLES: Record<ClientPriority, { bg: string; color: string }> = {
   Low: { bg: "rgba(100,116,139,0.15)", color: "#64748b" },
@@ -93,11 +116,15 @@ function TableCard({ title, viewAllHref, children }: { title: string; viewAllHre
 export default function DashboardPage() {
   const { clients, loading: clientsLoading, fetch: fetchClients } = useClientsStore();
   const { reports, loading: reportsLoading, fetch: fetchReports } = useReportsStore();
+  const { calls, fetch: fetchCalls } = useCallsStore();
   const [today, setToday] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [viewReport, setViewReport] = useState<DailyReport | null>(null);
+  const [viewClient, setViewClient] = useState<Client | null>(null);
+  const [viewFollowUp, setViewFollowUp] = useState<Client | null>(null);
 
-  useEffect(() => { fetchClients(); fetchReports(); }, [fetchClients, fetchReports]);
+  useEffect(() => { fetchClients(); fetchReports(); fetchCalls(); }, [fetchClients, fetchReports, fetchCalls]);
   useEffect(() => {
     const t = todayISO();
     setToday(t);
@@ -129,8 +156,11 @@ export default function DashboardPage() {
 
   const callsMade = useMemo(() => {
     if (!from || !to) return 0;
-    return reports.filter((r) => r.date >= from && r.date <= to).reduce((sum, r) => sum + r.callsMade, 0);
-  }, [reports, from, to]);
+    return calls.filter((c) => {
+      const d = c.createdAt.slice(0, 10);
+      return d >= from && d <= to;
+    }).length;
+  }, [calls, from, to]);
 
   const recentReports = useMemo(() => reports.slice(0, 5), [reports]);
   const recentClients = useMemo(() => clients.slice(0, 5), [clients]);
@@ -186,16 +216,17 @@ export default function DashboardPage() {
 
       <TableCard title="Recent Daily Reports" viewAllHref="/reports">
         <table style={tableStyle}>
-          <thead><tr><th style={thStyle}>Date</th><th style={thStyle}>Calls Made</th><th style={thStyle}>Interested</th><th style={thStyle}>Notes</th></tr></thead>
+          <thead><tr><th style={thStyle}>Date</th><th style={thStyle}>Calls Made</th><th style={thStyle}>Interested</th><th style={thStyle}>Notes</th><th style={{ ...thStyle, textAlign: "center" }}></th></tr></thead>
           <tbody>
             {recentReports.length === 0 ? (
-              <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{reportsLoading ? "Loading..." : "No reports submitted yet"}</td></tr>
+              <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{reportsLoading ? "Loading..." : "No reports submitted yet"}</td></tr>
             ) : recentReports.map((r) => (
               <tr key={r._id}>
                 <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{fmtDate(r.date)}</td>
                 <td style={tdStyle}>{r.callsMade}</td>
                 <td style={tdStyle}>{r.interestedCount}</td>
-                <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 280 }}>{r.notes || "—"}</td>
+                <td style={{ ...tdStyle, color: "var(--muted)", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.notes || "—"}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}><InfoButton onClick={() => setViewReport(r)} /></td>
               </tr>
             ))}
           </tbody>
@@ -204,10 +235,10 @@ export default function DashboardPage() {
 
       <TableCard title="Recent Clients" viewAllHref="/clients">
         <table style={tableStyle}>
-          <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Phone</th><th style={thStyle}>Priority</th><th style={thStyle}>Status</th><th style={thStyle}>Added</th></tr></thead>
+          <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Phone</th><th style={thStyle}>Priority</th><th style={thStyle}>Status</th><th style={thStyle}>Added</th><th style={{ ...thStyle, textAlign: "center" }}></th></tr></thead>
           <tbody>
             {recentClients.length === 0 ? (
-              <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{clientsLoading ? "Loading..." : "No clients added yet"}</td></tr>
+              <tr><td colSpan={6} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{clientsLoading ? "Loading..." : "No clients added yet"}</td></tr>
             ) : recentClients.map((c) => (
               <tr key={c._id}>
                 <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.businessName}</td>
@@ -215,6 +246,7 @@ export default function DashboardPage() {
                 <td style={tdStyle}><PriorityBadge priority={c.priority} /></td>
                 <td style={tdStyle}><StatusBadge status={c.status} /></td>
                 <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{fmtDate(c.createdAt)}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}><InfoButton onClick={() => setViewClient(c)} /></td>
               </tr>
             ))}
           </tbody>
@@ -223,21 +255,58 @@ export default function DashboardPage() {
 
       <TableCard title="Upcoming Follow-ups" viewAllHref="/follow-ups">
         <table style={tableStyle}>
-          <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Phone</th><th style={thStyle}>Priority</th><th style={thStyle}>Due Date &amp; Time</th></tr></thead>
+          <thead><tr><th style={thStyle}>Business Name</th><th style={thStyle}>Phone</th><th style={thStyle}>Priority</th><th style={thStyle}>Due Date &amp; Time</th><th style={{ ...thStyle, textAlign: "center" }}></th></tr></thead>
           <tbody>
             {upcomingFollowUps.length === 0 ? (
-              <tr><td colSpan={4} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{clientsLoading ? "Loading..." : "No follow-ups scheduled"}</td></tr>
+              <tr><td colSpan={5} style={{ ...tdStyle, textAlign: "center", color: "var(--muted)", padding: 28 }}>{clientsLoading ? "Loading..." : "No follow-ups scheduled"}</td></tr>
             ) : upcomingFollowUps.map((c) => (
               <tr key={c._id}>
                 <td style={{ ...tdStyle, fontWeight: 500, whiteSpace: "nowrap" }}>{c.businessName}</td>
                 <td style={{ ...tdStyle, color: "var(--muted)", whiteSpace: "nowrap" }}>{c.phone}</td>
                 <td style={tdStyle}><PriorityBadge priority={c.priority} /></td>
                 <td style={{ ...tdStyle, whiteSpace: "nowrap" }}>{fmtDateTimeFull(c.followUpDate!)}</td>
+                <td style={{ ...tdStyle, textAlign: "center" }}><InfoButton onClick={() => setViewFollowUp(c)} /></td>
               </tr>
             ))}
           </tbody>
         </table>
       </TableCard>
+
+      <DetailPanel
+        open={!!viewReport}
+        onClose={() => setViewReport(null)}
+        title={viewReport ? fmtDate(viewReport.date) : ""}
+        fields={viewReport ? [
+          { label: "Calls Made", value: viewReport.callsMade },
+          { label: "Interested", value: viewReport.interestedCount },
+          { label: "Notes", value: viewReport.notes, fullWidth: true },
+        ] : []}
+      />
+      <DetailPanel
+        open={!!viewClient}
+        onClose={() => setViewClient(null)}
+        title={viewClient?.businessName ?? ""}
+        subtitle={viewClient && `Added ${fmtDateTimeFull(viewClient.createdAt)}`}
+        fields={viewClient ? [
+          { label: "Phone", value: viewClient.phone },
+          { label: "Priority", value: <PriorityBadge priority={viewClient.priority} /> },
+          { label: "Status", value: <StatusBadge status={viewClient.status} /> },
+          ...(viewClient.status === "Follow-up" && viewClient.followUpDate ? [{ label: "Follow-up On", value: fmtDateTimeFull(viewClient.followUpDate) }] : []),
+          ...(viewClient.status === "Closed" && viewClient.closedAt ? [{ label: "Closed On", value: fmtDateTimeFull(viewClient.closedAt) }] : []),
+          { label: "Note", value: viewClient.note, fullWidth: true },
+        ] : []}
+      />
+      <DetailPanel
+        open={!!viewFollowUp}
+        onClose={() => setViewFollowUp(null)}
+        title={viewFollowUp?.businessName ?? ""}
+        subtitle={viewFollowUp?.followUpDate ? `Due ${fmtDateTimeFull(viewFollowUp.followUpDate)}` : ""}
+        fields={viewFollowUp ? [
+          { label: "Phone", value: viewFollowUp.phone },
+          { label: "Priority", value: <PriorityBadge priority={viewFollowUp.priority} /> },
+          { label: "Note", value: viewFollowUp.note, fullWidth: true },
+        ] : []}
+      />
     </main>
   );
 }
