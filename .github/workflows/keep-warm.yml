@@ -1,0 +1,15 @@
+name: Keep backend warm
+
+on:
+  schedule:
+    # Runs every 5 minutes (GitHub's minimum practical interval for
+    # scheduled workflows — actual timing may drift a little under load).
+    - cron: "*/5 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health endpoint
+        run: curl -fsS --max-time 15 https://api.brandedgecreations.pk/api/health

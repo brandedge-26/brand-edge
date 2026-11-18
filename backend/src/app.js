@@ -1,5 +1,4 @@
 import express from 'express';
-import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { globalErrorHandler } from './middlewares/errorHandler.js';
@@ -64,16 +63,22 @@ app.use((req, res, next) => {
     next();
 });
 
-// Fail fast (instead of hanging ~10s and timing out) when MongoDB is
-// disconnected, so the real cause is obvious instead of a generic 500.
-app.use("/api", (req, res, next) => {
-    if (mongoose.connection.readyState === 0) {
-        return res.status(503).json({
+// Ensure MongoDB is connected before handling any /api request. On a
+// serverless "cold start" (Vercel) this awaits the fresh connection instead
+// of racing ahead of it; on a warm instance it resolves instantly. Only
+// fails (503) if the connection attempt itself genuinely fails/times out —
+// not just because a cold start hasn't finished connecting yet.
+app.use("/api", async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        console.error(`MongoDB not ready for request: ${err.message}`);
+        res.status(503).json({
             success: false,
             message: "Database temporarily unavailable — please try again in a moment.",
         });
     }
-    next();
 });
 
 
@@ -86,6 +91,14 @@ app.use("/api", (req, res, next) => {
 // Routes
 app.get('/', (req, res) => {
     res.send('Welcome to the Brand Edge API!');
+});
+
+// Lightweight keep-warm endpoint — pinging this periodically (see
+// .github/workflows/keep-warm.yml) keeps the Vercel function from going
+// cold and keeps the MongoDB connection alive, since it passes through the
+// same connectDB() middleware as every other /api route above.
+app.get('/api/health', (req, res) => {
+    res.json({ success: true, status: 'ok', time: new Date().toISOString() });
 });
 
 
