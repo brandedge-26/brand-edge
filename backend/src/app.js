@@ -45,7 +45,9 @@ app.use(cors({
             "https://brandedgecreations.pk",
             "https://www.brandedgecreations.pk",
             "https://admin.brandedgecreations.pk",
+            "https://www.admin.brandedgecreations.pk",
             "https://sales.brandedgecreations.pk",
+            "https://www.sales.brandedgecreations.pk",
         ];
         if (!origin || allowed.includes(origin)) return callback(null, true);
         return callback(new Error("Not allowed by CORS"));
