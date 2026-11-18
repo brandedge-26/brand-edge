@@ -54,9 +54,9 @@ export default function PipelinePage() {
 
   useEffect(() => { fetch(); }, [fetch]);
   useEffect(() => {
-    const t = todayISO();
-    setToday(t);
-    setDate(t); // Pipeline defaults to today's Interested/Follow-up clients
+    setToday(todayISO());
+    // Pipeline shows all active clients by default — follow-ups are usually
+    // scheduled for a future date, so date-scoping to "today" would hide them.
   }, []);
 
   const pipeline = useMemo(() => clients.filter((c) => c.status === "New" || c.status === "Follow-up"), [clients]);
