@@ -1,4 +1,5 @@
 import express from 'express';
+import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { globalErrorHandler } from './middlewares/errorHandler.js';
@@ -60,6 +61,18 @@ app.use(cors({
 // No caching on API responses
 app.use((req, res, next) => {
     res.setHeader("Cache-Control", "no-store");
+    next();
+});
+
+// Fail fast (instead of hanging ~10s and timing out) when MongoDB is
+// disconnected, so the real cause is obvious instead of a generic 500.
+app.use("/api", (req, res, next) => {
+    if (mongoose.connection.readyState === 0) {
+        return res.status(503).json({
+            success: false,
+            message: "Database temporarily unavailable — please try again in a moment.",
+        });
+    }
     next();
 });
 
