@@ -20,7 +20,10 @@ export const getLeads = async (req, res, next) => {
         const pageNum = Math.max(1, parseInt(page, 10) || 1);
 
         const [leads, total] = await Promise.all([
-            Lead.find(filter).sort({ sent_date: -1 }).skip((pageNum - 1) * PAGE_SIZE).limit(PAGE_SIZE).lean(),
+            // Sort by _id (not sent_date) — it's always a valid, correctly-typed
+            // ObjectId that encodes insertion time, so newest-added leads reliably
+            // land first even if sent_date is ever missing or malformed.
+            Lead.find(filter).sort({ _id: -1 }).skip((pageNum - 1) * PAGE_SIZE).limit(PAGE_SIZE).lean(),
             Lead.countDocuments(filter),
         ]);
 
