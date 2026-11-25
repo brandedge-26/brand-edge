@@ -12,6 +12,7 @@ import dashboardRoutes from './routes/dashboard.routes.js';
 import notificationRoutes from './routes/notification.routes.js';
 import salesRepRoutes from './routes/salesRep.routes.js';
 import salesRoutes from './routes/sales.routes.js';
+import leadRoutes from './routes/lead.routes.js';
 
 connectDB().catch((err) => console.error(`MongoDB connection error: ${err.message}`));
 
@@ -42,12 +43,15 @@ app.use(cors({
             "http://localhost:3000",
             "http://localhost:3001",
             "http://localhost:3002",
+            "http://localhost:3003",
             "https://brandedgecreations.pk",
             "https://www.brandedgecreations.pk",
             "https://admin.brandedgecreations.pk",
             "https://www.admin.brandedgecreations.pk",
             "https://sales.brandedgecreations.pk",
             "https://www.sales.brandedgecreations.pk",
+            "https://leads.brandedgecreations.pk",
+            "https://www.leads.brandedgecreations.pk",
         ];
         if (!origin || allowed.includes(origin)) return callback(null, true);
         return callback(new Error("Not allowed by CORS"));
@@ -112,6 +116,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/sales-reps', salesRepRoutes);
 app.use('/api/sales', salesRoutes);
+app.use('/api/leads', leadRoutes);
 
 
 

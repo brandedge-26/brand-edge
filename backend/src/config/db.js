@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import { ENV } from "./envs.js";
+import { Lead } from "../models/Lead.js";
+import { Message } from "../models/Message.js";
 
 // On serverless (Vercel), queries should never silently "buffer" waiting for
 // a connection — we explicitly await the connection ourselves (see app.js),
@@ -43,10 +45,16 @@ export const connectDB = () => {
         if (!DB_URL) {
             return Promise.reject(new Error("DB_URL environment variable is missing!"));
         }
-        connectionPromise = mongoose.connect(DB_URL, connectionOptions).catch((err) => {
-            connectionPromise = null; // let the next request try again
-            throw err;
-        });
+        // mongoose's background autoIndex can lose the race against a
+        // serverless function freezing right after it responds — await
+        // index creation explicitly so it's guaranteed done before any
+        // query relying on it ever runs.
+        connectionPromise = mongoose.connect(DB_URL, connectionOptions)
+            .then(() => Promise.all([Lead.init(), Message.init()]))
+            .catch((err) => {
+                connectionPromise = null; // let the next request try again
+                throw err;
+            });
     }
 
     return connectionPromise;
